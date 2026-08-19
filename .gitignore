@@ -1,0 +1,9 @@
+# Generated snapshot data — personal. Never distribute (ticket 007 amendment).
+data/*.json
+
+# Built pages inline the whole snapshot, so they carry the same personal data.
+# Templates are the source; run the build to produce these.
+ui-*.html
+!ui-*.template.html
+
+.DS_Store

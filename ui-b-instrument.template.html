@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Library Instrument</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground: #f2f4f6;
+    --panel: #ffffff;
+    --inset: #e7eaee;
+    --ink: #12171c;
+    --ink-2: #56626d;
+    --ink-3: #8794a0;
+    --rule: #d6dce2;
+    --rule-hair: #e4e9ee;
+    --signal: #1f6d8c;
+    --signal-wash: #dfeaef;
+    --live: #3f6b34;
+    --idle: #8a6414;
+    --cold: #a8452c;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    --cond: "IBM Plex Sans Condensed", "IBM Plex Sans", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    --rail: 216px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #101418;
+      --panel: #171c22;
+      --inset: #0c1013;
+      --ink: #dce3e8;
+      --ink-2: #8a97a2;
+      --ink-3: #626f7a;
+      --rule: #232b33;
+      --rule-hair: #1c2329;
+      --signal: #4fa8c7;
+      --signal-wash: #16262e;
+      --live: #7fa96b;
+      --idle: #d2a24c;
+      --cold: #c4664a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #101418; --panel: #171c22; --inset: #0c1013;
+    --ink: #dce3e8; --ink-2: #8a97a2; --ink-3: #626f7a;
+    --rule: #232b33; --rule-hair: #1c2329;
+    --signal: #4fa8c7; --signal-wash: #16262e;
+    --live: #7fa96b; --idle: #d2a24c; --cold: #c4664a;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink);
+         font: 400 13.5px/1.5 var(--sans); -webkit-font-smoothing: antialiased; }
+  :focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; border-radius: 2px; }
+  .cap { font-family: var(--cond); font-weight: 600; font-size: 10.5px; letter-spacing: 0.07em;
+         text-transform: uppercase; color: var(--ink-3); }
+  .fig { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  /* ---------------------------------------------------------- top strip */
+  .strip { border-bottom: 1px solid var(--rule); background: var(--panel);
+           padding: 16px 26px 14px; display: flex; gap: 30px; align-items: flex-end; flex-wrap: wrap; }
+  .strip h1 { margin: 0; font: 600 24px/1.15 var(--sans); letter-spacing: -0.015em; text-wrap: balance; }
+  .strip h1 + p { margin: 4px 0 0; color: var(--ink-2); font-size: 12.5px; max-width: 58ch; }
+  .vitals { flex: 1 1 340px; min-width: 280px; }
+  .vitals .bar { display: flex; height: 9px; border-radius: 2px; overflow: hidden;
+                 background: var(--inset); margin: 7px 0 6px; }
+  .vitals .bar i { display: block; }
+  .vitals .bar i.live { background: var(--live); }
+  .vitals .bar i.cold { background: var(--cold); }
+  .vitals .bar i.dark { background: var(--ink-3); opacity: 0.45; }
+  .vitals .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 11.5px; color: var(--ink-2); }
+  .vitals .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .vitals .legend em { width: 8px; height: 8px; border-radius: 1px; font-style: normal; }
+  .vitals .legend b { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--ink); font-weight: 500; }
+  .clock { text-align: right; font-size: 11.5px; color: var(--ink-3); line-height: 1.7; white-space: nowrap; }
+  .clock b { font-family: var(--mono); color: var(--ink-2); font-weight: 500; }
+
+  /* ---------------------------------------------------------- rail */
+  .rail { position: fixed; inset: auto auto 0 0; top: 0; width: var(--rail); overflow-y: auto;
+          border-right: 1px solid var(--rule); background: var(--panel);
+          padding: 18px 0 24px; z-index: 30; scrollbar-width: thin; }
+  .gauge { padding: 0 18px 20px; }
+  .gauge > .cap { display: block; margin-bottom: 9px; }
+  .gauge .line { display: flex; justify-content: space-between; gap: 10px; align-items: baseline;
+                 font-size: 12.5px; color: var(--ink-2); padding: 2px 0; }
+  .gauge .line b { font-family: var(--mono); font-variant-numeric: tabular-nums;
+                   color: var(--ink); font-weight: 500; font-size: 12px; }
+  .gauge .meter { height: 3px; background: var(--inset); border-radius: 2px; margin: 3px 0 8px; }
+  .gauge .meter i { display: block; height: 100%; background: var(--signal); border-radius: 2px; }
+  .gauge button {
+    all: unset; cursor: pointer; display: flex; justify-content: space-between; gap: 8px;
+    width: 100%; font-family: var(--cond); font-weight: 500; font-size: 13px; color: var(--ink-2);
+    padding: 4px 7px; border-radius: 3px; transition: background-color 140ms, color 140ms;
+  }
+  .gauge button:hover { color: var(--ink); background: var(--inset); }
+  .gauge button[aria-pressed="true"] { color: var(--ink); background: var(--inset);
+    box-shadow: inset 2px 0 0 var(--signal); }
+  .gauge button .n { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3);
+                     font-variant-numeric: tabular-nums; }
+  .caveat { margin: 4px 18px 0; padding-top: 14px; border-top: 1px solid var(--rule-hair);
+            font-size: 11.5px; line-height: 1.5; color: var(--ink-3); }
+
+  /* ---------------------------------------------------------- console */
+  .console { margin-left: var(--rail); }
+  .bank { position: sticky; top: 0; z-index: 20; background: var(--ground);
+          border-bottom: 1px solid var(--rule); padding: 10px 26px;
+          display: flex; align-items: center; gap: 9px 14px; flex-wrap: wrap; }
+  .probe { flex: 0 1 250px; position: relative; }
+  .probe input { width: 100%; font: 400 12.5px var(--mono); color: var(--ink);
+                 background: var(--inset); border: 1px solid var(--rule); border-radius: 3px;
+                 padding: 6px 9px 6px 24px; transition: border-color 150ms; }
+  .probe input::placeholder { color: var(--ink-3); font-family: var(--sans); }
+  .probe input:focus { outline: none; border-color: var(--signal); }
+  .probe svg { position: absolute; left: 7px; top: 50%; transform: translateY(-50%);
+               width: 12px; height: 12px; color: var(--ink-3); }
+  .toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 12px;
+            color: var(--ink-2); cursor: pointer; }
+  .toggle input { accent-color: var(--signal); margin: 0; }
+  .knob { display: inline-flex; align-items: center; gap: 6px; }
+  select { font: 500 12px var(--cond); color: var(--ink); background: var(--inset);
+           border: 1px solid var(--rule); border-radius: 3px; padding: 5px 7px; cursor: pointer; }
+  select:disabled { color: var(--ink-3); cursor: not-allowed; }
+  .knob.dead { opacity: 0.5; }
+  .fill { flex: 1 1 auto; }
+  .read { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3);
+          font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .layout { display: inline-flex; background: var(--inset); border: 1px solid var(--rule);
+            border-radius: 3px; padding: 2px; gap: 2px; }
+  .layout button { all: unset; cursor: pointer; font: 500 11px var(--cond); text-transform: uppercase;
+                   letter-spacing: 0.07em; color: var(--ink-3); padding: 4px 10px; border-radius: 2px;
+                   transition: color 140ms, background-color 140ms; }
+  .layout button:hover { color: var(--ink); }
+  .layout button[aria-pressed="true"] { background: var(--panel); color: var(--ink); }
+
+  /* ---------------------------------------------------------- readout table */
+  .grid { padding: 0 26px 90px; }
+  table { border-collapse: collapse; width: 100%; }
+  thead th { position: sticky; top: 43px; z-index: 10; background: var(--ground);
+             font-family: var(--cond); font-weight: 600; font-size: 10.5px; letter-spacing: 0.07em;
+             text-transform: uppercase; color: var(--ink-3); text-align: left;
+             padding: 10px 10px 7px; border-bottom: 1px solid var(--rule);
+             cursor: pointer; white-space: nowrap; user-select: none; }
+  thead th:hover { color: var(--ink-2); }
+  thead th[aria-sort] { color: var(--ink); }
+  th.r, td.r { text-align: right; }
+  tbody tr.line { cursor: pointer; }
+  tbody tr.line > td { height: 29px; padding: 0 10px; border-bottom: 1px solid var(--rule-hair);
+                       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  tbody tr.line:hover > td { background: var(--panel); }
+  tbody tr.line.live > td { background: var(--panel); border-bottom-color: transparent; }
+  td.id { font-family: var(--mono); font-size: 12.5px; max-width: 250px; }
+  td.txt { color: var(--ink-2); max-width: 1px; width: 40%; font-size: 12.5px; }
+  td.fig { font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+  .lamp { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 7px;
+          vertical-align: 1px; }
+  .lamp.used { background: var(--live); } .lamp.never_used { background: var(--cold); }
+  .lamp.no_data { background: var(--ink-3); opacity: 0.45; }
+  .flag { font-family: var(--cond); font-weight: 500; font-size: 10.5px; letter-spacing: 0.05em;
+          text-transform: uppercase; padding: 1px 5px; border-radius: 2px; margin-left: 7px;
+          border: 1px solid var(--rule); color: var(--ink-2); }
+  .flag.sig { color: var(--signal); border-color: var(--signal); background: var(--signal-wash); }
+  .flag.warn { color: var(--cold); border-color: var(--cold); }
+
+  /* the evidence bar encodes which channel the count actually came from */
+  .chan { display: inline-flex; width: 72px; height: 6px; border-radius: 1px; overflow: hidden;
+          background: var(--inset); vertical-align: 0; }
+  .chan i { display: block; }
+  .chan i.a { background: var(--signal); }
+  .chan i.b { background: var(--idle); }
+  .chan i.c { background: var(--live); }
+
+  tr.panel > td { padding: 0; background: var(--panel); border-bottom: 1px solid var(--rule); }
+  .panel-in { padding: 6px 10px 22px; display: grid; gap: 18px 34px;
+              grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+              animation: slide 190ms cubic-bezier(.16,.84,.28,1); }
+  @keyframes slide { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .panel-in { animation: none; } }
+  .panel-in p.say { grid-column: 1 / -1; margin: 4px 0 0; max-width: 70ch; font-size: 13.5px; }
+  .panel-in dl { margin: 0; display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 6px 14px; font-size: 12.5px; }
+  .panel-in dt { font-family: var(--cond); font-weight: 600; font-size: 10.5px; letter-spacing: 0.06em;
+                 text-transform: uppercase; color: var(--ink-3); padding-top: 2px; }
+  .panel-in dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+  .wire { display: flex; flex-wrap: wrap; gap: 4px; }
+  .wire span { font-family: var(--mono); font-size: 11.5px; padding: 1px 6px; border-radius: 2px;
+               border: 1px solid var(--rule); color: var(--ink-2); }
+  .loc { font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); user-select: all; }
+
+  /* ---------------------------------------------------------- panels mode */
+  .bays { padding: 18px 26px 90px; display: grid; gap: 12px;
+          grid-template-columns: repeat(auto-fill, minmax(272px, 1fr)); }
+  .bay { background: var(--panel); border: 1px solid var(--rule); border-radius: 4px;
+         padding: 13px 14px 11px; cursor: pointer; display: flex; flex-direction: column; gap: 8px;
+         min-height: 150px; transition: border-color 150ms; }
+  .bay:hover { border-color: var(--signal); }
+  .bay .hdr { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .bay .hdr .nm { font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; }
+  .bay .hdr .ag { font-family: var(--mono); font-size: 11.5px; color: var(--ink-2);
+                  font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .bay .say { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--ink-2);
+              overflow: hidden; display: -webkit-box; -webkit-line-clamp: 4; line-clamp: 4;
+              -webkit-box-orient: vertical; }
+  .bay .btm { margin-top: auto; display: flex; align-items: center; gap: 8px; }
+  .bay .btm .ct { margin-left: auto; font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
+
+  .void { padding: 70px 26px; max-width: 48ch; }
+  .void h2 { margin: 0 0 8px; font: 600 17px var(--sans); letter-spacing: -0.01em; }
+  .void p { margin: 0 0 16px; color: var(--ink-2); font-size: 13px; }
+  .void button { all: unset; cursor: pointer; font: 500 11px var(--cond); text-transform: uppercase;
+                 letter-spacing: 0.07em; color: var(--signal); border: 1px solid var(--signal);
+                 border-radius: 3px; padding: 6px 12px; }
+
+  @media (max-width: 900px) {
+    :root { --rail: 0px; }
+    .rail { position: static; width: auto; border-right: 0; border-bottom: 1px solid var(--rule);
+            display: flex; flex-wrap: wrap; gap: 10px; padding: 14px 20px; }
+    .gauge { padding: 0 10px 8px; flex: 1 1 180px; }
+    .console { margin-left: 0; }
+    .strip, .bank, .grid, .bays, .void { padding-left: 20px; padding-right: 20px; }
+    td.txt { display: none; }
+  }
+</style>
+</head>
+<body>
+<aside class="rail" id="rail" aria-label="Instrument readings"></aside>
+<div class="console" id="console"></div>
+
+<script id="snapshot" type="application/json">__SNAPSHOT_JSON__</script>
+<script>
+const SNAP = JSON.parse(document.getElementById('snapshot').textContent);
+const ALL = SNAP.entries;
+const qp = new URLSearchParams(location.search);
+
+const F = {
+  mode: qp.get('mode') === 'panels' ? 'panels' : 'table',
+  q: '', wide: true, source: 'global', usage: 'all', role: 'all',
+  sort: 'age', dir: 'desc', open: null,
+};
+
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const state = e => e.usage.state;
+const WORD = { used: 'used', never_used: 'never used', no_data: 'no data' };
+const age = e => e.usage.days_since_last_use;
+const isLeaf = e => e.reached_via.length && !e.delegates_to.length;
+const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+const ORIGIN = e => e.plugin ? e.plugin.split('@')[0] : e.source === 'global' ? 'yours' : e.source;
+
+function ageCell(e) {
+  const d = age(e);
+  if (d == null) return `<span style="color:var(--ink-3)">—</span>`;
+  return d === 0 ? 'today' : d + 'd';
+}
+
+// Which channel the evidence came from, at a glance. Not decoration: a skill whose count is
+// entirely hook injection has never been chosen by anyone.
+function channels(e) {
+  const u = e.usage, t = u.tool_calls + u.injections + u.slash_commands;
+  if (!t) return `<span class="chan" title="no evidence"></span>`;
+  const pct = n => (n / t * 100).toFixed(1) + '%';
+  return `<span class="chan" title="tool calls ${u.tool_calls}, hook injections ${u.injections}, typed commands ${u.slash_commands}">
+    <i class="a" style="width:${pct(u.tool_calls)}"></i>
+    <i class="b" style="width:${pct(u.injections)}"></i>
+    <i class="c" style="width:${pct(u.slash_commands)}"></i></span>`;
+}
+
+function pool() {
+  const q = F.q.trim().toLowerCase();
+  return ALL.filter(e => {
+    if (F.source !== 'all' && e.source !== F.source) return false;
+    if (F.usage !== 'all' && state(e) !== F.usage) return false;
+    if (F.role === 'orchestrator' && !e.orchestration_verdict) return false;
+    if (F.role === 'leaf' && !isLeaf(e)) return false;
+    if (!q) return true;
+    return e.id.toLowerCase().includes(q) ||
+           (F.wide && (e.description || '').toLowerCase().includes(q));
+  });
+}
+
+const KEY = {
+  id: e => e.id.toLowerCase(), txt: e => (e.description || '').toLowerCase(), age: e => age(e),
+  uses: e => e.usage.total_count, calls: e => e.orchestration_degree || null,
+  origin: e => ORIGIN(e).toLowerCase(), size: e => e.body_lines,
+};
+function ordered(rows) {
+  const get = KEY[F.sort], sign = F.dir === 'asc' ? 1 : -1;
+  return rows.slice().sort((a, b) => {
+    const x = get(a), y = get(b);
+    if (x == null && y == null) return a.id.localeCompare(b.id);
+    if (x == null) return 1;                  // absence ranks last in both directions
+    if (y == null) return -1;
+    if (typeof x === 'string') return sign * x.localeCompare(y) || a.id.localeCompare(b.id);
+    return sign * (x - y) || a.id.localeCompare(b.id);
+  });
+}
+
+// ---------------------------------------------------------------- rail
+function rail() {
+  const c = SNAP.counts, u = SNAP.usage_sources;
+  const scope = ALL.filter(e => F.source === 'all' || e.source === F.source);
+  const src = [['global', 'Yours', c.global], ['plugin', 'Plugins', c.plugin],
+               ['repo', 'Repo', c.repo], ['all', 'Everything', c.entries]];
+  const roles = [['all', 'Any role', scope.length],
+                 ['orchestrator', 'Orchestrators', scope.filter(e => e.orchestration_verdict).length],
+                 ['leaf', 'Reached only via', scope.filter(isLeaf).length]];
+  const chan = ['tool_calls', 'injections', 'slash_commands'].map(k =>
+    [k, ALL.reduce((s, e) => s + e.usage[k], 0)]);
+  const chanMax = Math.max(...chan.map(x => x[1]));
+  const CHAN_LABEL = { tool_calls: 'Called as a tool', injections: 'Injected by a hook',
+                       slash_commands: 'Typed as a command' };
+  const origins = Object.entries(scope.reduce((m, e) => {
+    const k = ORIGIN(e); m[k] = (m[k] || 0) + 1; return m;
+  }, {})).sort((a, b) => b[1] - a[1]).slice(0, 7);
+
+  return `<div class="gauge"><span class="cap">Scope</span>
+      ${src.map(([v, l, n]) => `<button data-source="${v}" aria-pressed="${F.source === v}">
+        <span>${l}</span><span class="n">${n}</span></button>`).join('')}</div>
+    <div class="gauge"><span class="cap">Role</span>
+      ${roles.map(([v, l, n]) => `<button data-role="${v}" aria-pressed="${F.role === v}">
+        <span>${l}</span><span class="n">${n}</span></button>`).join('')}</div>
+    <div class="gauge"><span class="cap">Evidence channels</span>
+      ${chan.map(([k, n]) => `<div class="line"><span>${CHAN_LABEL[k]}</span><b>${n.toLocaleString()}</b></div>
+        <div class="meter"><i style="width:${(n / chanMax * 100).toFixed(1)}%"></i></div>`).join('')}</div>
+    <div class="gauge"><span class="cap">Origins in scope</span>
+      ${origins.map(([k, n]) => `<div class="line"><span>${esc(k)}</span><b>${n}</b></div>`).join('')}</div>
+    <p class="caveat">Two channels leave no trace at all: subagent bootstrap injection and
+      per-session skill state. Real use exists that this instrument cannot read.</p>`;
+}
+
+// ---------------------------------------------------------------- strip
+function strip() {
+  const c = SNAP.counts, u = SNAP.usage_sources;
+  const d = Math.max(0, Math.round((Date.now() - Date.parse(SNAP.snapshot_generated_at)) / 864e5));
+  const tot = { used: 0, never_used: 0, no_data: 0 };
+  ALL.forEach(e => tot[state(e)]++);
+  const w = k => (tot[k] / ALL.length * 100).toFixed(2) + '%';
+  return `<div class="strip">
+    <div><h1>Library instrument</h1>
+      <p>Read-only telemetry over ${c.entries} installed skills. It reports; it never edits a file.</p></div>
+    <div class="vitals">
+      <span class="cap">Usage across the whole library</span>
+      <div class="bar" role="img" aria-label="${tot.used} used, ${tot.never_used} never used, ${tot.no_data} no data">
+        <i class="live" style="width:${w('used')}"></i>
+        <i class="cold" style="width:${w('never_used')}"></i>
+        <i class="dark" style="width:${w('no_data')}"></i></div>
+      <div class="legend">
+        <span><em style="background:var(--live)"></em>Used <b>${tot.used}</b></span>
+        <span><em style="background:var(--cold)"></em>Never used <b>${tot.never_used}</b></span>
+        <span><em style="background:var(--ink-3);opacity:.45"></em>No data <b>${tot.no_data}</b></span>
+      </div>
+    </div>
+    <div class="clock">
+      <div>Scanned ${d === 0 ? 'today' : plural(d, 'day') + ' ago'}</div>
+      <div><b>${u.history.record_count.toLocaleString()}</b> command records since ${(u.history.window_start || '').slice(0, 7)}</div>
+      <div><b>${u.transcripts.file_count}</b> transcripts, <b>${u.transcripts.retention_days}</b>d retention</div>
+    </div>
+  </div>`;
+}
+
+function bank(n) {
+  const opt = (v, l, cur) => `<option value="${v}"${cur === v ? ' selected' : ''}>${l}</option>`;
+  return `<div class="bank">
+    <div class="probe">
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <circle cx="6" cy="6" r="4"/><path d="M9 9l4 4"/></svg>
+      <input id="q" type="search" value="${esc(F.q)}" autocomplete="off"
+        placeholder="Filter ${F.wide ? 'ids and descriptions' : 'ids'}" aria-label="Filter skills">
+    </div>
+    <label class="toggle"><input type="checkbox" id="wide"${F.wide ? ' checked' : ''}>Descriptions</label>
+    <span class="knob"><span class="cap">State</span><select id="usage">
+      ${opt('all', 'Any', F.usage)}${opt('used', 'Used', F.usage)}${opt('never_used', 'Never used', F.usage)}${opt('no_data', 'No data', F.usage)}
+    </select></span>
+    <span class="knob dead" title="The category pass has not run"><span class="cap">Domain</span>
+      <select disabled><option>Unassigned</option></select></span>
+    <span class="fill"></span>
+    <span class="read">${n === ALL.length ? n + ' rows' : n + ' / ' + ALL.length}</span>
+    <div class="layout" role="group" aria-label="Layout">
+      <button data-mode="table" aria-pressed="${F.mode === 'table'}">Readout</button>
+      <button data-mode="panels" aria-pressed="${F.mode === 'panels'}">Bays</button>
+    </div>
+  </div>`;
+}
+
+// ---------------------------------------------------------------- readout
+const COLS = [['id', 'Skill', ''], ['txt', 'Description', ''], ['age', 'Last', 'r'],
+              ['uses', 'Count', 'r'], [null, 'Channels', ''], ['calls', 'Calls', 'r'],
+              ['origin', 'Origin', ''], ['size', 'Lines', 'r']];
+
+function tableView(rows) {
+  const head = COLS.map(([k, l, cls]) => {
+    if (!k) return `<th class="${cls}" style="cursor:default">${l}</th>`;
+    const on = F.sort === k;
+    return `<th data-sort="${k}" class="${cls}"${on ? ` aria-sort="${F.dir === 'asc' ? 'ascending' : 'descending'}"` : ''}>${l}${on ? (F.dir === 'asc' ? ' ▲' : ' ▼') : ''}</th>`;
+  }).join('');
+  const body = rows.map(e => {
+    const on = F.open === e.id;
+    const flags = [
+      e.orchestration_verdict ? '<span class="flag sig">orch</span>' : '',
+      isLeaf(e) ? '<span class="flag warn">reached only via</span>' : '',
+    ].filter(Boolean).join('');
+    const row = `<tr class="line${on ? ' live' : ''}" data-id="${esc(e.id)}" tabindex="0"
+        role="button" aria-expanded="${on}">
+      <td class="id"><span class="lamp ${state(e)}" title="${WORD[state(e)]}"></span>${esc(e.id)}${flags}</td>
+      <td class="txt">${esc(e.description || '')}</td>
+      <td class="fig r">${ageCell(e)}</td>
+      <td class="fig r">${e.usage.total_count ?? '<span style="color:var(--ink-3)">—</span>'}</td>
+      <td>${channels(e)}</td>
+      <td class="fig r">${e.orchestration_degree || '<span style="color:var(--ink-3)">—</span>'}</td>
+      <td class="fig" style="font-family:var(--cond);font-size:12px">${esc(ORIGIN(e))}</td>
+      <td class="fig r">${e.body_lines}</td></tr>`;
+    return on ? row + panel(e) : row;
+  }).join('');
+  return `<div class="grid"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
+function panel(e) {
+  const u = e.usage;
+  const wire = list => list.length
+    ? `<span class="wire">${list.map(x => `<span>${esc(x)}</span>`).join('')}</span>`
+    : '<span style="color:var(--ink-3)">—</span>';
+  const chan = [['tool_calls', 'called as a tool'], ['injections', 'injected by a hook'],
+                ['slash_commands', 'typed as a command']].filter(([k]) => u[k])
+    .map(([k, l]) => `${l} ×${u[k]}`).join(' · ');
+  const notes = [
+    e.has_resources && 'bundles resources', !e.model_invocable && 'not model-invocable',
+    e.repo_differs && 'repo copy has drifted', e.parse_status !== 'ok' && 'frontmatter ' + e.parse_status,
+    e.is_symlink && 'symlinked',
+  ].filter(Boolean);
+
+  return `<tr class="panel"><td colspan="${COLS.length}"><div class="panel-in">
+    <p class="say">${esc(e.description || 'No description.')}</p>
+    <dl>
+      <dt>Invoke</dt><dd class="loc">/${esc(e.id)}</dd>
+      <dt>File</dt><dd class="loc">${esc(e.skill_file)}</dd>
+      <dt>Author</dt><dd>${esc(e.author)} <span style="color:var(--ink-3)">via ${esc(e.author_source)}</span></dd>
+      <dt>Version</dt><dd>${e.version ? esc(e.version) : '<span style="color:var(--ink-3)">unknown</span>'}${e.updated_at ? ', ' + esc(e.updated_at.slice(0, 10)) : ''}</dd>
+      ${e.upstream_url ? `<dt>Upstream</dt><dd class="loc">${esc(e.upstream_url)}</dd>` : ''}
+      <dt>Notes</dt><dd>${notes.length ? esc(notes.join(' · ')) : '<span style="color:var(--ink-3)">—</span>'}</dd>
+    </dl>
+    <dl>
+      <dt>State</dt><dd><span class="lamp ${state(e)}"></span>${WORD[state(e)]}${u.total_count != null ? `, ${plural(u.total_count, 'use')}` : ''}</dd>
+      <dt>Channels</dt><dd>${chan || `<span style="color:var(--ink-3)">nothing in ${u.coverage === 'full_history' ? '167 days of history' : 'the 30-day transcript window'}</span>`}</dd>
+      ${u.attribution === 'ambiguous' ? `<dt>Caveat</dt><dd>Count is shared with
+        ${wire(u.attribution_candidates.filter(c => c !== e.id))} — hook injections drop the plugin
+        prefix, so it cannot be split. Never sum these.</dd>` : ''}
+      <dt>Calls</dt><dd>${wire(e.delegates_to)}</dd>
+      <dt>Called by</dt><dd>${wire(e.reached_via)}</dd>
+      ${e.delegates_to_unresolved.length ? `<dt>Unresolved</dt><dd>${wire(e.delegates_to_unresolved)}</dd>` : ''}
+    </dl>
+  </div></td></tr>`;
+}
+
+// ---------------------------------------------------------------- bays
+function baysView(rows) {
+  return `<div class="bays">${rows.map(e => `<article class="bay" data-id="${esc(e.id)}"
+      tabindex="0" role="button" aria-label="${esc(e.id)}">
+    <div class="hdr"><span class="nm"><span class="lamp ${state(e)}"></span>${esc(e.name)}</span>
+      <span class="ag">${ageCell(e)}</span></div>
+    <p class="say">${esc(e.description || 'No description.')}</p>
+    <div class="btm">${channels(e)}
+      ${e.orchestration_verdict ? '<span class="flag sig">orch</span>' : ''}
+      ${isLeaf(e) ? '<span class="flag warn">reached only via</span>' : ''}
+      <span class="ct">${e.usage.total_count != null ? plural(e.usage.total_count, 'use') : 'no data'}</span>
+    </div></article>`).join('')}</div>`;
+}
+
+function void_() {
+  return `<div class="void"><h2>No rows match</h2>
+    <p>${F.q ? `Nothing mentions “${esc(F.q)}”` : 'Nothing matches those settings'}.
+      Descriptions carry the trigger text, so filtering them reads more than ids alone.</p>
+    <button id="reset">Reset filters</button></div>`;
+}
+
+// ---------------------------------------------------------------- render
+function render(focus) {
+  const rows = ordered(pool());
+  document.getElementById('rail').innerHTML = rail();
+  document.getElementById('console').innerHTML = strip() + bank(rows.length) +
+    (rows.length ? (F.mode === 'table' ? tableView(rows) : baysView(rows)) : void_());
+  wire();
+  if (focus) {
+    const el = document.getElementById(focus.id);
+    if (el) { el.focus(); if (focus.pos != null && el.setSelectionRange) el.setSelectionRange(focus.pos, focus.pos); }
+  }
+}
+
+function wire() {
+  const on = (id, ev, fn) => { const el = document.getElementById(id); if (el) el.addEventListener(ev, fn); };
+  on('q', 'input', e => { F.q = e.target.value; F.open = null; render({ id: 'q', pos: e.target.selectionStart }); });
+  on('wide', 'change', e => { F.wide = e.target.checked; render({ id: 'wide' }); });
+  on('usage', 'change', e => { F.usage = e.target.value; render({ id: 'usage' }); });
+  on('reset', 'click', () => { F.q = ''; F.usage = 'all'; F.role = 'all'; F.source = 'global'; render(); });
+
+  document.querySelectorAll('[data-source]').forEach(b => b.addEventListener('click', () => {
+    F.source = b.dataset.source; F.open = null; render();
+  }));
+  document.querySelectorAll('[data-role]').forEach(b => b.addEventListener('click', () => {
+    F.role = b.dataset.role; F.open = null; render();
+  }));
+  document.querySelectorAll('thead th[data-sort]').forEach(th => th.addEventListener('click', () => {
+    const k = th.dataset.sort;
+    if (F.sort === k) F.dir = F.dir === 'asc' ? 'desc' : 'asc';
+    else { F.sort = k; F.dir = ['id', 'txt', 'origin'].includes(k) ? 'asc' : 'desc'; }
+    render();
+  }));
+  document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => {
+    if (F.mode === b.dataset.mode) return;
+    F.mode = b.dataset.mode; F.open = null;
+    const p = new URLSearchParams(location.search); p.set('mode', F.mode);
+    history.replaceState(null, '', location.pathname + '?' + p);
+    render();
+  }));
+  document.querySelectorAll('[data-id]').forEach(el => {
+    const toggle = () => {
+      F.open = F.open === el.dataset.id ? null : el.dataset.id;
+      if (F.mode === 'panels' && F.open) F.mode = 'table';
+      render();
+    };
+    el.addEventListener('click', toggle);
+    el.addEventListener('keydown', ev => {
+      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); toggle(); }
+    });
+  });
+}
+
+addEventListener('keydown', e => {
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable;
+  if (e.key === '/' && !typing) { e.preventDefault(); document.getElementById('q').focus(); }
+  if (e.key === 'Escape') {
+    if (F.open) { F.open = null; render(); }
+    else if (F.q) { F.q = ''; render({ id: 'q' }); }
+  }
+});
+
+render();
+</script>
+</body>
+</html>

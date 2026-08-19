@@ -1,9 +1,12 @@
 # Generated snapshot data — personal. Never distribute (ticket 007 amendment).
 data/*.json
 
-# Built pages inline the whole snapshot, so they carry the same personal data.
-# Templates are the source; run the build to produce these.
-ui-*.html
-!ui-*.template.html
+# Hand-maintained, not regenerable: category corrections and the publish allowlist
+# (tickets 001, 005, 007). Must be tracked.
+!data/overrides.json
+
+# The built page inlines the whole snapshot, so it carries the same personal data.
+# index.template.html is the source; run the scan to produce it.
+index.html
 
 .DS_Store

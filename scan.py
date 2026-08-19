@@ -16,6 +16,7 @@ import glob
 import json
 import os
 import re
+import subprocess
 import sys
 
 try:
@@ -193,7 +194,14 @@ def plugin_records():
 
 
 def global_skill_files():
-    """Global root, one level, path-prefix exclusions (004 section 5)."""
+    """Global root, one level, path-prefix exclusions (004 section 5).
+
+    Absent root is not an error state: a teammate running this on a fresh machine has no
+    ~/.claude/skills yet, and gets an empty library rather than a traceback (007 amendment).
+    """
+    if not os.path.isdir(GLOBAL_ROOT):
+        err(GLOBAL_ROOT, "global_root", "absent, no personal skills scanned")
+        return []
     files = []
     for entry in sorted(os.listdir(GLOBAL_ROOT)):
         if entry.startswith(".") or entry.endswith("-workspace"):
@@ -313,13 +321,17 @@ def collect_entries():
                 entries.append(e)
 
     # Repo entries only where the name is absent from global. Global is authoritative (004).
-    known = {e["name"] for e in entries if e["source"] == "global"}
-    roots.append({"root": REPO_ROOT, "source": "repo", "rule": "*/SKILL.md, names absent from global only"})
-    for f in sorted(glob.glob(os.path.join(REPO_ROOT, "*", "SKILL.md"))):
-        if os.path.basename(os.path.dirname(f)) not in known:
-            e = build_entry(f, "repo")
-            if e:
-                entries.append(e)
+    # The repo root is Eli-specific and optional: it contributes 2 of 426 entries here and
+    # exists on no other machine, so it is skipped silently when absent (007 amendment).
+    if os.path.isdir(REPO_ROOT):
+        known = {e["name"] for e in entries if e["source"] == "global"}
+        roots.append({"root": REPO_ROOT, "source": "repo",
+                      "rule": "*/SKILL.md, names absent from global only"})
+        for f in sorted(glob.glob(os.path.join(REPO_ROOT, "*", "SKILL.md"))):
+            if os.path.basename(os.path.dirname(f)) not in known:
+                e = build_entry(f, "repo")
+                if e:
+                    entries.append(e)
 
     for p in plugins:
         p.pop("_skill_files", None)
@@ -332,7 +344,13 @@ FENCE = re.compile(r"```.*?```", re.DOTALL)
 FOOTER = re.compile(r"^#{1,6}\s*(Dependencies|Related skills?|See also|Next steps?)\b.*?"
                     r"(?=^#{1,6}\s|\Z)", re.DOTALL | re.MULTILINE | re.IGNORECASE)
 SECTION = re.compile(r"^#{1,6}\s*(.*)$", re.MULTILINE)
-SLASH_REF = re.compile(r"/([a-z][a-z0-9-]*(?::[a-z][a-z0-9-]*)?)\b")
+CODE_SPAN = re.compile(r"`[^`\n]*`")
+# 006 Q12: the old pattern had no left-context guard and no URL awareness, so any path
+# segment matched. `https://app.example.com/pricing` scored as a call to `pricing`, and
+# "(`/checkout`, `/signup`, `/login`)" as a call to `signup`. Eli's short generic names
+# (ads, image, schema, pricing, weekly, signup) collide with ordinary URL vocabulary, so
+# the noise landed almost entirely on plugin bodies naming his skills.
+SLASH_REF = re.compile(r"(?<![\w/.])/([a-z][a-z0-9-]*(?::[a-z][a-z0-9-]*)?)\b(?![/.])")
 SKILL_CALL = re.compile(r"Skill\(\s*(?:skill\s*=\s*)?[\"']?([a-z][a-z0-9:-]*)")
 BACKTICK = re.compile(r"`/?([a-z][a-z0-9:-]*)`")
 INVOKE_LINE = re.compile(r"\b(invoke|invoking|call|calls|calling|run|runs|running|sequence|sequences|delegate|delegates|hand off|hands off|dispatch|dispatches|step \d|phase \d)\b", re.IGNORECASE)
@@ -356,8 +374,16 @@ def refs_in(text, vocab, self_name):
     name counts only on a line carrying an invocation verb or a Step/Phase heading.
     """
     found = set()
-    for rx in (SLASH_REF, SKILL_CALL):
-        for token in rx.findall(text):
+    # Blank code spans that look like a path or URL before slash matching. A backtick span
+    # is the one place a bare `/name` is ambiguous: `/ux-flow` is an invocation, `/checkout`
+    # in a list of routes is not. Anything carrying a scheme, a second slash, or a dot is
+    # a path, not a skill name.
+    slashable = CODE_SPAN.sub(
+        lambda m: " " * len(m.group(0))
+        if ("://" in m.group(0) or m.group(0).count("/") > 1 or "." in m.group(0))
+        else m.group(0), text)
+    for rx, haystack in ((SLASH_REF, slashable), (SKILL_CALL, text)):
+        for token in rx.findall(haystack):
             bare = token.rpartition(":")[2]
             if token in vocab:
                 found.add(token)
@@ -550,13 +576,22 @@ def attach_usage(entries, store, generated_at, transcript_window, history_window
         by_name[e["name"]].append(e)
     now = parse_iso(generated_at)
 
+    # A defensible never_used needs history that reaches further back than the transcripts
+    # already do. On a machine where history.jsonl is absent, or young enough that it adds
+    # nothing beyond the 30-day transcript window, nothing is provably never used and every
+    # zero is no_data (002's three-state rule, generalised for other machines by 007).
+    history_is_deep = bool(history_window[0]) and (
+        transcript_window[0] is None or history_window[0] < transcript_window[0])
+    window_start = min([x for x in (transcript_window[0], history_window[0]) if x] or [None])
+
     for e in entries:
         rec = store.get(e["name"])
         candidates = by_name[e["name"]]
         # source == plugin means the only certain evidence channel is the 30-day transcript
         # window, so silence there proves nothing. ponytail: source is the only implementable
         # reading of 002's "a name a typed slash invocation would have recorded".
-        coverage = "transcripts_only" if e["source"] == "plugin" else "full_history"
+        coverage = ("full_history" if e["source"] != "plugin" and history_is_deep
+                    else "transcripts_only")
         counts = rec or blank_usage()
         total = counts["tool_calls"] + counts["injections"] + counts["slash_commands"]
         stamps = [counts[k] for k in ("tool_calls_last_at", "injections_last_at",
@@ -591,8 +626,8 @@ def attach_usage(entries, store, generated_at, transcript_window, history_window
                                                ("injection", "injections"),
                                                ("slash_command", "slash_commands"))
                         if counts[field]],
-            "evidence_window_start": min(x for x in (transcript_window[0], history_window[0]) if x)
-                                     if coverage == "full_history" else transcript_window[0],
+            "evidence_window_start": window_start if coverage == "full_history"
+                                     else transcript_window[0],
             "coverage": coverage,
             "orphan": False,
             "name_aliases": sorted(counts["aliases"]),
@@ -637,15 +672,30 @@ UI_USAGE_FIELDS = (
 )
 
 
+def prune(d):
+    """Drop empty values from an inlined payload dict.
+
+    At 426 entries the repeated key names and nulls are roughly a third of the page weight:
+    every entry carries all 29 fields, but `orchestration_verdict` is set on 10 and
+    `delegates_to_unresolved` on 3. Zero and non-empty falsy values are kept, because a
+    usage count of 0 is a finding (`never_used`) and not an absence. The page restores the
+    few arrays it indexes into; everything else is read with a truthiness or null check.
+    """
+    return {k: v for k, v in d.items()
+            if v is not None and v is not False
+            and not (isinstance(v, (str, list, dict)) and len(v) == 0)}
+
+
 def ui_payload(snapshot):
     """The subset the browser actually renders."""
     return {
         "snapshot_generated_at": snapshot["snapshot_generated_at"],
         "counts": snapshot["counts"],
         "usage_sources": snapshot["usage_sources"],
+        "releases": snapshot["releases"],
         "entries": [
-            dict({k: e[k] for k in UI_ENTRY_FIELDS},
-                 usage={k: e["usage"][k] for k in UI_USAGE_FIELDS})
+            prune(dict({k: e[k] for k in UI_ENTRY_FIELDS},
+                       usage=prune({k: e["usage"][k] for k in UI_USAGE_FIELDS})))
             for e in snapshot["entries"]
         ],
     }
@@ -653,6 +703,98 @@ def ui_payload(snapshot):
 
 
 # ---------------------------------------------------------------- categories
+
+# ---------------------------------------------------------------- release history
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+US, RS = "\x1f", "\x1e"
+
+
+def git(*args):
+    """Run git in this file's own repo. Returns stdout, or None if git cannot answer.
+
+    Read from this file's repo rather than the working directory: the tool is distributed as
+    two files (007 amendment), so a teammate running it from anywhere must still get
+    Wayfinder's history and not whatever repo they happen to be standing in. Missing git, a
+    tarball with no .git, and a non-zero exit all mean no history, never a traceback.
+    """
+    try:
+        out = subprocess.run(("git", "-C", HERE) + args, capture_output=True, text=True, timeout=10)
+    except (OSError, subprocess.SubprocessError) as e:
+        err(HERE, "git", "%s: %s" % (args[0], e))
+        return None
+    if out.returncode:
+        first = (out.stderr or "").strip().splitlines()[:1]
+        err(HERE, "git", "%s: %s" % (args[0], first[0] if first else "exit %d" % out.returncode))
+        return None
+    return out.stdout
+
+
+def git_commits(rev_range=None):
+    """Short sha, author date and subject for a revision range, newest first."""
+    out = git("log", "--format=%h" + US + "%aI" + US + "%s", *( [rev_range] if rev_range else [] ))
+    rows = []
+    for line in (out or "").splitlines():
+        parts = line.split(US)
+        if len(parts) == 3:
+            rows.append({"sha": parts[0], "date": parts[1], "subject": parts[2]})
+    return rows
+
+
+def git_tags():
+    """Annotated tags, oldest first, with their message split into headline and body.
+
+    An annotated tag already is a release note: `git tag -a` takes a subject and a body, git
+    stores the date, and the commits between two tags are the release by definition. That is
+    why there is no releases file to keep in step — the alternative was a hand-maintained
+    JSON mapping shas to prose, which is the same writing plus the bookkeeping. A lightweight
+    tag has no message of its own, so git falls back to the tagged commit's subject; it still
+    renders, it just reads like a commit rather than a release.
+    """
+    fmt = US.join(["%(refname:short)", "%(creatordate:iso-strict)", "%(objecttype)",
+                   "%(contents:subject)", "%(contents:body)"]) + RS
+    out = git("for-each-ref", "refs/tags", "--sort=creatordate", "--format=" + fmt)
+    tags = []
+    for rec in (out or "").split(RS):
+        rec = rec.strip("\n")
+        if not rec:
+            continue
+        parts = rec.split(US)
+        if len(parts) == 5:
+            tags.append({"tag": parts[0], "date": parts[1], "annotated": parts[2] == "tag",
+                         "headline": parts[3].strip(), "description": parts[4].strip()})
+    return tags
+
+
+def release_history():
+    """One entry per tag, newest first, plus anything committed since the newest tag.
+
+    Commits after the last tag are grouped as Unreleased rather than dropped, on 008's
+    principle that the page shows what it has not yet classified.
+    """
+    tags = git_tags()
+    groups, prev = [], None
+    for t in tags:
+        commits = git_commits("%s..%s" % (prev, t["tag"]) if prev else t["tag"])
+        groups.append(dict(t, commits=commits))
+        prev = t["tag"]
+    out = [{"tag": g["tag"],
+            "headline": g["headline"] or g["tag"],
+            "description": g["description"],
+            "date_start": (sorted(c["date"] for c in g["commits"]) or [g["date"]])[0],
+            "date_end": g["date"],
+            "commits": g["commits"]}
+           for g in reversed(groups)]
+    loose = git_commits("%s..HEAD" % prev) if prev else git_commits()
+    if loose:
+        dates = sorted(c["date"] for c in loose)
+        out.insert(0, {"headline": "Unreleased",
+                       "description": "Committed but not yet tagged. `git tag -a` writes the "
+                                      "headline and the note; the commits below come with it.",
+                       "date_start": dates[0], "date_end": dates[-1],
+                       "commits": loose, "unreleased": True})
+    return out
+
 
 SIDECAR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "sidecar.json")
 OVERRIDES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "overrides.json")
@@ -753,6 +895,7 @@ def main():
             "unrecoverable_paths": ["subagent_start_injection", "session_start_seen_skills"],
         },
         "orphan_usage": orphans,
+        "releases": release_history(),
         "scan_errors": SCAN_ERRORS,
         "entries": entries,
     }
@@ -766,7 +909,7 @@ def main():
         # </script> inside the JSON would close the host tag early. The UI reads only a
         # subset of the schema, so the inlined payload is trimmed: full entries triple the
         # page weight for fields nothing renders.
-        payload = json.dumps(ui_payload(snapshot)).replace("</", "<\\/")
+        payload = json.dumps(ui_payload(snapshot), separators=(",", ":")).replace("</", "<\\/")
         here = os.path.dirname(os.path.abspath(__file__))
         for template in sorted(glob.glob(os.path.join(here, "*.template.html"))):
             target = template.replace(".template.html", ".html")

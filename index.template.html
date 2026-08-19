@@ -1,0 +1,1088 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skill Field Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Manrope:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --page: #f8f9fa;
+    --sheet: #ffffff;
+    --tint: #eef0f4;
+    --ink: #14161a;
+    --ink-2: #4e545f;
+    --ink-3: #838a95;
+    --rule: #dfe2e8;
+    --rule-hair: #eaedf1;
+    --indigo: #31356b;
+    --indigo-wash: #e6e7f1;
+    --clay: #9c5a44;
+    --clay-wash: #f2e8e4;
+    --green: #3d6046;
+    --display: "Young Serif", Iowan Old Style, Georgia, serif;
+    --body: "Manrope", system-ui, -apple-system, sans-serif;
+    --data: "Roboto Mono", ui-monospace, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page: #12141a;
+      --sheet: #191c23;
+      --tint: #20242c;
+      --ink: #e7e9ee;
+      --ink-2: #a4abb6;
+      --ink-3: #737b87;
+      --rule: #282d36;
+      --rule-hair: #21252c;
+      --indigo: #9ba1de;
+      --indigo-wash: #1d2033;
+      --clay: #cf9077;
+      --clay-wash: #2a211d;
+      --green: #86ac91;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #12141a; --sheet: #191c23; --tint: #20242c;
+    --ink: #e7e9ee; --ink-2: #a4abb6; --ink-3: #737b87;
+    --rule: #282d36; --rule-hair: #21252c;
+    --indigo: #9ba1de; --indigo-wash: #1d2033;
+    --clay: #cf9077; --clay-wash: #2a211d; --green: #86ac91;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink);
+         font: 400 14.5px/1.6 var(--body); -webkit-font-smoothing: antialiased; }
+  :focus-visible { outline: 2px solid var(--indigo); outline-offset: 3px; border-radius: 3px; }
+  .kicker { font: 600 11px var(--body); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
+  .fig { font-family: var(--data); font-variant-numeric: tabular-nums; }
+
+  /* ---------------------------------------------------------- shell */
+  /* Rail, then page. Two nav entries: Skills and Analysis. History stays out of scope — no
+     per-skill history exists to render yet (006 amendment, second amendment). */
+  .shell { display: grid; grid-template-columns: 216px minmax(0, 1fr); min-height: 100vh; }
+  .rail { position: sticky; top: 0; align-self: start; height: 100vh;
+          display: flex; flex-direction: column; gap: 28px;
+          padding: 26px 18px 22px; background: var(--sheet); border-right: 1px solid var(--rule); }
+  .rail .mark { display: flex; align-items: center; gap: 9px; padding: 0 8px;
+                font: 400 17px var(--display); letter-spacing: -0.01em; }
+  .rail .mark svg { width: 19px; height: 19px; color: var(--indigo); flex: none; }
+  .rail nav { display: flex; flex-direction: column; gap: 2px; }
+  .rail nav a { display: flex; align-items: center; gap: 9px; text-decoration: none;
+                font: 500 13.5px var(--body); color: var(--ink-2); padding: 7px 9px;
+                border-radius: 8px; transition: background-color 150ms, color 150ms; }
+  .rail nav a:hover { background: var(--tint); color: var(--ink); }
+  .rail nav a[aria-current="page"] { background: var(--indigo-wash); color: var(--indigo); font-weight: 600; }
+  .rail nav a svg { width: 16px; height: 16px; flex: none; }
+  .rail nav a .n { margin-left: auto; font-family: var(--data); font-size: 11.5px;
+                   color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .rail .foot { margin-top: auto; padding: 0 9px; font-size: 12px; line-height: 1.5; color: var(--ink-3); }
+  .rail .foot b { display: block; font: 600 10.5px var(--body); letter-spacing: 0.08em;
+                  text-transform: uppercase; color: var(--ink-3); margin-bottom: 5px; }
+  .rail .foot code { display: block; margin-top: 7px; font: 500 11.5px var(--data);
+                     background: var(--tint); border-radius: 6px; padding: 5px 7px;
+                     color: var(--ink-2); user-select: all; overflow-wrap: anywhere; }
+  .rail .foot.warn { color: var(--clay); }
+  .rail .foot.warn b { color: var(--clay); }
+
+  .page { min-width: 0; display: flex; flex-direction: column; }
+
+  /* ---------------------------------------------------------- workbench */
+  /* 006 Q2, amended: facets live in a left column, not a top row. A column is more
+     always-visible than a row and lifts the four-selects-fit-one-line width ceiling. */
+  .bench { display: grid; grid-template-columns: 208px minmax(0, 1fr); gap: 0 34px;
+           align-items: start; padding: 0 40px 100px; }
+  .facets { position: sticky; top: 20px; display: flex; flex-direction: column; gap: 14px;
+            padding: 22px 0 40px; }
+  .facets .set-f { border-bottom: 1px solid var(--rule-hair); padding-bottom: 14px; }
+  .facets summary { cursor: pointer; list-style: none; display: flex; align-items: center;
+                    gap: 7px; padding: 2px 0 9px; }
+  .facets summary::-webkit-details-marker { display: none; }
+  .facets summary::after { content: ''; margin-left: auto; width: 7px; height: 7px;
+                           border-right: 1.5px solid var(--ink-3); border-bottom: 1.5px solid var(--ink-3);
+                           transform: rotate(45deg) translate(-2px, -2px); transition: transform 160ms; }
+  .facets details[open] > summary::after { transform: rotate(225deg) translate(-2px, -2px); }
+  .facets summary:hover { color: var(--ink-2); }
+  .facets select { width: 100%; border-radius: 9px; padding: 7px 10px; }
+  .picks { display: flex; flex-direction: column; gap: 2px; }
+  .pick { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13.5px;
+          color: var(--ink-2); padding: 4px 8px; margin: 0 -8px; border-radius: 7px;
+          transition: background-color 140ms, color 140ms; }
+  .pick:hover { background: var(--tint); color: var(--ink); }
+  .pick input { accent-color: var(--indigo); margin: 0; flex: none; }
+  .pick:has(input:checked) { color: var(--ink); font-weight: 600; }
+  .facets .set-f:last-of-type { border-bottom: 0; }
+  .facets .clear { all: unset; cursor: pointer; font: 600 12px var(--body); color: var(--indigo);
+                   padding: 2px 0; width: fit-content; }
+  .facets .clear:hover { text-decoration: underline; }
+  .facets .clear[hidden] { display: none; }
+
+  .results { min-width: 0; padding-top: 22px; }
+  .toolbar { display: flex; align-items: center; gap: 14px; padding-bottom: 14px; }
+  .toolbar .look { flex: 1 1 auto; max-width: 460px; }
+  .masthead .insights { all: unset; cursor: pointer; white-space: nowrap;
+                       font: 600 12.5px var(--body); color: var(--indigo);
+                       border: 1px solid color-mix(in srgb, var(--indigo) 35%, var(--rule));
+                       background: var(--indigo-wash); border-radius: 999px; padding: 6px 14px;
+                       transition: border-color 160ms; }
+  .masthead .insights:hover { border-color: var(--indigo); }
+
+  /* ---------------------------------------------------------- insights panel */
+  /* 006 Q2: the thesis is an argument, not a control. It reads once and then only gets in
+     the way of the table, so it lives one click away instead of above every scroll. */
+  .scrim { position: fixed; inset: 0; z-index: 40; background: rgba(10,12,16,.34);
+           opacity: 0; pointer-events: none; transition: opacity 200ms; }
+  .scrim.open { opacity: 1; pointer-events: auto; }
+  .panel { position: fixed; z-index: 41; top: 0; right: 0; height: 100vh; width: min(520px, 92vw);
+           overflow-y: auto; background: var(--sheet); border-left: 1px solid var(--rule);
+           transform: translateX(100%); transition: transform 240ms cubic-bezier(.16,.84,.28,1);
+           box-shadow: -18px 0 44px rgba(10,12,16,.10); }
+  .panel.open { transform: none; }
+  @media (prefers-reduced-motion: reduce) { .panel, .scrim { transition: none; } }
+  .panel .shut { position: absolute; top: 18px; right: 20px; all: unset; cursor: pointer;
+                 font: 600 12px var(--body); color: var(--ink-3); padding: 4px 6px; }
+  .panel .shut:hover { color: var(--ink); }
+
+  /* ---------------------------------------------------------- masthead */
+  .masthead { display: flex; align-items: flex-start; justify-content: space-between; gap: 34px;
+              flex-wrap: wrap; padding: 34px 40px 20px; border-bottom: 1px solid var(--rule); }
+  .masthead h1 { margin: 0; font: 400 34px/1.1 var(--display); letter-spacing: -0.022em; }
+  .masthead p { margin: 7px 0 0; max-width: 60ch; font-size: 13.5px; color: var(--ink-3); }
+
+  /* ---------------------------------------------------------- thesis */
+  .thesis { padding: 30px 34px 40px; }
+  .thesis .claim {
+    margin: 0; max-width: 26ch; font: 400 clamp(30px, 4.6vw, 52px)/1.14 var(--display);
+    letter-spacing: -0.024em;
+    text-wrap: balance;
+    font-size: clamp(27px, 3.2vw, 34px);
+  }
+  .thesis .claim b { font-weight: 600; font-variant-numeric: tabular-nums; color: var(--clay); }
+  .thesis .claim i { font-style: normal; color: var(--ink-3); }
+  .thesis .after { display: flex; flex-direction: column; gap: 26px; margin-top: 24px; }
+  .thesis .after p { margin: 0; max-width: 48ch; color: var(--ink-2); font-size: 15px; }
+  .thesis .ledger { font-size: 13px; color: var(--ink-3); line-height: 1.85; white-space: nowrap; }
+  .thesis .ledger b { font-family: var(--data); color: var(--ink-2); font-weight: 500;
+                      font-variant-numeric: tabular-nums; }
+
+  /* ---------------------------------------------------------- controls */
+  .look { position: relative; }
+  .look input { width: 100%; font: 400 14px var(--body); color: var(--ink); background: var(--sheet);
+                border: 1px solid var(--rule); border-radius: 999px; padding: 8px 14px 8px 34px;
+                transition: border-color 160ms, box-shadow 160ms; }
+  .look input::placeholder { color: var(--ink-3); }
+  .look input:focus { outline: none; border-color: var(--indigo);
+                      box-shadow: 0 0 0 3px var(--indigo-wash); }
+  .look svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+              width: 14px; height: 14px; color: var(--ink-3); }
+  .opt { display: inline-flex; align-items: center; gap: 7px; }
+  select { font: 500 13px var(--body); color: var(--ink); background: var(--sheet);
+           border: 1px solid var(--rule); border-radius: 999px; padding: 6px 12px; cursor: pointer;
+           transition: border-color 160ms; }
+  select:hover:not(:disabled) { border-color: var(--ink-3); }
+  select:disabled { color: var(--ink-3); background: var(--tint); cursor: not-allowed; }
+  .opt.mute { opacity: 0.55; }
+  .count { font-size: 13px; color: var(--ink-3); font-variant-numeric: tabular-nums;
+           white-space: nowrap; margin-left: auto; }
+  .pair { display: inline-flex; gap: 3px; background: var(--tint); border-radius: 999px; padding: 3px; }
+  .pair button { all: unset; cursor: pointer; font: 600 12px var(--body); color: var(--ink-3);
+                 display: inline-flex; align-items: center; gap: 6px;
+                 padding: 5px 14px; border-radius: 999px; transition: color 160ms, background-color 160ms; }
+  .pair button svg { width: 14px; height: 14px; flex: none; }
+  .pair button:hover { color: var(--ink); }
+  .pair button[aria-pressed="true"] { background: var(--sheet); color: var(--ink);
+                                      box-shadow: 0 1px 2px rgba(0,0,0,.07); }
+
+  /* ---------------------------------------------------------- index (table) */
+  .index { padding: 0; }
+  table { border-collapse: collapse; width: 100%; }
+  thead th { position: sticky; top: 0; z-index: 10; background: var(--page); text-align: left;
+             font: 600 11px var(--body); letter-spacing: 0.09em; text-transform: uppercase;
+             color: var(--ink-3); padding: 14px 12px 9px; border-bottom: 1px solid var(--rule);
+             cursor: pointer; user-select: none; white-space: nowrap; transition: color 150ms; }
+  thead th:hover { color: var(--ink-2); }
+  thead th[aria-sort] { color: var(--ink); }
+  .kd { display: block; font-size: 11.5px; color: var(--ink-3); letter-spacing: 0; }
+  .kd.any { font-style: italic; opacity: .7; }
+  th.r, td.r { text-align: right; }
+  tbody tr.item { cursor: pointer; }
+  tbody tr.item > td { height: 34px; padding: 0 12px; border-bottom: 1px solid var(--rule-hair);
+                       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                       transition: background-color 140ms; }
+  tbody tr.item:hover > td { background: var(--sheet); }
+  tbody tr.item.shown > td { background: var(--indigo-wash); }
+  td.title { font-weight: 600; font-size: 14.5px; max-width: 310px; letter-spacing: -0.008em; }
+  td.gloss { color: var(--ink-2); max-width: 1px; width: 42%; font-size: 13.5px; }
+  td.stat { color: var(--ink-2); font-size: 13px; }
+  .pip { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 8px; vertical-align: 1px; }
+  .pip.used { background: var(--green); } .pip.never_used { background: var(--clay); }
+  .pip.no_data { background: var(--ink-3); opacity: 0.4; }
+  .badge { font: 600 10.5px var(--body); letter-spacing: 0.05em; text-transform: uppercase;
+           padding: 2px 7px; border-radius: 999px; margin-left: 8px; white-space: nowrap;
+           border: 1px solid var(--rule); color: var(--ink-2); }
+  .badge.ind { color: var(--indigo); border-color: color-mix(in srgb, var(--indigo) 40%, var(--rule));
+               background: var(--indigo-wash); }
+  .badge.cly { color: var(--clay); border-color: color-mix(in srgb, var(--clay) 40%, var(--rule));
+               background: var(--clay-wash); }
+
+  .entry-in { padding: 30px 34px 44px; display: flex; flex-direction: column; gap: 24px; }
+  .entry-in .head { display: flex; flex-direction: column; gap: 7px; padding-right: 54px; }
+  .entry-in .head h2 { margin: 0; font: 400 27px/1.15 var(--display); letter-spacing: -0.018em;
+                       text-wrap: balance; }
+  .entry-in .head .sub { display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+                         font-size: 13px; color: var(--ink-3); }
+  .entry-in .head .badge { margin-left: 0; }
+  .entry-in .read { margin: 0; font-size: 15px; line-height: 1.6; color: var(--ink-2); }
+  .entry-in dl { margin: 0; display: grid; grid-template-columns: 98px minmax(0, 1fr);
+                 gap: 8px 16px; font-size: 13.5px; padding-top: 20px; border-top: 1px solid var(--rule-hair); }
+  .entry-in dt { font: 600 10.5px var(--body); letter-spacing: 0.08em; text-transform: uppercase;
+                 color: var(--ink-3); padding-top: 4px; }
+  .entry-in dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+  .entry-in .loc { font-family: var(--data); font-size: 12.5px; color: var(--ink-2); user-select: all; }
+  .links { display: flex; flex-wrap: wrap; gap: 5px; }
+  .links span { font-family: var(--data); font-size: 12px; padding: 2px 7px; border-radius: 999px;
+                border: 1px solid var(--rule); color: var(--ink-2); }
+
+  /* ---------------------------------------------------------- analysis */
+  /* 006 amendment: 7 domains x 7 kinds, Platform excluded. The grid scrolls inside its own
+     wrapper rather than reflowing into a second layout — below 760px seven columns land at
+     ~45px, too narrow for a label, and one shape everywhere beats two that must stay in step.
+     Band is carried by border style as well as tint, so the read never depends on colour. */
+  .bench[data-mode="analysis"], .bench[data-mode="history"] { grid-template-columns: minmax(0, 1fr); }
+  .bench[data-mode="analysis"] .facets, .bench[data-mode="analysis"] .toolbar,
+  .bench[data-mode="history"] .facets, .bench[data-mode="history"] .toolbar { display: none; }
+  .analysis { max-width: 1000px; padding-bottom: 60px; }
+  .analysis h2 { margin: 0 0 6px; font: 400 22px/1.2 var(--display); letter-spacing: -0.016em; }
+  .analysis .lede { margin: 0 0 18px; max-width: 64ch; font-size: 13.5px; color: var(--ink-2); }
+  .key { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 0 0 16px; font-size: 12.5px; color: var(--ink-2); }
+  .key span { display: inline-flex; align-items: center; gap: 7px; }
+  .key i { width: 22px; height: 15px; border-radius: 4px; background: var(--tint);
+           border-left: 3px solid var(--rule); flex: none; }
+  .key i.strong { background: color-mix(in srgb, var(--green) 16%, var(--sheet)); border-left-color: var(--green); }
+  .key i.thin { background: color-mix(in srgb, var(--clay) 14%, var(--sheet));
+                border-left: 3px dashed var(--clay); }
+  .grid-wrap { overflow-x: auto; padding-bottom: 6px; }
+  table.grid { border-collapse: separate; border-spacing: 3px; width: auto; }
+  table.grid th { position: static; border-bottom: 0; cursor: default; background: none;
+                  text-align: center; padding: 4px 6px; white-space: nowrap;
+                  font: 600 10.5px var(--body); letter-spacing: 0.07em; text-transform: uppercase;
+                  color: var(--ink-3); }
+  table.grid th.rh { position: sticky; left: 0; z-index: 11; background: var(--page);
+                     text-align: left; text-transform: none; letter-spacing: 0;
+                     font: 600 12.5px var(--body); color: var(--ink-2); padding: 0 14px 0 0; }
+  table.grid td { width: 64px; height: 42px; text-align: center; border-radius: 6px;
+                  background: var(--tint); color: var(--ink-3); border-left: 3px solid transparent;
+                  font-family: var(--data); font-variant-numeric: tabular-nums; font-size: 13.5px; }
+  table.grid td[data-band="strong"] { background: color-mix(in srgb, var(--green) 16%, var(--sheet));
+                  border-left: 3px solid var(--green); color: var(--ink); font-weight: 500; }
+  table.grid td[data-band="thin"] { background: color-mix(in srgb, var(--clay) 14%, var(--sheet));
+                  border-left: 3px dashed var(--clay); color: var(--ink-2); }
+  table.grid td[role="button"] { cursor: pointer; outline: 1px solid transparent; transition: outline-color 140ms; }
+  table.grid td[role="button"]:hover { outline-color: var(--indigo); }
+  .gaps { margin-top: 30px; }
+  .gaps ol { margin: 10px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 1px; }
+  .gaps li { display: flex; align-items: baseline; gap: 10px; cursor: pointer; font-size: 13.5px;
+             color: var(--ink-2); padding: 7px 8px; margin: 0 -8px; border-radius: 7px;
+             transition: background-color 140ms; }
+  .gaps li:hover { background: var(--sheet); color: var(--ink); }
+  .gaps li b { color: var(--ink); font-weight: 600; }
+  .gaps li .n { margin-left: auto; font-family: var(--data); font-size: 12px; color: var(--ink-3);
+                font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .analysis .notes { margin: 26px 0 0; max-width: 68ch; font-size: 12.5px; color: var(--ink-3); }
+
+  /* ---------------------------------------------------------- entries (cards) */
+  .timeline { list-style: none; margin: 0; padding: 10px 0 0; position: relative; }
+  .timeline::before { content: ""; position: absolute; left: 5px; top: 20px; bottom: 22px;
+    width: 1px; background: var(--rule); }
+  .rel { position: relative; padding: 0 0 46px 32px; }
+  .rel:last-child { padding-bottom: 10px; }
+  .rel::before { content: ""; position: absolute; left: 0; top: 5px; width: 11px; height: 11px;
+    box-sizing: border-box; border-radius: 50%; background: var(--page);
+    border: 1.5px solid var(--ink-3); }
+  .rel:first-child::before { border-color: var(--indigo); background: var(--indigo); }
+  .rel.loose::before { border-style: dashed; background: var(--page); }
+  .rel > * { max-width: 65ch; }
+  .rel time { display: flex; align-items: baseline; gap: 10px; font: 400 12px var(--data); color: var(--ink-3); }
+  .rel time .tag { color: var(--indigo); }
+  .rel h2 { margin: 5px 0 9px; font: 600 20px/1.25 var(--body); letter-spacing: -0.014em;
+    text-wrap: balance; color: var(--ink); }
+  .rel > p { margin: 0 0 16px; font-size: 14.5px; line-height: 1.62; color: var(--ink-2); }
+  .what { background: var(--tint); border-radius: 12px; padding: 13px 16px 15px; }
+  .what ul { list-style: none; margin: 9px 0 0; padding: 0; display: grid; gap: 9px; }
+  .what li { display: flex; gap: 14px; align-items: baseline; font-size: 13.5px;
+    line-height: 1.45; color: var(--ink-2); }
+  .what code { flex: none; font: 400 12px var(--data); color: var(--ink-3); }
+  .plates { padding: 8px 0 0; }
+  .tabs { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px;
+    border-bottom: 1px solid var(--rule-hair); margin-bottom: 20px; }
+  .tabs button { all: unset; cursor: pointer; display: inline-flex; align-items: baseline; gap: 7px;
+    padding: 7px 12px 9px; margin-bottom: -1px; font: 600 13px var(--body); color: var(--ink-3);
+    border-bottom: 2px solid transparent; }
+  .tabs button:hover { color: var(--ink); }
+  .tabs button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--indigo); }
+  .tabs button:focus-visible { outline: 2px solid var(--indigo); outline-offset: -3px; border-radius: 7px; }
+  .tabs .n { font-family: var(--data); font-size: 11.5px; color: var(--ink-3); }
+  .band { margin-bottom: 42px; }
+  .band > header.solo { display: block; border: 0; padding: 0; margin: -6px 0 18px; }
+  .band > header.solo p { margin: 0; max-width: 62ch; text-align: left; }
+  .band > header { display: flex; align-items: baseline; gap: 14px; padding-bottom: 4px;
+                   border-bottom: 1px solid var(--rule); margin-bottom: 18px; }
+  .band > header h2 { margin: 0; font: 400 22px/1.2 var(--display); letter-spacing: -0.016em; }
+  .band > header .n { font-family: var(--data); font-size: 13px; color: var(--ink-3);
+                      font-variant-numeric: tabular-nums; }
+  .band > header p { margin: 0 0 0 auto; max-width: 46ch; text-align: right; font-size: 12.5px; color: var(--ink-3); }
+  .set { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(296px, 1fr)); }
+  .plate { background: var(--sheet); border: 1px solid var(--rule); border-radius: 14px;
+           padding: 18px 19px 15px; cursor: pointer; display: flex; flex-direction: column; gap: 10px;
+           min-height: 172px; transition: border-color 170ms, transform 170ms cubic-bezier(.16,.84,.28,1); }
+  .plate:hover { border-color: var(--indigo); transform: translateY(-3px); }
+  @media (prefers-reduced-motion: reduce) { .plate:hover { transform: none; } }
+  .plate h3 { margin: 0; font: 600 16px/1.25 var(--body); letter-spacing: -0.012em; text-wrap: balance; }
+  .plate .sub { display: flex; align-items: baseline; gap: 8px; font-size: 12.5px; color: var(--ink-3); }
+  .plate p { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-2);
+             overflow: hidden; display: -webkit-box; -webkit-line-clamp: 4; line-clamp: 4;
+             -webkit-box-orient: vertical; }
+  .plate .tail { margin-top: auto; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .plate .tail .u { margin-left: auto; font-family: var(--data); font-size: 12px; color: var(--ink-3); }
+
+  .empty { padding: 70px 0; }
+  .empty h2 { margin: 0 0 10px; font: 400 26px/1.2 var(--display); letter-spacing: -0.018em; max-width: 22ch; }
+  .empty p { margin: 0 0 20px; color: var(--ink-2); max-width: 52ch; }
+  .empty button { all: unset; cursor: pointer; font: 600 13px var(--body); color: var(--sheet);
+                  background: var(--indigo); border-radius: 999px; padding: 9px 18px; }
+  .colophon { border-top: 1px solid var(--rule); }
+  .colophon { margin-top: auto; }
+  .colophon .inner { padding: 22px 40px 44px; font-size: 12.5px; color: var(--ink-3); max-width: 70ch; }
+
+  @media (max-width: 1080px) {
+    .bench { grid-template-columns: 1fr; gap: 0; }
+    .facets { position: static; flex-flow: row wrap; gap: 12px 18px; padding-bottom: 18px;
+              border-bottom: 1px solid var(--rule); }
+    .facets .set-f { flex: 0 1 auto; }
+    .facets select { width: auto; }
+  }
+  @media (max-width: 760px) {
+    .shell { grid-template-columns: 1fr; }
+    .rail { position: static; height: auto; flex-flow: row wrap; align-items: center;
+            gap: 8px 18px; border-right: 0; border-bottom: 1px solid var(--rule); padding: 14px 20px; }
+    .rail nav { flex-direction: row; }
+    .rail .foot { margin: 0 0 0 auto; padding: 0; }
+    .rail .foot code { display: none; }
+    .masthead { padding: 24px 20px 16px; }
+    .bench, .colophon .inner { padding-left: 20px; padding-right: 20px; }
+    .band > header p { display: none; }
+    td.gloss, td.stat { display: none; }
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script id="snapshot" type="application/json">__SNAPSHOT_JSON__</script>
+<script>
+const SNAP = JSON.parse(document.getElementById('snapshot').textContent);
+const ALL = SNAP.entries;
+// The snapshot omits empty and null fields to keep the inlined payload down. Everything is
+// read with a truthiness or null check except these three, which are indexed into directly.
+ALL.forEach(e => { e.delegates_to ||= []; e.reached_via ||= []; e.delegates_to_unresolved ||= []; });
+const qp = new URLSearchParams(location.search);
+
+const MODES = ['index', 'entries', 'analysis', 'history'];
+const F = {
+  // Analysis is a rail destination, not a layout of the table, but it rides the same `mode`
+  // state and URL param: the plumbing and refresh() path already exist (006 amendment).
+  mode: MODES.includes(qp.get('mode')) ? qp.get('mode') : 'index',
+  table: qp.get('mode') === 'entries' ? 'entries' : 'index',
+  q: '', source: 'global', role: 'all',
+  // The usage facet used to be a Record radio group in the left column. The band strip
+  // replaced it: same field, finer grain (it splits `used` into gone-quiet and in-rotation,
+  // which the radios could not), and one control instead of two that could disagree.
+  // Opens on the most-neglected band, which is 006's default sort stated as a tab.
+  band: 'never_used',
+  domain: 'all', kind: 'all',
+  sort: 'age', dir: 'desc', open: null, panel: null, panelIn: false, shut: [],
+};
+
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const state = e => e.usage.state;
+const WORD = { used: 'in use', never_used: 'never used', no_data: 'no record' };
+const age = e => e.usage.days_since_last_use;
+const isLeaf = e => e.reached_via.length && !e.delegates_to.length;
+const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+// A null domain means universal, not unknown (001). Filtering to a real domain keeps
+// those skills in view — dimmed — because hiding `grilling` from every domain makes it
+// unfindable. `any` filters to them alone.
+const ANY = 'Any';
+const DOMAIN = e => e.domain || ANY;
+const facet = key => [...new Set(ALL.map(key))].sort((a, b) =>
+  a === ANY ? 1 : b === ANY ? -1 : a.localeCompare(b));
+const ORIGIN = e => e.plugin ? e.plugin.split('@')[0] : e.source === 'global' ? 'yours' : e.source;
+const ageText = e => age(e) == null ? WORD[state(e)] : (age(e) === 0 ? 'used today' : age(e) + 'd ago');
+
+function pool() {
+  const q = F.q.trim().toLowerCase();
+  return ALL.filter(e => {
+    if (F.source !== 'all' && e.source !== F.source) return false;
+    if (F.role === 'orchestrator' && !e.orchestration_verdict) return false;
+    if (F.role === 'leaf' && !isLeaf(e)) return false;
+    // Universal joins every domain except Platform, which is a provenance bucket rather
+    // than a kind of work: `xlsx` serves marketing, it does not serve "Platform".
+    if (F.domain === 'any' ? e.domain
+        : F.domain !== 'all' && (e.domain ? e.domain !== F.domain : F.domain === 'Platform')) return false;
+    // 008: a newly added skill has no sidecar entry yet, so it must stay findable.
+    if (F.kind === 'none' ? e.kind : F.kind !== 'all' && e.kind !== F.kind) return false;
+    if (!q) return true;
+    return e.id.toLowerCase().includes(q) ||
+           (e.description || '').toLowerCase().includes(q);
+  });
+}
+
+const KEY = {
+  title: e => e.name.toLowerCase(), gloss: e => (e.description || '').toLowerCase(),
+  // The tool opens on this. A proven never-used skill is maximally neglected, not missing:
+  // ranking it null would drop the whole headline claim to the bottom of the table. A no_data
+  // skill really is unknown, so it keeps null and sorts last in both directions.
+  age: e => state(e) === 'never_used' ? Infinity : age(e),
+  uses: e => e.usage.total_count, calls: e => e.orchestration_degree || null,
+  kind: e => (e.kind || '').toLowerCase(),
+  origin: e => ORIGIN(e).toLowerCase(), size: e => e.body_lines,
+};
+function ordered(rows) {
+  const get = KEY[F.sort], sign = F.dir === 'asc' ? 1 : -1;
+  return rows.slice().sort((a, b) => {
+    const x = get(a), y = get(b);
+    if (x == null && y == null) return a.name.localeCompare(b.name);
+    if (x == null) return 1;                 // absence ranks last in both directions
+    if (y == null) return -1;
+    if (typeof x === 'string') return sign * x.localeCompare(y) || a.name.localeCompare(b.name);
+    return sign * (x - y) || a.name.localeCompare(b.name);
+  });
+}
+
+// ---------------------------------------------------------------- thesis
+function thesis() {
+  const c = SNAP.counts, u = SNAP.usage_sources;
+  const mine = ALL.filter(e => e.source === 'global');
+  const never = mine.filter(e => state(e) === 'never_used').length;
+  const leaves = ALL.filter(isLeaf).length;
+  return `<div class="thesis">
+    <span class="kicker">Skill field guide</span>
+    <p class="claim">Of the <b>${mine.length}</b> skills you wrote, <b>${never}</b> have
+      never once been called.</p>
+    <div class="after">
+      <p>That is measured against ${u.history.record_count.toLocaleString()} command records going
+        back to ${(u.history.window_start || '').slice(0, 7)} — long enough that silence means
+        something. Another ${leaves} skills across the library are reachable only when an
+        orchestrator names them, so their descriptions never have to work.</p>
+      <div class="ledger">
+        <div><b>${c.entries}</b> skills catalogued</div>
+        <div><b>${c.plugin}</b> arrived with plugins</div>
+        <div><b>${u.transcripts.file_count}</b> transcripts read, <b>${u.transcripts.retention_days}</b>d kept</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ---------------------------------------------------------------- shell
+// 008: the snapshot is refreshed by hand, so the page states its own age rather than
+// pretending to be live. Warned at 14 days; at 30 the transcript window it was built
+// from has rolled off entirely, so usage coverage is degrading, not just stale.
+const REFRESH = 'python3 scan.py';
+function snapshotAge() {
+  const d = Math.max(0, Math.round((Date.now() - Date.parse(SNAP.snapshot_generated_at)) / 864e5));
+  if (d >= 30) return { d, level: 'warn', note: 'Usage coverage is degrading: transcripts are kept 30 days, so this snapshot outlived the window it read.' };
+  if (d >= 14) return { d, level: 'warn', note: 'Newly added skills will not appear until you scan again.' };
+  return { d, level: 'ok', note: '' };
+}
+
+const NAV_OF = m => (m === 'analysis' || m === 'history') ? m : 'skills';
+
+function rail() {
+  const a = snapshotAge();
+  const uncat = ALL.filter(e => !e.kind).length;
+  return `<div class="rail">
+    <div class="mark">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M10 2.5 3 6v8l7 3.5L17 14V6z"/><path d="M10 2.5V17"/><path d="M3 6l7 3.5L17 6"/></svg>
+      Wayfinder
+    </div>
+    <nav aria-label="Sections">
+      <a href="?mode=index" data-nav="skills"${NAV_OF(F.mode) === 'skills' ? ' aria-current="page"' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 6l4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg>Skills<span class="n">${ALL.length}</span></a>
+      <a href="?mode=analysis" data-nav="analysis" title="Empty domain-and-kind cells"${NAV_OF(F.mode) === 'analysis' ? ' aria-current="page"' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><rect x="7" y="9" width="4" height="8" rx="1"/><rect x="14" y="5" width="4" height="12" rx="1"/></svg>Analysis<span class="n">${gapList(coverage()).all.length}</span></a>
+      <a href="?mode=history" data-nav="history" title="What changed in Wayfinder itself"${NAV_OF(F.mode) === 'history' ? ' aria-current="page"' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>History<span class="n">${(SNAP.releases || []).length}</span></a>
+    </nav>
+    <div class="foot${a.level === 'warn' ? ' warn' : ''}">
+      <b>Snapshot</b>
+      ${a.d === 0 ? 'Scanned today' : 'Scanned ' + plural(a.d, 'day') + ' ago'}${uncat ? `. ${uncat} uncategorized` : ''}.
+      ${a.note ? ' ' + a.note : ''}
+      ${a.level === 'warn' ? `<code>${REFRESH}</code>` : ''}
+    </div>
+  </div>`;
+}
+
+// The page needs a name of its own now that the thesis sits behind a button: without it
+// the table starts cold, with no line saying what is being listed or how fresh it is.
+function header() {
+  const a = snapshotAge();
+  const [h1, sub] = TITLES[F.mode];
+  return `<header class="masthead">
+    <div>
+      <h1>${h1}</h1>
+      <p>${sub}
+        ${a.d === 0 ? 'Scanned today' : 'Scanned ' + plural(a.d, 'day') + ' ago'}.</p>
+    </div>
+    <button class="insights js-insights" aria-expanded="${F.panelIn && F.panel === 'insights'}">View insights</button>
+  </header>`;
+}
+
+// Five selects meant five clicks to see what a facet even offered. Each is a <details>
+// instead — native accordion, open by default — and any facet short enough to fit shows its
+// options outright, so choosing one costs a single click. Long facets keep the select.
+const OPEN_MAX = 5;
+function facetSets() {
+  const uncat = ALL.filter(e => !e.kind).length;
+  return [
+    ['source', 'From', [['global', 'Yours'], ['plugin', 'Plugins'], ['repo', 'Repo'], ['all', 'Everything']]],
+    ['role', 'Role', [['all', 'Any'], ['orchestrator', 'Orchestrators'], ['leaf', 'Reached only via']]],
+    ['domain', 'Domain', [['all', 'Any domain'], ...facet(DOMAIN).map(d =>
+      d === ANY ? ['any', 'Universal only'] : [d, d])]],
+    ['kind', 'Kind', [['all', 'Any kind'], ...facet(e => e.kind).filter(Boolean).map(k => [k, k]),
+      ['none', 'Uncategorized (' + uncat + ')']]],
+  ];
+}
+
+const dirty = () => F.q || F.source !== 'global' || F.role !== 'all'
+                 || F.domain !== 'all' || F.kind !== 'all' || F.band !== BANDS[0][0];
+
+function facets() {
+  const sets = facetSets().map(([key, label, opts]) => {
+    const body = opts.length <= OPEN_MAX
+      ? `<div class="picks" role="radiogroup" aria-label="${label}">${opts.map(([v, l]) => `
+          <label class="pick"><input type="radio" name="${key}" value="${v}" data-facet="${key}"
+            id="${key}-${v}"${F[key] === v ? ' checked' : ''}>${l}</label>`).join('')}</div>`
+      : `<select id="${key}" data-facet="${key}">${opts.map(([v, l]) =>
+          `<option value="${v}"${F[key] === v ? ' selected' : ''}>${l}</option>`).join('')}</select>`;
+    return `<details class="set-f" data-acc="${key}"${F.shut.includes(key) ? '' : ' open'}>
+      <summary class="kicker">${label}</summary>${body}</details>`;
+  }).join('');
+  return `<div class="facets">${sets}
+    <button class="clear js-reset"${dirty() ? '' : ' hidden'}>Clear filters</button>
+  </div>`;
+}
+
+function toolbar(n) {
+  return `<div class="toolbar">
+    <div class="look">
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+        <circle cx="6" cy="6" r="4"/><path d="M9 9l4 4"/></svg>
+      <input id="q" type="search" value="${esc(F.q)}" autocomplete="off"
+        placeholder="Look up names and glosses" aria-label="Look up a skill">
+    </div>
+    <span class="count">${n === ALL.length ? plural(n, 'skill') : n + ' of ' + ALL.length}</span>
+    <div class="pair" role="group" aria-label="Layout">
+      <button data-mode="index" aria-pressed="${F.mode === 'index'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M12 3v18"/></svg>Table</button>
+      <button data-mode="entries" aria-pressed="${F.mode === 'entries'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Card</button>
+    </div>
+  </div>`;
+}
+
+// ---------------------------------------------------------------- index
+const COLS = [['title', 'Skill', ''], ['gloss', 'Gloss', ''], ['age', 'Last used', 'r'],
+              ['uses', 'Uses', 'r'], ['calls', 'Calls', 'r'], ['origin', 'From', ''],
+              ['kind', 'Kind', ''], ['size', 'Lines', 'r']];
+// Kind sorts by kind then domain, since the cell shows both.
+
+function indexView(rows) {
+  const head = COLS.map(([k, l, cls]) => {
+    const on = F.sort === k;
+    return `<th data-sort="${k}" class="${cls}"${on ? ` aria-sort="${F.dir === 'asc' ? 'ascending' : 'descending'}"` : ''}>${l}${on ? (F.dir === 'asc' ? ' ↑' : ' ↓') : ''}</th>`;
+  }).join('');
+  const body = rows.map(e => {
+    const on = F.open === e.id;
+    const badges = [
+      e.orchestration_verdict ? '<span class="badge ind">orchestrator</span>' : '',
+      isLeaf(e) ? '<span class="badge cly">reached only via</span>' : '',
+    ].filter(Boolean).join('');
+    const row = `<tr class="item${on ? ' shown' : ''}" data-id="${esc(e.id)}" tabindex="0"
+        role="button" aria-haspopup="dialog">
+      <td class="title"><span class="pip ${state(e)}" title="${WORD[state(e)]}"></span>${esc(e.name)}${badges}</td>
+      <td class="gloss">${esc(e.description || '')}</td>
+      <td class="stat r fig">${age(e) == null ? '—' : (age(e) === 0 ? 'today' : age(e) + 'd')}</td>
+      <td class="stat r fig">${e.usage.total_count ?? '—'}</td>
+      <td class="stat r fig">${e.orchestration_degree || '—'}</td>
+      <td class="stat">${esc(ORIGIN(e))}</td>
+      <td class="stat">${esc(e.kind || '—')}<span class="kd${e.domain ? '' : ' any'}">${esc(DOMAIN(e))}</span></td>
+      <td class="stat r fig">${e.body_lines}</td></tr>`;
+    return row;
+  }).join('');
+  return `<div class="index"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
+function entry(e) {
+  const u = e.usage;
+  const links = list => list.length
+    ? `<span class="links">${list.map(x => `<span>${esc(x)}</span>`).join('')}</span>`
+    : '<span style="color:var(--ink-3)">—</span>';
+  const chan = [['tool_calls', 'called as a tool'], ['injections', 'injected by a hook'],
+                ['slash_commands', 'typed as a command']].filter(([k]) => u[k])
+    .map(([k, l]) => `${l} ×${u[k]}`).join(' · ');
+  const notes = [
+    e.has_resources && 'bundles resources', !e.model_invocable && 'not model-invocable',
+    e.repo_differs && 'repo copy has drifted', e.parse_status !== 'ok' && 'frontmatter ' + e.parse_status,
+    e.is_symlink && 'symlinked',
+  ].filter(Boolean);
+
+  const badges = [
+    e.orchestration_verdict ? '<span class="badge ind">orchestrator</span>' : '',
+    isLeaf(e) ? '<span class="badge cly">reached only via</span>' : '',
+  ].filter(Boolean).join('');
+  return `<div class="entry-in">
+    <header class="head"><h2>${esc(e.name)}</h2>
+      <div class="sub"><span class="pip ${state(e)}"></span>${esc(ageText(e))}${badges}</div></header>
+    <p class="read">${esc(e.description || 'No gloss on record.')}</p>
+    <dl>
+      <dt>Call it</dt><dd class="loc">/${esc(e.id)}</dd>
+      <dt>Lives at</dt><dd class="loc">${esc(e.skill_file)}</dd>
+      <dt>Category</dt><dd>${esc(DOMAIN(e))}${e.domain_secondary ? ' · ' + esc(e.domain_secondary) : ''} / ${esc(e.kind || '—')}
+        <span style="color:var(--ink-3)">${e.category_source === 'llm' ? 'inferred, correctable' : esc(e.category_source)}</span></dd>
+      ${e.orchestration_class ? `<dt>Adjudged</dt><dd>${esc(e.orchestration_class)}
+        <span style="color:var(--ink-3)">${esc(e.orchestration_reason || '')}</span></dd>` : ''}
+      <dt>Written by</dt><dd>${esc(e.author)} <span style="color:var(--ink-3)">via ${esc(e.author_source)}</span></dd>
+      <dt>Version</dt><dd>${e.version ? esc(e.version) : '<span style="color:var(--ink-3)">unknown</span>'}${e.updated_at ? ', updated ' + esc(e.updated_at.slice(0, 10)) : ''}</dd>
+      ${e.upstream_url ? `<dt>Upstream</dt><dd class="loc">${esc(e.upstream_url)}</dd>` : ''}
+      <dt>Notes</dt><dd>${notes.length ? esc(notes.join(' · ')) : '<span style="color:var(--ink-3)">—</span>'}</dd>
+    </dl>
+    <dl>
+      <dt>Record</dt><dd><span class="pip ${state(e)}"></span>${WORD[state(e)]}${u.total_count != null ? `, ${plural(u.total_count, 'use')}` : ''}</dd>
+      <dt>Evidence</dt><dd>${chan || `<span style="color:var(--ink-3)">nothing in ${u.coverage === 'full_history' ? '167 days of history' : 'the 30-day transcript window'}</span>`}</dd>
+      ${u.attribution === 'ambiguous' ? `<dt>Caveat</dt><dd>Shares this count with
+        ${links(u.attribution_candidates.filter(c => c !== e.id))} — hook injections drop the plugin
+        prefix, so it cannot be split.</dd>` : ''}
+      <dt>Calls</dt><dd>${links(e.delegates_to)}</dd>
+      <dt>Called by</dt><dd>${links(e.reached_via)}</dd>
+      ${e.delegates_to_unresolved.length ? `<dt>Unresolved</dt><dd>${links(e.delegates_to_unresolved)}</dd>` : ''}
+    </dl>
+  </div>`;
+}
+
+// ---------------------------------------------------------------- entries
+const BANDS = [
+  ['never_used', 'Never called', 'Zero invocations in the whole history window. The only defensible “never”.'],
+  ['dormant', 'Gone quiet', 'Called at least once, but not in the last month.'],
+  ['used', 'In rotation', 'Called within the last month.'],
+  ['no_data', 'No record', 'The only channel that could see these is the 30-day transcript window.'],
+];
+function bandOf(e) {
+  const s = state(e);
+  if (s !== 'used') return s;
+  return (age(e) ?? 0) >= 30 ? 'dormant' : 'used';
+}
+
+// The four bands were stacked sections, so reading "In rotation" meant scrolling past every
+// never-called skill. As tabs they cost one click, and each tab carries its count so the
+// shape of the library is still legible without opening any of them. Empty bands are not
+// rendered, exactly as the stacked version dropped them.
+//
+// The strip sits above both layouts rather than inside the cards, because it is the usage
+// filter now, not a card-view flourish: the Record radio group it replaced served the table
+// too, and taking that away from the table would have been a loss, not a simplification.
+const ANY_BAND = 'all';
+function banded(rows) {
+  const groups = {};
+  rows.forEach(e => { (groups[bandOf(e)] = groups[bandOf(e)] || []).push(e); });
+  const live = BANDS.filter(([k]) => groups[k]?.length);
+  // A search or facet change can empty the open band. Falling back keeps the strip and the
+  // rows in step; leaving F.band on a tab that is no longer rendered makes the next click a
+  // no-op. Nothing to fall back to means the pool is empty and empty() renders instead.
+  if (live.length && F.band !== ANY_BAND && !groups[F.band]?.length) F.band = live[0][0];
+  return { groups, live, shown: F.band === ANY_BAND ? rows : (groups[F.band] || []) };
+}
+
+function bandStrip(b, total) {
+  // Buttons with aria-pressed, not role="tab": the page already toggles its layout that way,
+  // and a real tablist owes arrow-key navigation and a tabpanel that #rows is not.
+  const tab = (k, label, n) => `<button data-band="${k}" aria-pressed="${F.band === k}">${label}<span class="n">${n}</span></button>`;
+  return `<div class="tabs" role="group" aria-label="Usage record">${
+    b.live.map(([k, title]) => tab(k, title, b.groups[k].length)).join('')
+  }${tab(ANY_BAND, 'All', total)}</div>`;
+}
+
+function entriesView(b) {
+  const { groups } = b;
+  const shown = F.band === ANY_BAND ? b.live : b.live.filter(([k]) => k === F.band);
+  return `<div class="plates">${shown.map(([k, title, why]) => `
+    <section class="band">
+      ${F.band === ANY_BAND
+        ? `<header><h2>${title}</h2><span class="n">${groups[k].length}</span><p>${why}</p></header>`
+        : `<header class="solo"><p>${why}</p></header>`}
+      <div class="set">${groups[k].map(e => `<article class="plate" data-id="${esc(e.id)}"
+          tabindex="0" role="button" aria-haspopup="dialog" aria-label="${esc(e.name)}">
+        <h3>${esc(e.name)}</h3>
+        <div class="sub"><span class="pip ${state(e)}"></span>${esc(ageText(e))}</div>
+        <p>${esc(e.description || 'No gloss on record.')}</p>
+        <div class="tail">
+          <span class="badge">${esc(ORIGIN(e))}</span>
+          ${e.orchestration_verdict ? '<span class="badge ind">orchestrator</span>' : ''}
+          ${isLeaf(e) ? '<span class="badge cly">reached only via</span>' : ''}
+          ${e.kind ? `<span class="badge">${esc(e.kind)}</span>` : ''}
+          <span class="u">${e.usage.total_count != null ? plural(e.usage.total_count, 'use') : 'no record'}</span>
+        </div></article>`).join('')}</div>
+    </section>`).join('')}</div>`;
+}
+
+function empty() {
+  return `<div class="empty">
+    <h2>Nothing in the guide matches that</h2>
+    <p>${F.q ? `No skill mentions “${esc(F.q)}”` : 'No skill fits those filters'}.
+      Glosses are the trigger text a model reads, so looking them up finds more than names alone.</p>
+    <button class="js-reset">Start over</button></div>`;
+}
+
+// ---------------------------------------------------------------- analysis
+// Scored in the page, not baked into the snapshot: it is one pass over ~144 entries, costs no
+// payload, and keeps the band thresholds a template edit instead of a rescan.
+//
+// Platform is excluded from the grid. It is 62% of the library, plugin-installed rather than
+// written here, and its usage coverage is `no_data`, so it cannot be scored on adoption at all.
+// Its count is stated below the grid instead of silently dropped.
+//
+// Bands read two signals, never a sum: 002 writes an ambiguous count to EVERY candidate entry,
+// so adding total_count across a cell inflates it. Cells count entries and ask per entry
+// whether it was used recently.
+const FRESH_DAYS = 30;
+const SHORT = { 'Orchestrator': 'Orch', 'Converter': 'Conv', 'Reviewer': 'Review',
+                'Generator': 'Gen', 'Thinking tool': 'Think', 'Reference': 'Ref' };
+const fresh = e => state(e) === 'used' && (age(e) ?? Infinity) < FRESH_DAYS;
+const BAND = { strong: 'strong', thin: 'thin', gap: 'gap' };
+
+function coverage() {
+  const scored = ALL.filter(e => e.domain && e.domain !== 'Platform' && e.kind);
+  const tally = (key, list) => list.reduce((m, e) => (m[key(e)] = (m[key(e)] || 0) + 1, m), {});
+  const byDomain = tally(e => e.domain, scored), byKind = tally(e => e.kind, scored);
+  // Rows by domain size, columns by how common the kind is across the whole scored library.
+  // Both orders come from the data: a kind that exists in most domains is the likelier hole.
+  const domains = Object.keys(byDomain).sort((a, b) => byKind[b] - byKind[a] || 0)
+    .sort((a, b) => byDomain[b] - byDomain[a] || a.localeCompare(b));
+  const kinds = Object.keys(byKind).sort((a, b) => byKind[b] - byKind[a] || a.localeCompare(b));
+  const cells = {};
+  domains.forEach(d => kinds.forEach(k => {
+    const set = scored.filter(e => e.domain === d && e.kind === k);
+    const used = set.filter(fresh).length;
+    cells[d + '/' + k] = { d, k, n: set.length, used,
+      band: !set.length ? BAND.gap : (set.length >= 2 && used ? BAND.strong : BAND.thin) };
+  }));
+  return { scored, domains, kinds, byDomain, byKind, cells,
+           at: (d, k) => cells[d + '/' + k] };
+}
+
+// Ranked by domain size, then by library-wide kind prevalence. No "every domain needs one of
+// each" rule: that would manufacture work the data cannot justify. Zero cells link to the
+// domain alone, never to domain+kind — filtering to an empty cell would land on "no matches".
+function gapList(cv) {
+  const all = [];
+  cv.domains.forEach(d => cv.kinds.forEach(k => {
+    if (cv.at(d, k).band === BAND.gap) all.push({ d, k, size: cv.byDomain[d] });
+  }));
+  return { all, shown: all.slice(0, 8) };
+}
+
+function analysisView() {
+  const cv = coverage();
+  const platform = ALL.filter(e => e.domain === 'Platform').length;
+  const universal = ALL.filter(e => !e.domain).length;
+  const uncat = ALL.filter(e => !e.kind).length;
+  const bands = { strong: 0, thin: 0, gap: 0 };
+  Object.values(cv.cells).forEach(c => bands[c.band]++);
+  const total = cv.domains.length * cv.kinds.length;
+  const { all, shown } = gapList(cv);
+
+  const head = `<tr><th class="rh"></th>${cv.kinds.map(k =>
+    `<th title="${esc(k)}"><abbr title="${esc(k)}" style="text-decoration:none">${esc(SHORT[k] || k)}</abbr></th>`).join('')}</tr>`;
+  const body = cv.domains.map(d => `<tr>
+      <th class="rh" scope="row">${esc(d)} <span style="color:var(--ink-3);font-weight:400">${cv.byDomain[d]}</span></th>
+      ${cv.kinds.map(k => {
+        const c = cv.at(d, k);
+        const why = c.band === BAND.gap ? 'no skills'
+          : `${plural(c.n, 'skill')}, ${c.used} used in the last ${FRESH_DAYS} days — ${c.band}`;
+        return c.band === BAND.gap
+          ? `<td data-band="gap" aria-label="${esc(d + ', ' + k + ': ' + why)}">·</td>`
+          : `<td data-band="${c.band}" role="button" tabindex="0" data-cell="${esc(d)}|${esc(k)}"
+               title="${esc(d + ' / ' + k + ' — ' + why)}"
+               aria-label="${esc(d + ', ' + k + ': ' + why + '. Show them.')}">${c.n}</td>`;
+      }).join('')}</tr>`).join('');
+
+  return `<div class="analysis">
+    <h2>Where the library is strong, and where it is not</h2>
+    <p class="lede">${cv.scored.length} skills you or your repo wrote, laid out by domain and kind.
+      A band is adoption and craft, never output quality: nothing on disk records whether a skill's
+      answer was any good, so the strongest signal available is whether you still call it.</p>
+    <div class="key">
+      <span><i class="strong"></i>Strong — 2+ skills, at least one used in ${FRESH_DAYS} days (${bands.strong})</span>
+      <span><i class="thin"></i>Thin — only one skill, or none used recently (${bands.thin})</span>
+      <span><i></i>Gap — nothing here (${bands.gap} of ${total} cells)</span>
+    </div>
+    <div class="grid-wrap"><table class="grid">
+      <thead>${head}</thead><tbody>${body}</tbody></table></div>
+    <section class="gaps">
+      <span class="kicker">Holes worth filling first</span>
+      <ol>${shown.map(g => `<li data-gap="${esc(g.d)}" tabindex="0" role="button"
+          aria-label="Show the ${esc(g.d)} skills you have">
+        <span>No <b>${esc(g.k.toLowerCase())}</b> anywhere in <b>${esc(g.d)}</b></span>
+        <span class="n">${plural(g.size, 'skill')} in that domain</span></li>`).join('')}</ol>
+      <p class="notes">${all.length > shown.length
+        ? `Showing ${shown.length} of ${all.length} empty cells, ranked by how much of the library
+           already sits in that domain. ` : ''}Ranking is domain size only — a missing kind in a
+        domain you barely use is not a hole, so no “one of each” rule is applied.</p>
+    </section>
+    <p class="notes">${platform} Platform skills are left out of the grid: they arrived with
+      plugins, and their usage record is <em>no data</em> rather than zero, so they can be counted
+      but not scored. ${universal} skills carry no domain at all — universal, not unknown — so they
+      sit in no cell while still appearing under every domain in the table.${uncat
+        ? ` ${uncat} skills have no kind yet and are unscored.` : ''}
+      Cell counts are skills with an assigned domain; opening one also shows universal skills of
+      that kind, so the table can read higher than the cell.</p>
+  </div>`;
+}
+
+// ---------------------------------------------------------------- panel
+// One drawer, two payloads: the thesis and a skill's full entry. A row used to expand in
+// place, which pushed the rest of the table out from under the cursor on every click.
+// ---------------------------------------------------------------- history
+// Every word here comes from git. An annotated tag carries the headline and the note, and the
+// commits between two tags are the release by definition, so there is no releases file to keep
+// in step with the log. The split still matters: the tag message is addressed to someone asking
+// what changed, the commit subjects under it are addressed to the next developer.
+function historyView() {
+  const R = SNAP.releases || [];
+  if (!R.length) return `<div class="empty"><h2>No history to show</h2>
+    <p>Either git is unavailable here or this copy has no commits yet. Write a release with
+      <code>git tag -a</code> and scan again; anything committed since the newest tag shows up
+      as Unreleased on its own.</p></div>`;
+  const day = s => new Date(s).toLocaleDateString(undefined,
+    { year: 'numeric', month: 'short', day: 'numeric' });
+  const when = r => day(r.date_start) === day(r.date_end)
+    ? day(r.date_start) : day(r.date_start) + ' – ' + day(r.date_end);
+  return `<ol class="timeline">${R.map(r => `
+    <li class="rel${r.unreleased ? ' loose' : ''}">
+      <time datetime="${esc(r.date_end)}">${esc(when(r))}${r.tag ? `<span class="tag">${esc(r.tag)}</span>` : ''}</time>
+      <h2>${esc(r.headline)}</h2>
+      ${r.description ? `<p>${esc(r.description)}</p>` : ''}
+      ${r.commits.length ? `<div class="what"><span class="kicker">What happened</span>
+        <ul>${r.commits.map(c => `<li><code>${esc(c.sha)}</code><span>${esc(c.subject)}</span></li>`).join('')}</ul>
+      </div>` : ''}
+    </li>`).join('')}</ol>`;
+}
+
+function panelBody() {
+  if (F.panel === 'insights') return thesis();
+  const e = ALL.find(x => x.id === F.panel);
+  return e ? entry(e) : '';
+}
+
+// ---------------------------------------------------------------- render
+// Analysis is a whole page, not a layout of the rows: search, facets and sort have nothing to
+// filter there, so the bench hides its own controls by mode rather than rendering a second shell.
+function viewBody(rows, b) {
+  if (F.mode === 'analysis') return analysisView();
+  if (F.mode === 'history') return historyView();
+  if (!rows.length) return empty();
+  return bandStrip(b, rows.length) +
+    (F.mode === 'index' ? indexView(b.shown) : entriesView(b));
+}
+
+const TITLES = {
+  index: ['Skills', 'Every skill this machine can reach, with what the record shows about its use.'],
+  entries: ['Skills', 'Every skill this machine can reach, with what the record shows about its use.'],
+  analysis: ['Analysis', 'Coverage by domain and kind, scored on what you have and whether you still call it.'],
+  history: ['History', 'What changed in Wayfinder itself, in plain language, with the commits underneath.'],
+};
+
+function render() {
+  const rows = ordered(pool());
+  const b = banded(rows);
+  const body = viewBody(rows, b);
+  document.getElementById('app').innerHTML =
+    `<div class="shell">${rail()}<div class="page">${header()}<div class="bench" data-mode="${F.mode}">${facets()}` +
+    `<div class="results">${toolbar(b.shown.length)}<div id="rows">${body}</div></div></div>` +
+    `${colophon()}</div></div>` +
+    `<div class="scrim${F.panelIn ? ' open' : ''}"></div>` +
+    `<aside class="panel${F.panelIn ? ' open' : ''}" role="dialog" aria-modal="true"
+       aria-label="${F.panel === 'insights' ? 'Insights' : 'Skill detail'}"${F.panelIn ? '' : ' inert'}>
+       <button class="shut js-shut">Close</button>${panelBody()}</aside>`;
+  wireShell();
+  wireRows();
+}
+
+// Filtering, searching and sorting only change the rows and the count. Rebuilding the whole
+// shell for a keystroke destroyed the search box mid-type, which is why render() used to take
+// a focus/caret argument and restore it by hand. Replacing just #rows leaves every persistent
+// control — and the caret — untouched, so that restore is gone rather than reimplemented.
+function refresh() {
+  const rows = ordered(pool());
+  const b = banded(rows);
+  document.getElementById('rows').innerHTML = viewBody(rows, b);
+  document.querySelector('.count').textContent =
+    b.shown.length === ALL.length ? plural(b.shown.length, 'skill') : b.shown.length + ' of ' + ALL.length;
+  document.querySelector('.bench').dataset.mode = F.mode;
+  const [h1, sub] = TITLES[F.mode];
+  const a = snapshotAge();
+  document.querySelector('.masthead h1').textContent = h1;
+  document.querySelector('.masthead p').textContent =
+    sub + ' ' + (a.d === 0 ? 'Scanned today' : 'Scanned ' + plural(a.d, 'day') + ' ago') + '.';
+  document.querySelectorAll('[data-nav]').forEach(el => {
+    el.dataset.nav === NAV_OF(F.mode)
+      ? el.setAttribute('aria-current', 'page') : el.removeAttribute('aria-current');
+  });
+  document.querySelectorAll('.pair [data-mode]').forEach(b =>
+    b.setAttribute('aria-pressed', F.mode === b.dataset.mode));
+  document.querySelector('.js-reset').hidden = !dirty();
+  wireRows();
+}
+
+// The facet controls are never re-rendered, so Clear has to put them back by hand.
+function syncFacets() {
+  document.getElementById('q').value = F.q;
+  document.querySelectorAll('[data-facet]').forEach(el => {
+    if (el.type === 'radio') el.checked = F[el.dataset.facet] === el.value;
+    else el.value = F[el.dataset.facet];
+  });
+}
+
+function colophon() {
+  const c = SNAP.counts, guessed = ALL.filter(e => e.category_source === 'llm').length;
+  const universal = ALL.filter(e => !e.domain).length;
+  return `<div class="colophon"><div class="inner">Domain and kind are a judgment call, not a
+    reading off disk: ${guessed} were inferred one skill at a time and ${c.plugin} were assigned
+    Platform by rule. ${universal} carry no domain at all, which means universal, not unknown —
+    they stay in view under every domain. Two usage channels leave no trace at all, so a blank
+    record is the absence of evidence, not evidence of absence.</div></div>`;
+}
+
+function openPanel(what) {
+  F.panel = what; F.panelIn = false;
+  const box = document.querySelector('.panel');
+  box.setAttribute('aria-label', what === 'insights' ? 'Insights' : 'Skill detail');
+  box.innerHTML = '<button class="shut js-shut">Close</button>' + panelBody();
+  box.querySelector('.js-shut').addEventListener('click', closePanel);
+  refresh();
+  requestAnimationFrame(() => {
+    F.panelIn = true;
+    const box = document.querySelector('.panel');
+    box.classList.add('open'); box.removeAttribute('inert');
+    document.querySelector('.scrim').classList.add('open');
+    document.querySelector('.js-insights').setAttribute('aria-expanded', what === 'insights');
+    box.querySelector('.js-shut').focus();
+  });
+}
+
+function closePanel() {
+  if (!F.panelIn) return;
+  F.panelIn = false;
+  const box = document.querySelector('.panel');
+  box.classList.remove('open'); box.setAttribute('inert', '');
+  document.querySelector('.scrim').classList.remove('open');
+  document.querySelector('.js-insights').setAttribute('aria-expanded', false);
+  const back = F.panel === 'insights'
+    ? document.querySelector('.js-insights')
+    : document.querySelector(`[data-id="${CSS.escape(F.panel || '')}"]`);
+  (back || document.getElementById('q'))?.focus();
+}
+
+function goMode(mode) {
+  if (F.mode === mode) return;
+  F.mode = mode; F.open = null;
+  const p = new URLSearchParams(location.search); p.set('mode', mode);
+  history.replaceState(null, '', location.pathname + '?' + p);
+  refresh();
+  document.querySelector('.results').scrollIntoView({ block: 'start', behavior: 'auto' });
+}
+
+// Bound once, at boot. Every element reached here outlives a refresh.
+function wireShell() {
+  const on = (id, ev, fn) => { const el = document.getElementById(id); if (el) el.addEventListener(ev, fn); };
+  on('q', 'input', e => { F.q = e.target.value; F.open = null; refresh(); });
+  document.querySelectorAll('[data-facet]').forEach(el => el.addEventListener('change', () => {
+    F[el.dataset.facet] = el.value; F.open = null;
+    refresh();
+  }));
+  document.querySelectorAll('[data-acc]').forEach(el => el.addEventListener('toggle', () => {
+    const k = el.dataset.acc;
+    F.shut = el.open ? F.shut.filter(x => x !== k) : [...F.shut, k];
+  }));
+  // Opening re-renders (the drawer's content changes), then slides on the next frame so the
+  // transition has a closed state to start from. Closing only strips the class, so the
+  // content stays put while it slides back out.
+  document.querySelector('.scrim').addEventListener('click', closePanel);
+  document.querySelectorAll('.js-insights').forEach(b => b.addEventListener('click', () => openPanel('insights')));
+  document.querySelectorAll('.js-reset').forEach(b => b.addEventListener('click', () => {
+    F.q = ''; F.band = BANDS[0][0]; F.role = 'all'; F.source = 'global'; F.domain = 'all'; F.kind = 'all';
+    F.open = null; syncFacets(); refresh();
+  }));
+  document.querySelectorAll('.pair [data-mode]').forEach(b => b.addEventListener('click', () => {
+    if (F.mode === b.dataset.mode) return;
+    F.table = b.dataset.mode;
+    goMode(b.dataset.mode);
+  }));
+  // The rail entries are real links, so a middle-click or a copied URL still works; the click
+  // handler only keeps it from reloading the page and losing the current filters.
+  document.querySelectorAll('[data-nav]').forEach(el => el.addEventListener('click', ev => {
+    ev.preventDefault();
+    goMode(el.dataset.nav === 'skills' ? F.table : el.dataset.nav);
+  }));
+}
+
+// Rebound after every refresh: these live inside #rows and are replaced with it.
+function wireRows() {
+  document.querySelectorAll('.tabs [data-band]').forEach(b => b.addEventListener('click', () => {
+    if (F.band === b.dataset.band) return;
+    F.band = b.dataset.band; F.open = null; refresh();
+  }));
+  document.querySelectorAll('thead th[data-sort]').forEach(th => th.addEventListener('click', () => {
+    const k = th.dataset.sort;
+    if (F.sort === k) F.dir = F.dir === 'asc' ? 'desc' : 'asc';
+    else { F.sort = k; F.dir = ['title', 'gloss', 'origin'].includes(k) ? 'asc' : 'desc'; }
+    refresh();
+  }));
+  // A cell answers "what is in here?" by handing the table the same two filters. Source goes to
+  // everything, since the grid scores repo skills alongside yours and the table opens on global.
+  const jump = (domain, kind) => {
+    F.source = 'all'; F.domain = domain; F.kind = kind || 'all'; F.q = ''; F.band = ANY_BAND;
+    F.role = 'all'; F.open = null;
+    F.mode = F.table;
+    const p = new URLSearchParams(location.search); p.set('mode', F.mode);
+    history.replaceState(null, '', location.pathname + '?' + p);
+    syncFacets(); refresh();
+  };
+  document.querySelectorAll('[data-cell], [data-gap]').forEach(el => {
+    const go = () => el.dataset.gap
+      ? jump(el.dataset.gap, null)
+      : jump(...el.dataset.cell.split('|'));
+    el.addEventListener('click', go);
+    el.addEventListener('keydown', ev => {
+      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); go(); }
+    });
+  });
+  document.querySelectorAll('[data-id]').forEach(el => {
+    const toggle = () => { F.open = el.dataset.id; openPanel(el.dataset.id); };
+    el.addEventListener('click', toggle);
+    el.addEventListener('keydown', ev => {
+      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); toggle(); }
+    });
+  });
+}
+
+addEventListener('keydown', e => {
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable;
+  if (e.key === '/' && !typing) { e.preventDefault(); document.getElementById('q').focus(); }
+  if (e.key === 'Escape') {
+    if (F.panelIn) { closePanel(); }
+    else if (F.open) { F.open = null; refresh(); }
+    else if (F.q) { F.q = ''; syncFacets(); refresh(); }
+  }
+});
+
+render();
+</script>
+</body>
+</html>

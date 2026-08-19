@@ -1,7 +1,7 @@
 # Map: Skill Library — a browsable, filterable view of every available skill
 
 Label: `wayfinder:map`
-Tracker: local markdown. Tickets live in `./tickets/NNN-slug.md`.
+Tracker: local markdown. Tickets live in `docs/tickets/NNN-slug.md`.
 
 ## Destination
 
@@ -177,6 +177,25 @@ where corrected numbers confirm them. Tickets 002 and 004 re-measured everything
   toggle. The sketch's `Analysis` and `History` nav items are dropped as out of scope by the map's own
   line, and `History` is unbuildable — no per-skill version history exists yet. The rail ships with
   `Skills` as its only entry.
+  **Amended 2026-08-18, second pass:** the rail ships three entries, not one. `Analysis` was built
+  as the domain-and-kind coverage grid. `History` was built too, but it is **not** the item this
+  ticket rejected: the rejected one was per-skill version history, which still does not exist and
+  still cannot be faked. What shipped is Wayfinder's own release history, rendered as a vertical
+  timeline: `scan.py` reads the **annotated tags** of its own repo, taking the tag subject as the
+  headline, the tag body as the note, and the commits between two tags as the release. A
+  hand-written `data/releases.json` mapping shas to prose was built first and then deleted — an
+  annotated tag already carries a subject, a body and a date, so the file was the same writing
+  plus the bookkeeping, and it could drift out of step with the log. The headline stays curated
+  because a commit subject is written for the next developer and this page is not. Commits after
+  the newest tag are grouped as Unreleased rather than dropped, on 008's principle that the page
+  shows what it has not yet classified. Absent git or an absent `.git` yields an empty timeline
+  and a scan error, never a traceback (007's portability rule).
+  **Also amended:** the `Record` usage radio group is gone from the filter column. The four usage
+  bands became a horizontal tab strip above the results, a strict superset of what the radios
+  offered — it splits `used` into gone-quiet and in-rotation, which the radios could not express —
+  replacing four stacked card sections that put "In rotation" a full screen below the fold. Two
+  controls over one field could contradict each other, so only one survives. The strip sits above
+  both the table and the card layout, because the radios served both.
 - [007 — Publish allowlist](tickets/007-publish-allowlist.md) — Allowlist only, fail closed, as
   `publishable: true` per `id` in `overrides.json` (not the sidecar, which an LLM refresh would silently
   reset; not frontmatter, which read-only forbids). A crude six-word regex already flags 33 of Eli's 169
@@ -213,7 +232,8 @@ where corrected numbers confirm them. Tickets 002 and 004 re-measured everything
 - **Starting real version history for the skills.** Finding: no per-skill history exists. Making
   it exist from now on (committing `~/.claude/skills` properly, or a version-bump ritual) is
   in scope for the effort but is a separate practice from the library UI, and it is unclear
-  whether it belongs to this tool at all.
+  whether it belongs to this tool at all. The `History` rail entry does **not** answer this: it
+  tracks Wayfinder's own releases, not any skill's.
 - **Whether slash commands in `~/.claude/commands` belong in the library as rows.** Partly settled by
   003: commands **must** be in the scanner's name vocabulary regardless, or the orchestration graph is
   wrong. Whether they also get their own library rows is still open. 004 measured them at 11 files, 9

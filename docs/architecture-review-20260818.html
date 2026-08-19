@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Architecture review — wayfinder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+      mermaid.initialize({ startOnLoad: true, theme: "neutral", securityLevel: "loose" });
+    </script>
+    <style>
+      .seam { stroke-dasharray: 4 4; }
+      .leak { stroke: #dc2626; }
+      .deep { background: linear-gradient(135deg, #0f172a, #1e293b); }
+      .lbl { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+    </style>
+  </head>
+  <body class="bg-stone-50 text-slate-900 font-sans">
+    <main class="max-w-5xl mx-auto px-6 py-12 space-y-12">
+
+      <header class="border-b border-stone-300 pb-6">
+        <h1 class="font-serif text-4xl">Architecture review — <span class="italic">wayfinder</span></h1>
+        <p class="mt-2 text-sm text-slate-600 font-mono">/Users/elijahyazdi/Development/skill-library/wayfinder · 18 Aug 2026 · 831 lines of scanner, 1808 lines of template, 0 tests</p>
+        <div class="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-xs text-slate-600">
+          <span class="flex items-center gap-2"><span class="inline-block w-6 h-3 border border-slate-500"></span> module</span>
+          <span class="flex items-center gap-2"><svg width="26" height="6"><line x1="0" y1="3" x2="26" y2="3" class="seam" stroke="#475569" stroke-width="2"/></svg> seam</span>
+          <span class="flex items-center gap-2"><svg width="26" height="6"><line x1="0" y1="3" x2="26" y2="3" class="leak" stroke-width="2"/></svg> leakage</span>
+          <span class="flex items-center gap-2"><span class="inline-block w-6 h-3 deep"></span> deep module</span>
+          <span class="text-slate-400">no CONTEXT.md, no ADRs — domain terms taken from MAP.md and tickets 001–008</span>
+        </div>
+      </header>
+
+      <section id="candidates" class="space-y-10">
+
+        <!-- ============================================ 1 -->
+        <article id="c1" class="rounded-xl border border-stone-300 bg-white p-7 space-y-5">
+          <div class="flex items-start justify-between gap-4">
+            <h2 class="font-serif text-2xl">1. Delete the two dead UI directions</h2>
+            <div class="flex gap-2 shrink-0">
+              <span class="rounded-full bg-emerald-100 text-emerald-800 text-xs font-medium px-3 py-1">Strong</span>
+              <span class="rounded-full bg-slate-100 text-slate-600 text-xs px-3 py-1">in-process</span>
+            </div>
+          </div>
+
+          <ul class="font-mono text-sm text-slate-700 space-y-0.5">
+            <li>ui-a-catalogue.template.html · 538 lines</li>
+            <li>ui-b-instrument.template.html · 540 lines</li>
+            <li>ui-c-fieldguide.template.html · 730 lines <span class="text-emerald-700">← the live one</span></li>
+            <li>scan.py:805 <span class="text-slate-500">glob("*.template.html")</span></li>
+          </ul>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="rounded-lg border border-slate-200 bg-stone-50 p-4">
+              <div class="lbl text-slate-500 mb-3">Before</div>
+              <div class="space-y-2 text-xs">
+                <div class="border border-slate-400 rounded px-3 py-2 bg-white">ui_payload() <span class="text-slate-500">one snapshot subset</span></div>
+                <div class="grid grid-cols-3 gap-2">
+                  <div class="border border-red-300 rounded p-2 bg-white"><div class="lbl text-red-700">A catalogue</div><div class="mt-1 text-slate-500">pool / ordered / render</div><div class="mt-1 text-red-600">frozen at commit</div></div>
+                  <div class="border border-red-300 rounded p-2 bg-white"><div class="lbl text-red-700">B instrument</div><div class="mt-1 text-slate-500">pool / ordered / render</div><div class="mt-1 text-red-600">frozen at commit</div></div>
+                  <div class="border-2 border-slate-800 rounded p-2 bg-white"><div class="lbl">C field guide</div><div class="mt-1 text-slate-500">pool / ordered / render</div><div class="mt-1 text-emerald-700">+212 lines since</div></div>
+                </div>
+                <div class="text-slate-500">every build writes 2.1 MB · 3 copies of the facet rules</div>
+              </div>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-stone-50 p-4">
+              <div class="lbl text-slate-500 mb-3">After</div>
+              <div class="space-y-2 text-xs">
+                <div class="border border-slate-400 rounded px-3 py-2 bg-white">ui_payload() <span class="text-slate-500">one snapshot subset</span></div>
+                <div class="border-2 border-slate-800 rounded p-3 bg-white">
+                  <div class="lbl">C field guide</div>
+                  <div class="mt-1 text-slate-500">pool / ordered / render — one place a facet rule lands</div>
+                </div>
+                <div class="text-slate-500">every build writes 700 KB · 1078 lines deleted</div>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-sm"><span class="lbl text-slate-500 mr-2">Problem</span>Three implementations of the same filter-and-sort module exist; only C is maintained, so A and B are decoration that the build still pays for.</p>
+          <p class="text-sm"><span class="lbl text-slate-500 mr-2">Solution</span>Delete A and B; the bake-off closed when 006 picked C and the app-shell amendment landed in C alone.</p>
+          <ul class="text-sm grid sm:grid-cols-2 gap-x-6 gap-y-1 list-disc list-inside marker:text-emerald-600">
+            <li>locality: one file owns facet rules</li>
+            <li>build output drops 1.4 MB</li>
+            <li>deletion test: concentrates nothing</li>
+            <li>no rot in unread prototypes</li>
+          </ul>
+          <div class="rounded-md bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-900">
+            006 Q1 says direction C <em>provisionally</em>. If the bake-off is genuinely still open, keep A and B and re-land the shell amendment in both — but a frozen comparator is not a comparator.
+          </div>
+        </article>
+
+        <!-- ============================================ 2 -->
+        <article id="c2" class="rounded-xl border border-stone-300 bg-white p-7 space-y-5">
+          <div class="flex items-start justify-between gap-4">
+            <h2 class="font-serif text-2xl">2. Give the classification module a test surface</h2>
+            <div class="flex gap-2 shrink-0">
+              <span class="rounded-full bg-emerald-100 text-emerald-800 text-xs font-medium px-3 py-1">Strong</span>
+              <span class="rounded-full bg-slate-100 text-slate-600 text-xs px-3 py-1">local-substitutable</span>
+            </div>
+          </div>
+
+          <ul class="font-mono text-sm text-slate-700 space-y-0.5">
+            <li>scan.py:113 parse_frontmatter · :366 refs_in · :409 step_section_spread · :421 build_graph</li>
+            <li>tickets/003-orchestration-rule.md · tickets/006-ui-shape.md Q12</li>
+            <li class="text-red-600">no test file anywhere in the repo</li>
+          </ul>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="rounded-lg border border-slate-200 bg-stone-50 p-4">
+              <div class="lbl text-slate-500 mb-3">Before — the spec lives in prose</div>
+              <pre class="mermaid">
+flowchart TB
+  T["003 / 006 tickets<br/>precision .71 · recall .86<br/>edges 391 → 156"]
+  R["refs_in()<br/>SLASH_REF · BACKTICK · gate"]
+  H["~/.claude on this machine"]
+  E["eyeball the printed counts"]
+  T -. "asserted nowhere" .-> R
+  H --> R --> E
+  classDef leak stroke:#dc2626,stroke-width:2px;
+  class T,E leak
+              </pre>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-stone-50 p-4">
+              <div class="lbl text-slate-500 mb-3">After — the numbers are the tests</div>
+              <pre class="mermaid">
+flowchart TB
+  F["fixtures/*.md<br/>~20 bodies: URL span, route list,<br/>Dependencies footer, Step spread"]
+  R2["refs_in() · parse_frontmatter()<br/>pure text in, set out"]
+  A["assert edge set, parse_status,<br/>orchestration_verdict"]
+  H2["~/.claude"] --> S["build_graph()"]
+  F --> R2 --> A
+  R2 --> S
+  classDef deep fill:#0f172a,color:#fff,stroke:#0f172a;
+  class R2 deep
+              </pre>
+            </div>
+          </div>
+
+          <p class="text-sm"><span class="lbl text-slate-500 mr-2">Problem</span>The measured numbers in 003 and 006 <em>are</em> the specification, and nothing holds the implementation to them — a regex tweak that re-breaks the URL guard prints a plausible count and passes silently.</p>
+          <p class="text-sm"><span class="lbl text-slate-500 mr-2">Solution</span>The functions are already pure text-in/set-out, so the interface is already the test surface: add a fixture directory of small SKILL.md bodies, each one a case a ticket already argued, and assert the outcome.</p>
+          <ul class="text-sm grid sm:grid-cols-2 gap-x-6 gap-y-1 list-disc list-inside marker:text-emerald-600">
+            <li>leverage: one interface, every rule</li>
+            <li>the ticket numbers stop drifting</li>
+            <li>fixtures substitute for ~/.claude</li>
+            <li>a teammate can run it on any machine</li>
+            <li>no new dependency: unittest</li>
+          </ul>
+        </article>
+
+        <!-- ============================================ 3 -->
+        <article id="c3" class="rounded-xl border border-stone-300 bg-white p-7 space-y-5">
+          <div class="flex items-start justify-between gap-4">
+            <h2 class="font-serif text-2xl">3. One module per source, behind one seam</h2>
+            <div class="flex gap-2 shrink-0">
+              <span class="rounded-full bg-emerald-100 text-emerald-800 text-xs font-medium px-3 py-1">Strong</span>
+              <span class="rounded-full bg-slate-100 text-slate-600 text-xs px-3 py-1">ports &amp; adapters</span>
+            </div>
+          </div>
+
+          <ul class="font-mono text-sm text-slate-700 space-y-0.5">
+            <li>scan.py:152 enabled_plugins · :157 plugin_records · :195 global_skill_files</li>
+            <li>scan.py:223 build_entry <span class="text-red-600">(4 branches on source)</span> · :303 collect_entries</li>
+          </ul>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="rounded-lg border border-slate-200 bg-stone-50 p-4">
+              <div class="lbl text-slate-500 mb-3">Before — source lore spread over 4 sites</div>
+              <pre class="mermaid">
+flowchart LR
+  C["collect_entries()"] --> G["global_skill_files()"]
+  C --> P["plugin_records()"]
+  C --> Rp["inline repo glob<br/>+ 'absent from global' rule"]
+  G --> B["build_entry()"]
+  P --> B
+  Rp --> B
+  B --> B1["if source == plugin: id"]
+  B --> B2["if source == global: lock lookup"]
+  B --> B3["if source == global: repo twin diff"]
+  B --> B4["author fallback chain"]
+  classDef leak stroke:#dc2626,stroke-width:2px;
+  class B1,B2,B3,B4 leak
+              </pre>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-stone-50 p-4">
+              <div class="lbl text-slate-500 mb-3">After — three adapters, one interface</div>
+              <div class="space-y-2">
+                <div class="rounded border-2 border-slate-800 p-3 text-xs bg-white">
+                  <div class="lbl">Source interface</div>
+                  <div class="font-mono mt-1 text-slate-700">files() → paths<br/>identity(path) → id, author, version, updated_at, drift</div>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-xs">
+                  <div class="deep text-white rounded p-2"><div class="lbl">Global</div><div class="mt-1 text-slate-300">skill-lock, repo twin, exclusions</div></div>
+                  <div class="deep text-white rounded p-2"><div class="lbl">Plugin</div><div class="mt-1 text-slate-300">enabledPlugins, manifests, one-level glob</div></div>
+                  <div class="deep text-white rounded p-2"><div class="lbl">Repo</div><div class="mt-1 text-slate-300">optional root, global wins</div></div>
+                </div>
+                <svg width="100%" height="26"><line x1="4%" y1="13" x2="96%" y2="13" class="seam" stroke="#475569" stroke-width="2"/></svg>
+                <div class="rounded border border-slate-400 p-3 text-xs bg-white">build_entry() — source-blind: parse, shape, nothing else</div>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-sm"><span class="lbl text-slate-500 mr-2">Problem</span>What a global / plugin / repo entry <em>is</em> is split across enumeration, <code class="font-mono">collect_entries</code>, and four <code class="font-mono">if source ==</code> branches, so adding the fourth source the map leaves open — <code class="font-mono">~/.claude/commands</code> as rows — means edits in four places.</p>
+          <p class="text-sm"><span class="lbl text-slate-500 mr-2">Solution</span>Each source becomes one module behind a two-function interface; <code class="font-mono">build_entry</code> stops asking where a file came from.</p>
+          <ul class="text-sm grid sm:grid-cols-2 gap-x-6 gap-y-1 list-disc list-inside marker:text-emerald-600">
+            <li>locality: identity rules in one module</li>
+            <li>a fourth source is one new adapter</li>
+            <li>004's exclusion rules stop scattering</li>
+            <li>fake source module = testable pipeline</li>
+          </ul>
+          <div class="rounded-md bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-900">
+            Ponytail check: three adapters exist today and a fourth is already specified as open, so this is a real seam, not a hypothetical one. It is still <em>one file</em> — modules here are sections of scan.py, not new files.
+          </div>
+        </article>
+
+        <!-- ============================================ 4 -->
+        <article id="c4" class="rounded-xl border border-stone-300 bg-white p-7 space-y-5">
+          <div class="flex items-start justify-between gap-4">
+            <h2 class="font-serif text-2xl">4. Deepen usage: an accumulator that owns the three-state rule</h2>
+            <div class="flex gap-2 shrink-0">
+              <span class="rounded-full bg-amber-100 text-amber-800 text-xs font-medium px-3 py-1">Worth exploring</span>
+              <span class="rounded-full bg-slate-100 text-slate-600 text-xs px-3 py-1">in-process</span>
+            </div>
+          </div>
+
+          <ul class="font-mono text-sm text-slate-700 space-y-0.5">
+            <li>scan.py:464 blank_usage · :473 bump · :486 scan_transcripts · :540 scan_history</li>
+            <li>scan.py:572 attach_usage · :641 orphan_usage</li>
+          </ul>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="rounded-lg border border-slate-200 bg-stone-50 p-4">
+              <div class="lbl text-slate-500 mb-3">Before — mass diagram</div>
+              <div class="flex items-end gap-6 h-[300px]">
+                <div class="flex-1 flex flex-col justify-end items-center">
+                  <div class="w-full bg-red-200 border border-red-400 rounded-t" style="height:170px"></div>
+                  <div class="lbl mt-2 text-center text-slate-600">interface<br/>12 counter keys · 3 _last_at stamps</div>
+                </div>
+                <div class="flex-1 flex flex-col justify-end items-center">
+                  <div class="w-full bg-slate-300 border border-slate-500 rounded-t" style="height:200px"></div>
+                  <div class="lbl mt-2 text-center text-slate-600">implementation<br/>bump + 3 readers</div>
+                </div>
+              </div>
+              <p class="text-xs text-slate-500 mt-2">Field names re-enumerated in five places; max-of-three-stamps written twice; the used / never_used / no_data rule sits inline in a 70-line dict literal.</p>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-stone-50 p-4">
+              <div class="lbl text-slate-500 mb-3">After — mass diagram</div>
+              <div class="flex items-end gap-6 h-[300px]">
+                <div class="flex-1 flex flex-col justify-end items-center">
+                  <div class="w-full bg-emerald-200 border border-emerald-500 rounded-t" style="height:52px"></div>
+                  <div class="lbl mt-2 text-center text-slate-600">interface<br/>record(channel, when) · verdict(coverage)</div>
+                </div>
+                <div class="flex-1 flex flex-col justify-end items-center">
+                  <div class="w-full deep rounded-t" style="height:250px"></div>
+                  <div class="lbl mt-2 text-center text-slate-600">implementation<br/>counters, stamps, 002's rule</div>
+                </div>
+              </div>
+              <p class="text-xs text-slate-500 mt-2">Channels push in; the state rule is answered by the module that holds the evidence.</p>
+            </div>
+          </div>
+
+          <p class="text-sm"><span class="lbl text-slate-500 mr-2">Problem</span>The usage module is shallow — its interface is a raw dict of twelve counters, so the three readers each re-derive last-used and re-list the field names.</p>
+          <p class="text-sm"><span class="lbl text-slate-500 mr-2">Solution</span>One accumulator per name: transcripts and history call <code class="font-mono">record()</code>, and the module answers <code class="font-mono">used / never_used / no_data</code> itself.</p>
+          <ul class="text-sm grid sm:grid-cols-2 gap-x-6 gap-y-1 list-disc list-inside marker:text-emerald-600">
+            <li>locality: 002's rule in one place</li>
+            <li>interface shrinks, implementation absorbs it</li>
+            <li>testable without ~/.claude</li>
+            <li>a fourth channel adds no reader edits</li>
+          </ul>
+        </article>
+
+        <!-- ============================================ 5 -->
+        <article id="c5" class="rounded-xl border border-stone-300 bg-white p-7 space-y-5">
+          <div class="flex items-start justify-between gap-4">
+            <h2 class="font-serif text-2xl">5. Stop smuggling <code class="font-mono text-xl">_front</code> / <code class="font-mono text-xl">_body</code> through the entry</h2>
+            <div class="flex gap-2 shrink-0">
+              <span class="rounded-full bg-amber-100 text-amber-800 text-xs font-medium px-3 py-1">Worth exploring</span>
+              <span class="rounded-full bg-slate-100 text-slate-600 text-xs px-3 py-1">in-process</span>
+            </div>
+          </div>
+
+          <ul class="font-mono text-sm text-slate-700 space-y-0.5">
+            <li>scan.py:296 <span class="text-slate-500">"_front": front, "_body": body</span></li>
+            <li>scan.py:441 build_graph reads them · :757 main pops them</li>
+          </ul>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="rounded-lg border border-slate-200 bg-stone-50 p-4">
+              <div class="lbl text-slate-500 mb-3">Before — cross-section, one mutable dict</div>
+              <div class="space-y-1 text-xs">
+                <div class="h-10 border-l-4 border-slate-400 bg-white pl-3 flex items-center">build_entry — writes 30 fields + 2 private</div>
+                <div class="h-10 border-l-4 border-red-500 bg-white pl-3 flex items-center">build_graph — reads _body, writes 7 fields</div>
+                <div class="h-10 border-l-4 border-slate-400 bg-white pl-3 flex items-center">merge_categories — overwrites 8 fields</div>
+                <div class="h-10 border-l-4 border-slate-400 bg-white pl-3 flex items-center">attach_usage — writes usage{}</div>
+                <div class="h-10 border-l-4 border-red-500 bg-white pl-3 flex items-center">main — pops _front/_body before serialising</div>
+                <p class="text-slate-500 pt-1">Whole-file bodies ride in the payload dict until a pop in main saves the snapshot from them.</p>
+              </div>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-stone-50 p-4">
+              <div class="lbl text-slate-500 mb-3">After — text stays with the module that reads it</div>
+              <div class="space-y-1 text-xs">
+                <div class="h-10 border-l-4 border-slate-400 bg-white pl-3 flex items-center">build_entry → (entry, front, body)</div>
+                <div class="h-12 deep text-white pl-3 flex items-center rounded">graph module owns {id: (front, body)}</div>
+                <div class="h-10 border-l-4 border-slate-400 bg-white pl-3 flex items-center">merge_categories, attach_usage — entry only</div>
+                <div class="h-10 border-l-4 border-emerald-500 bg-white pl-3 flex items-center">main — serialise, no pop</div>
+                <p class="text-slate-500 pt-1">The entry is what the snapshot says it is, at every step.</p>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-sm"><span class="lbl text-slate-500 mr-2">Problem</span>Parsed text leaks across the seam between parsing and the graph by hiding in the entry, and the only thing keeping ~8 MB of bodies out of the snapshot is a pop 460 lines later.</p>
+          <p class="text-sm"><span class="lbl text-slate-500 mr-2">Solution</span>Return the text alongside the entry and let the graph module hold it; delete the pop.</p>
+          <ul class="text-sm grid sm:grid-cols-2 gap-x-6 gap-y-1 list-disc list-inside marker:text-emerald-600">
+            <li>005's "bodies never inlined" enforced structurally</li>
+            <li>temporal coupling in main disappears</li>
+            <li>entry shape = snapshot shape</li>
+          </ul>
+        </article>
+
+        <!-- ============================================ 6 -->
+        <article id="c6" class="rounded-xl border border-stone-300 bg-white p-7 space-y-5">
+          <div class="flex items-start justify-between gap-4">
+            <h2 class="font-serif text-2xl">6. <code class="font-mono text-xl">isLeaf</code> is a domain rule living in the browser</h2>
+            <div class="flex gap-2 shrink-0">
+              <span class="rounded-full bg-slate-200 text-slate-700 text-xs font-medium px-3 py-1">Speculative</span>
+              <span class="rounded-full bg-slate-100 text-slate-600 text-xs px-3 py-1">in-process</span>
+            </div>
+          </div>
+
+          <ul class="font-mono text-sm text-slate-700 space-y-0.5">
+            <li>ui-c-fieldguide.template.html:316 <span class="text-slate-500">isLeaf = e =&gt; e.reached_via.length &amp;&amp; !e.delegates_to.length</span></li>
+            <li>scan.py:421 build_graph · tickets/003-orchestration-rule.md</li>
+          </ul>
+
+          <div class="rounded-lg border border-slate-200 bg-white p-4">
+            <pre class="mermaid">
+flowchart LR
+  subgraph scanner
+    G["build_graph()<br/>delegates_to · reached_via · degree · verdict"]
+  end
+  subgraph browser
+    L["isLeaf()"]
+    R["Role facet"]
+  end
+  G -->|"snapshot"| L --> R
+  G -. "003's strongest field<br/>defined only here" .-> L
+  classDef leak stroke:#dc2626,stroke-width:2px;
+  class L leak
+            </pre>
+          </div>
+
+          <p class="text-sm"><span class="lbl text-slate-500 mr-2">Problem</span>003 calls "called by an orchestrator, calls nobody" the strongest field in the model, and it exists only as one line of JavaScript in the view.</p>
+          <p class="text-sm"><span class="lbl text-slate-500 mr-2">Solution</span>Compute it in <code class="font-mono">build_graph</code> as a role field on the entry; the view reads it.</p>
+          <ul class="text-sm grid sm:grid-cols-2 gap-x-6 gap-y-1 list-disc list-inside marker:text-emerald-600">
+            <li>the graph module owns graph vocabulary</li>
+            <li>testable with candidate 2's fixtures</li>
+            <li>survives a UI rewrite</li>
+          </ul>
+          <div class="rounded-md bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-900">
+            Counter-argument: one line, and 006 deliberately keeps view concerns in the page. Only worth it once the role facet grows a third value.
+          </div>
+        </article>
+
+      </section>
+
+      <section id="top-recommendation" class="rounded-xl deep text-white p-8 space-y-3">
+        <div class="lbl text-slate-400">Top recommendation</div>
+        <h2 class="font-serif text-3xl">Candidate 2 — give the classification module a test surface</h2>
+        <p class="text-slate-200 text-sm max-w-3xl">
+          Every other candidate moves code that no test is watching. The measured numbers in 003 and 006 Q12 are the actual specification of this tool, they were each wrong once already, and today the only check is reading a printed count against a ticket. The functions are pure text-in/set-out, so the interface is already the test surface — the work is fixtures, not redesign. Do candidate 1 first as a thirty-second pre-step, then 2, then 3.
+        </p>
+        <p class="text-slate-400 text-xs font-mono">→ <a href="#c2" class="underline">#c2</a> · pre-step <a href="#c1" class="underline">#c1</a> · next <a href="#c3" class="underline">#c3</a></p>
+      </section>
+
+    </main>
+  </body>
+</html>

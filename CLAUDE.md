@@ -20,8 +20,12 @@ Violating any of these breaks the product, not just the style:
 3. **No ES modules, no external `<script src>` or `<link>` for app code.** `file://` blocks module
    loading. This is why the CSS and JS live inline in `index.template.html`, and why splitting them
    into `styles.css` or component files is a regression rather than a cleanup. The CSS is already
-   tokenized: 17 custom properties on `:root`, and every literal color sits in the two `:root`
-   blocks.
+   tokenized: 20 custom properties on `:root`, and every literal color sits in the three `:root`
+   blocks. The Google Fonts `<link>` is the one permitted external request, and the page has to be
+   correct when it fails.
+
+   `DESIGN.md` is the visual contract and `PRODUCT.md` the product record. Read `DESIGN.md` before
+   changing anything visual; the MAP's 010 entry says what it replaced and why.
 4. **Generated files never ship.** `data/*.json` and `index.html` are gitignored. The one exception
    is `data/overrides.json`, which is hand written, not regenerable, and tracked on purpose.
 

@@ -223,12 +223,52 @@ where corrected numbers confirm them. Tickets 002 and 004 re-measured everything
   that usage coverage is degrading because transcripts roll off at 30. First build ships the honesty,
   not the automation; the trigger to revisit is annoyance, not a date.
 
+- [009 — "Needs work" as a signal](tickets/009-needs-work.md) — The fourth question the README
+  promises, unspecified until 005 gave it a schema to sit on. No single cheap rule exists, so 003's
+  two-tier architecture is reused verbatim. **Tier one** is four mechanical checks stated as fact,
+  flagging **24 of Eli's 169**: `frontmatter_repaired` (16), `name_mismatch` (7, including a
+  directory that misspells Karpathy), `missing_target` (1), `foreign_marker` (1). **Tier two** is 43
+  suggestive hits — thin bodies and descriptions with no trigger phrasing — adjudicated by one
+  batched LLM call, the same shape and size as 003's 46 orchestration candidates. Union is 64 of 169,
+  a workable list where the 121-skill `never_used` band is not. Rejected with numbers: dead relative
+  paths (103 of 169, the 006 Q12 failure again), naive drive-letter matching (48, because `s://`
+  matches inside `https://`), body length as quality, duplicate descriptions (exactly one pair,
+  a non-problem), and never-used-and-unreachable (97, which is just the `never_used` band restated).
+  Plugin skills are excluded before any check runs: the MAP puts improving them out of scope, and an
+  unactionable defect list is noise. Flags go in `skills.json`, the adjudicated verdict in the
+  sidecar, overrides win — 005's split, for 005's reason. **Answered during the build and worth
+  keeping:** `frontmatter_repaired` is untidy, not broken. Raw PyYAML fails on `design-sprint`,
+  `design-accelerator`, `intentional-buy` and `feature-sprint`, and all four appear in the harness's
+  own skill roster with their descriptions intact, so Claude Code's loader is the more tolerant of
+  the two. No severity tiers were built, because no flag means the skill cannot load. **Built the
+  same day:** flags and candidate pool in `scan.py`, Condition facet, row chips, panel sentences,
+  rail count. The adjudication pass is specified and not run, on 008's cadence.
+
+- **[010 — The visual system] (2026-08-18, no ticket file; the record is `DESIGN.md`)** — The
+  editorial world the first build shipped (Young Serif display, Manrope, Roboto Mono, indigo and
+  clay, 999px pills, a 34px serif headline over 13px rows) is **retired**. It was chosen for a
+  field guide; what the tool is actually used for is recall, so the world is now a records
+  workspace at CRM density, benchmarked against Attio and written down in `DESIGN.md`:
+  Schibsted Grotesk for every UI role, JetBrains Mono for anything that is a value, a warm-neutral
+  canvas / surface / panel tonal order, hairlines instead of cards, 6px control radii, 34px rows,
+  30px controls, one workspace blue that only means current, selected or focused, plus clay for
+  never-called and green for in-rotation. `PRODUCT.md` records the product truth the world serves.
+  What did **not** change: every scanner contract, every number, the read-only rule, the one-file
+  no-dependency stack, and the page's information architecture.
+  **006 Q2 is reaffirmed, not reversed.** Facets stay in a left column. What changed is their
+  dress: options are 24px selectable rows in the register's own language rather than bare native
+  radios, and a facet with more than five options still collapses to a select.
+  Two mechanical consequences worth keeping: the register now scrolls inside its own wrapper below
+  an 860px minimum table width, so the page body never scrolls sideways and the rail and header
+  stay put; and the row's name cell is a flex cell, so a long name ellipses while the `needs work`
+  and `orchestrator` chips stay whole. The third chip, `reached only via`, was dropped from the
+  register — it is already legible in the Calls column and stated in full in the panel.
+  Deliberate and flagged by the mechanical detector: register type runs 11 / 12 / 13px with no
+  scale ratio. At 34px rows weight and colour carry the hierarchy; the real scale contrast lives
+  in the 24px view title and the 17px panel headline.
+
 ## Not yet specified
 
-- **"Needs refinement" as a signal beyond recency.** Recency answers "forgotten". It does not
-  answer "this skill is thin, or wrong, or was written before I knew better". Possible inputs:
-  description length, whether it triggers reliably, whether it has been edited since first
-  written. Cannot be specified until the snapshot schema exists.
 - **Starting real version history for the skills.** Finding: no per-skill history exists. Making
   it exist from now on (committing `~/.claude/skills` properly, or a version-bump ritual) is
   in scope for the effort but is a separate practice from the library UI, and it is unclear
@@ -253,7 +293,7 @@ where corrected numbers confirm them. Tickets 002 and 004 re-measured everything
 
 ## Handoff
 
-All eight tickets are closed. The spec is decision-complete and ready for `/feature-sprint`.
+All nine tickets are closed. The spec is decision-complete and ready for `/feature-sprint`.
 
 Known work the build inherits, none of it reopening a decision:
 

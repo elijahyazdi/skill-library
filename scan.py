@@ -665,6 +665,7 @@ UI_ENTRY_FIELDS = (
     "delegates_to", "delegates_to_unresolved", "reached_via",
     "domain", "domain_secondary", "kind", "category_source", "category_status",
     "orchestration_class", "orchestration_reason",
+    "health_flags", "health_candidate", "health_verdict", "health_source",
 )
 UI_USAGE_FIELDS = (
     "state", "total_count", "last_used_at", "days_since_last_use", "sources", "coverage",
@@ -703,6 +704,57 @@ def ui_payload(snapshot):
 
 
 # ---------------------------------------------------------------- categories
+
+# ---------------------------------------------------------------- health (009)
+
+# A drive letter only at a real left boundary. The first pass matched `[A-Za-z]:[\\/]` and
+# flagged 48 of 169, because `s://` matches inside every `https://` URL. Guarded it flags 1,
+# which is correct. Same lesson as 006 Q12 and the dead-path rule 009 rejected: guard the left
+# context or the whole library matches.
+DRIVE = re.compile(r"(?<![\w:/])[A-Za-z]:[\\/]{1,2}(?!/)")
+CJK = re.compile(r"[\u3040-\u30ff\u4e00-\u9fff]")
+# 002: the description is the text a model reads to decide whether to trigger. Absent trigger
+# phrasing is a proxy for a weak one, not a measurement, which is why it only nominates an
+# entry for adjudication and never sets a flag on its own.
+TRIGGER = re.compile(r"\buse (this )?(skill )?when\b|\bwhen the user\b|\btrigger", re.I)
+THIN_LINES = 20
+
+# Every flag is a statement about the file, not a judgment about the writing. None of them
+# means the skill cannot load: the 16 that need frontmatter repair are rejected by PyYAML but
+# read correctly by the harness, verified against four of them, so there are no severity tiers
+# here on purpose (009).
+HEALTH_FLAGS = ("frontmatter_repaired", "name_mismatch", "missing_target", "foreign_marker")
+
+
+def attach_health(entries):
+    """Mechanical defect flags, and the pool for the batched adjudication pass.
+
+    Eli's own skills only. The MAP puts improving plugin skills out of scope, so flagging
+    them would be 257 rows of a list nobody can act on (009).
+    """
+    for e in entries:
+        e["health_flags"] = []
+        e["health_candidate"] = False
+        e["health_verdict"] = None
+        e["health_source"] = "none"
+        if e["source"] == "plugin":
+            continue
+        flags = []
+        if e["parse_status"] != "ok":
+            flags.append("frontmatter_repaired")
+        # build_entry only records declared_name when it disagrees with the directory, and the
+        # directory is what defines the id (004), so the frontmatter name is the wrong one.
+        if e["declared_name"]:
+            flags.append("name_mismatch")
+        if e["delegates_to_unresolved"]:
+            flags.append("missing_target")
+        text = (e.get("_front") or "") + (e.get("_body") or "")
+        if DRIVE.search(text) or CJK.search(text):
+            flags.append("foreign_marker")
+        e["health_flags"] = flags
+        e["health_candidate"] = ((e["body_lines"] or 0) < THIN_LINES
+                                 or not TRIGGER.search(e["description"] or ""))
+
 
 # ---------------------------------------------------------------- release history
 
@@ -831,6 +883,9 @@ def merge_categories(entries):
                 e["orchestration_source"] = "adjudicated" if src == "llm" else "override"
             if "publishable" in rec:
                 e["publishable"] = rec["publishable"]
+            if rec.get("health_verdict"):
+                e["health_verdict"] = rec["health_verdict"]
+                e["health_source"] = "adjudicated" if src == "llm" else "override"
 
         # kind is required, so an entry only counts as assigned once it has one.
         e["category_status"] = "assigned" if e["kind"] else "uncategorized"
@@ -849,6 +904,7 @@ def main():
     entries, roots, plugins = collect_entries()
     commands = command_vocabulary()
     build_graph(entries, commands)
+    attach_health(entries)
     merge_categories(entries)
 
     vocab = {e["name"] for e in entries} | set(commands)
@@ -876,6 +932,8 @@ def main():
             "repo": by_source["repo"],
             "builtin": by_source["builtin"],
             "uncategorized": sum(1 for e in entries if e["category_status"] == "uncategorized"),
+            "flagged": sum(1 for e in entries if e["health_flags"]),
+            "health_candidates": sum(1 for e in entries if e["health_candidate"]),
             "orphan_usage": len(orphans),
         },
         "roots": roots,
@@ -932,6 +990,10 @@ def main():
           % (sum(1 for e in entries if e["orchestration_degree"] >= 2),
              sum(1 for e in entries if e["orchestration_verdict"])))
     print("parse: %s" % dict(collections.Counter(e["parse_status"] for e in entries)))
+    print("health: %d flagged %s, %d candidates for adjudication"
+          % (sum(1 for e in entries if e["health_flags"]),
+             dict(collections.Counter(f for e in entries for f in e["health_flags"])),
+             sum(1 for e in entries if e["health_candidate"])))
     if SCAN_ERRORS:
         print("scan_errors: %d (see snapshot)" % len(SCAN_ERRORS))
 

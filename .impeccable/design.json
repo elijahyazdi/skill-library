@@ -1,0 +1,283 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-19T04:24:01Z",
+  "title": "Design System: Wayfinder",
+  "extensions": {
+    "colorMeta": {
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Warm Canvas",
+        "canonical": "#fbfbfa",
+        "tonalRamp": ["#1a1a18", "#2b2b28", "#3a3a36", "#5e5e59", "#8b8b85", "#dcdcd8", "#e9e9e6", "#fbfbfa"]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Paper Surface",
+        "canonical": "#ffffff",
+        "tonalRamp": ["#171716", "#1e1e1c", "#262624", "#3a3a36", "#8b8b85", "#f1f1ef", "#f6f6f4", "#ffffff"]
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Rail Panel",
+        "canonical": "#f6f6f4",
+        "tonalRamp": ["#1a1a19", "#232321", "#2b2b28", "#3a3a36", "#8b8b85", "#e9e9e6", "#f1f1ef", "#f6f6f4"]
+      },
+      "raise": {
+        "role": "neutral",
+        "displayName": "Raised Neutral",
+        "canonical": "#f1f1ef",
+        "tonalRamp": ["#171716", "#262624", "#3a3a36", "#5e5e59", "#8b8b85", "#dcdcd8", "#e9e9e6", "#f1f1ef"]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Row Hairline",
+        "canonical": "#e9e9e6",
+        "tonalRamp": ["#1a1a18", "#2b2b28", "#3a3a36", "#5e5e59", "#8b8b85", "#dcdcd8", "#e4e4e0", "#e9e9e6"]
+      },
+      "edge": {
+        "role": "neutral",
+        "displayName": "Control Edge",
+        "canonical": "#dcdcd8",
+        "tonalRamp": ["#1a1a18", "#2b2b28", "#3a3a36", "#5e5e59", "#8b8b85", "#c9c9c4", "#dcdcd8", "#e9e9e6"]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Record Ink",
+        "canonical": "#1a1a18",
+        "tonalRamp": ["#0d0d0c", "#1a1a18", "#33332f", "#5e5e59", "#8b8b85", "#c2c2bc", "#e9e9e6", "#fbfbfa"]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Secondary Ink",
+        "canonical": "#5e5e59",
+        "tonalRamp": ["#1a1a18", "#33332f", "#474742", "#5e5e59", "#8b8b85", "#b5b5af", "#dcdcd8", "#f6f6f4"]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Label Gray",
+        "canonical": "#8b8b85",
+        "tonalRamp": ["#1a1a18", "#3a3a36", "#5e5e59", "#7a7a73", "#8b8b85", "#b5b5af", "#dcdcd8", "#f1f1ef"]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Workspace Blue",
+        "canonical": "#3b5bdb",
+        "tonalRamp": ["#101a42", "#1b2a66", "#22357f", "#2c45a8", "#3b5bdb", "#8da2f5", "#c6d0f7", "#eef1fd"]
+      },
+      "accent-wash": {
+        "role": "primary",
+        "displayName": "Blue Wash",
+        "canonical": "#eef1fd",
+        "tonalRamp": ["#131730", "#1e2233", "#333b57", "#5c6ba8", "#8da2f5", "#c6d0f7", "#e2e8fb", "#eef1fd"]
+      },
+      "accent-edge": {
+        "role": "primary",
+        "displayName": "Blue Edge",
+        "canonical": "#c6d0f7",
+        "tonalRamp": ["#1a1f3a", "#232b4c", "#333b57", "#4d5a8c", "#7e8fd4", "#a8b6ea", "#c6d0f7", "#eef1fd"]
+      },
+      "signal-cold": {
+        "role": "secondary",
+        "displayName": "Cold Clay",
+        "canonical": "#b0592c",
+        "tonalRamp": ["#2a211b", "#42281a", "#5f381f", "#8a4724", "#b0592c", "#cf8459", "#dfa07a", "#fbefe8"]
+      },
+      "signal-cold-wash": {
+        "role": "secondary",
+        "displayName": "Clay Wash",
+        "canonical": "#fbefe8",
+        "tonalRamp": ["#231b16", "#2a211b", "#4a3225", "#7a4b30", "#b0592c", "#dfa07a", "#f2d8c8", "#fbefe8"]
+      },
+      "signal-live": {
+        "role": "tertiary",
+        "displayName": "Live Green",
+        "canonical": "#2f7d4f",
+        "tonalRamp": ["#101c15", "#1b2620", "#22452f", "#265f3d", "#2f7d4f", "#59a377", "#7fbf9a", "#eaf4ee"]
+      },
+      "signal-live-wash": {
+        "role": "tertiary",
+        "displayName": "Green Wash",
+        "canonical": "#eaf4ee",
+        "tonalRamp": ["#101c15", "#1b2620", "#24382c", "#356b4b", "#2f7d4f", "#7fbf9a", "#cbe4d6", "#eaf4ee"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The view title in the workspace header. One per view." },
+      "headline": { "displayName": "Headline", "purpose": "The record name in the reading panel, and analysis section heads." },
+      "title": { "displayName": "Title", "purpose": "Record names in the register, nav items, buttons, band tabs." },
+      "body": { "displayName": "Body", "purpose": "Descriptions, panel prose, help text. Prose caps at 68ch; register cells are not prose." },
+      "label": { "displayName": "Label", "purpose": "Column heads, facet group names, chips, badges. Uppercase at three words or fewer." },
+      "data": { "displayName": "Data", "purpose": "Counts, day deltas, line totals, filesystem paths, plugin ids. Always tabular." }
+    },
+    "shadows": [
+      {
+        "name": "float",
+        "value": "0 1px 2px rgba(20,20,18,.04), 0 12px 32px rgba(20,20,18,.10)",
+        "purpose": "The reading panel and dropdown menus, the only two things that actually float. Dark mode uses the same geometry at rgba(0,0,0,.3) and rgba(0,0,0,.45)."
+      },
+      {
+        "name": "nub",
+        "value": "0 1px 2px rgba(20,20,18,.06)",
+        "purpose": "The selected face of a segmented control, the one element that reads as physically raised."
+      }
+    ],
+    "motion": [
+      { "name": "state-fast", "value": "120ms", "purpose": "Row and facet-row hover fills. Cheap enough to feel instant while scanning." },
+      { "name": "state", "value": "140ms", "purpose": "Default for background, border, and color changes on controls." },
+      { "name": "panel-slide", "value": "220ms cubic-bezier(.16,.84,.28,1)", "purpose": "The reading panel entering and leaving. The one authored moment in the product; disabled under prefers-reduced-motion." }
+    ],
+    "breakpoints": [
+      { "name": "facets-wrap", "value": "1080px" },
+      { "name": "rail-collapse", "value": "860px" },
+      { "name": "register-trim", "value": "640px" },
+      { "name": "register-min-width", "value": "860px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Record row",
+      "kind": "custom",
+      "refersTo": "record-row",
+      "description": "The register's unit: a usage dot, a name that yields before the chips do, the gloss, then right-aligned data.",
+      "html": "<table class=\"ds-register\"><tbody><tr class=\"ds-row\"><td class=\"ds-row-title\"><span class=\"ds-pip ds-pip-never\"></span><span class=\"ds-nm\">client-intake</span><span class=\"ds-badge ds-badge-flag\">needs work</span><span class=\"ds-badge ds-badge-orch\">orchestrator</span></td><td class=\"ds-row-gloss\">Project intake orchestrator for client work</td><td class=\"ds-row-stat ds-num\">—</td><td class=\"ds-row-stat ds-num\">0</td></tr><tr class=\"ds-row ds-row-open\"><td class=\"ds-row-title\"><span class=\"ds-pip ds-pip-live\"></span><span class=\"ds-nm\">feature-sprint</span></td><td class=\"ds-row-gloss\">Token-efficient feature development sprint</td><td class=\"ds-row-stat ds-num\">3d</td><td class=\"ds-row-stat ds-num\">76</td></tr></tbody></table>",
+      "css": ".ds-register { border-collapse: collapse; width: 100%; font: 400 13px/1.55 var(--ui, \"Schibsted Grotesk\", ui-sans-serif, system-ui, sans-serif); color: var(--ink, #1a1a18); } .ds-row > td { height: 34px; padding: 0 10px; border-bottom: 1px solid var(--hairline, #e9e9e6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: background-color 120ms; } .ds-row:hover > td { background: var(--surface, #ffffff); } .ds-row-open > td { background: var(--accent-wash, #eef1fd); } .ds-row-open > td.ds-row-title { box-shadow: inset 2px 0 0 var(--accent, #3b5bdb); } .ds-row-title { font-weight: 500; max-width: 260px; display: flex; align-items: center; gap: 6px; letter-spacing: -0.006em; } .ds-nm { min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .ds-row-gloss { color: var(--ink-2, #5e5e59); max-width: 0; width: 100%; } .ds-row-stat { text-align: right; font-size: 12px; color: var(--ink-2, #5e5e59); } .ds-num { font-family: var(--data, \"JetBrains Mono\", ui-monospace, Menlo, monospace); font-variant-numeric: tabular-nums; } .ds-pip { width: 6px; height: 6px; border-radius: 50%; box-sizing: border-box; flex: none; } .ds-pip-live { background: var(--live, #2f7d4f); } .ds-pip-never { background: var(--cold, #b0592c); } .ds-pip-none { background: transparent; border: 1px solid var(--ink-3, #8b8b85); } .ds-badge { flex: none; font: 550 11px var(--ui, \"Schibsted Grotesk\", sans-serif); letter-spacing: 0.02em; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--edge, #dcdcd8); background: var(--surface, #ffffff); color: var(--ink-2, #5e5e59); } .ds-badge-flag { color: var(--cold, #b0592c); background: var(--cold-wash, #fbefe8); border-color: #d8a688; } .ds-badge-orch { color: var(--accent, #3b5bdb); background: var(--accent-wash, #eef1fd); border-color: var(--accent-edge, #c6d0f7); }"
+    },
+    {
+      "name": "Band strip",
+      "kind": "nav",
+      "refersTo": "band-strip",
+      "description": "The product's spine: four usage bands with tabular counts, always visible, opening on the most neglected non-empty band.",
+      "html": "<div class=\"ds-tabs\" role=\"group\" aria-label=\"Usage record\"><button class=\"ds-tab\" aria-pressed=\"true\">Never called<span class=\"ds-tab-n\">120</span></button><button class=\"ds-tab\" aria-pressed=\"false\">Gone quiet<span class=\"ds-tab-n\">16</span></button><button class=\"ds-tab\" aria-pressed=\"false\">In rotation<span class=\"ds-tab-n\">31</span></button><button class=\"ds-tab\" aria-pressed=\"false\">All<span class=\"ds-tab-n\">167</span></button></div>",
+      "css": ".ds-tabs { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px; border-bottom: 1px solid var(--hairline, #e9e9e6); } .ds-tab { all: unset; cursor: pointer; display: inline-flex; align-items: baseline; gap: 6px; padding: 6px 10px 8px; margin-bottom: -1px; font: 500 13px var(--ui, \"Schibsted Grotesk\", ui-sans-serif, system-ui, sans-serif); color: var(--ink-3, #8b8b85); border-bottom: 2px solid transparent; transition: color 140ms; } .ds-tab:hover { color: var(--ink, #1a1a18); } .ds-tab[aria-pressed=\"true\"] { color: var(--ink, #1a1a18); border-bottom-color: var(--accent, #3b5bdb); } .ds-tab:focus-visible { outline: 2px solid var(--accent, #3b5bdb); outline-offset: -3px; border-radius: 6px; } .ds-tab-n { font-family: var(--data, \"JetBrains Mono\", ui-monospace, Menlo, monospace); font-size: 11px; font-variant-numeric: tabular-nums; color: var(--ink-3, #8b8b85); }"
+    },
+    {
+      "name": "Facet option row",
+      "kind": "custom",
+      "refersTo": "facet-pick",
+      "description": "A facet option in the sticky left column: a 24px selectable row, not a bare native radio. The input stays for semantics and keyboard support.",
+      "html": "<div class=\"ds-facet\"><div class=\"ds-facet-label\">From</div><label class=\"ds-pick\"><input type=\"radio\" name=\"ds-from\" checked>Yours</label><label class=\"ds-pick\"><input type=\"radio\" name=\"ds-from\">Plugins</label><label class=\"ds-pick\"><input type=\"radio\" name=\"ds-from\">Everything</label></div>",
+      "css": ".ds-facet { font: 400 13px/1.55 var(--ui, \"Schibsted Grotesk\", ui-sans-serif, system-ui, sans-serif); max-width: 200px; } .ds-facet-label { font: 550 11px var(--ui, \"Schibsted Grotesk\", sans-serif); letter-spacing: 0.02em; text-transform: uppercase; color: var(--ink-3, #8b8b85); padding-bottom: 8px; } .ds-pick { display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--ink-2, #5e5e59); min-height: 24px; padding: 3px 8px; border-radius: 6px; transition: background-color 120ms, color 120ms; } .ds-pick:hover { background: var(--raise, #f1f1ef); color: var(--ink, #1a1a18); } .ds-pick input { appearance: none; margin: 0; flex: none; width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--edge, #dcdcd8); background: var(--surface, #ffffff); } .ds-pick input:checked { border: 4px solid var(--accent, #3b5bdb); } .ds-pick:has(input:checked) { background: var(--accent-wash, #eef1fd); color: var(--ink, #1a1a18); font-weight: 500; } .ds-pick:focus-within { outline: 2px solid var(--accent, #3b5bdb); outline-offset: 2px; }"
+    },
+    {
+      "name": "Search field",
+      "kind": "input",
+      "refersTo": "input-search",
+      "description": "The register bar's lookup field. 30px like every other control in that row; focus is a border shift plus a wash halo, never a glow.",
+      "html": "<div class=\"ds-look\"><svg viewBox=\"0 0 14 14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><circle cx=\"6\" cy=\"6\" r=\"4\"/><path d=\"M9 9l4 4\"/></svg><input class=\"ds-input\" type=\"search\" placeholder=\"Look up names and glosses\" aria-label=\"Look up a skill\"></div>",
+      "css": ".ds-look { position: relative; max-width: 380px; } .ds-input { width: 100%; height: 30px; font: 400 13px var(--ui, \"Schibsted Grotesk\", ui-sans-serif, system-ui, sans-serif); color: var(--ink, #1a1a18); background: var(--surface, #ffffff); border: 1px solid var(--edge, #dcdcd8); border-radius: 6px; padding: 0 10px 0 30px; transition: border-color 140ms, box-shadow 140ms; } .ds-input::placeholder { color: var(--ink-3, #8b8b85); } .ds-input:hover { border-color: var(--ink-3, #8b8b85); } .ds-input:focus { outline: none; border-color: var(--accent, #3b5bdb); box-shadow: 0 0 0 3px var(--accent-wash, #eef1fd); } .ds-look svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--ink-3, #8b8b85); pointer-events: none; }"
+    },
+    {
+      "name": "Secondary button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "The default button, and the only one in the header. Surface fill, hairline edge, 30px.",
+      "html": "<button class=\"ds-btn\">View insights</button>",
+      "css": ".ds-btn { all: unset; cursor: pointer; height: 30px; display: inline-flex; align-items: center; padding: 0 12px; font: 500 13px var(--ui, \"Schibsted Grotesk\", ui-sans-serif, system-ui, sans-serif); color: var(--ink, #1a1a18); background: var(--surface, #ffffff); border: 1px solid var(--edge, #dcdcd8); border-radius: 6px; transition: background-color 140ms, border-color 140ms; } .ds-btn:hover { background: var(--raise, #f1f1ef); border-color: var(--ink-3, #8b8b85); } .ds-btn:active { background: var(--edge, #dcdcd8); } .ds-btn:focus-visible { outline: 2px solid var(--accent, #3b5bdb); outline-offset: 2px; }"
+    },
+    {
+      "name": "Primary button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ink fill, used at most once per view. In Wayfinder that is the empty state's reset.",
+      "html": "<button class=\"ds-btn-primary\">Start over</button>",
+      "css": ".ds-btn-primary { all: unset; cursor: pointer; height: 30px; display: inline-flex; align-items: center; padding: 0 12px; font: 500 13px var(--ui, \"Schibsted Grotesk\", ui-sans-serif, system-ui, sans-serif); color: var(--surface, #ffffff); background: var(--ink, #1a1a18); border-radius: 6px; transition: background-color 140ms; } .ds-btn-primary:hover { background: var(--ink-2, #5e5e59); } .ds-btn-primary:focus-visible { outline: 2px solid var(--accent, #3b5bdb); outline-offset: 2px; }"
+    },
+    {
+      "name": "Segmented view switch",
+      "kind": "custom",
+      "refersTo": "view-switch",
+      "description": "Table or card. The selected face is the one element in the system that reads as physically raised.",
+      "html": "<div class=\"ds-pair\" role=\"group\" aria-label=\"Layout\"><button class=\"ds-pair-btn\" aria-pressed=\"true\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M3 9h18\"/><path d=\"M3 15h18\"/><path d=\"M12 3v18\"/></svg>Table</button><button class=\"ds-pair-btn\" aria-pressed=\"false\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>Card</button></div>",
+      "css": ".ds-pair { display: inline-flex; gap: 2px; background: var(--raise, #f1f1ef); border: 1px solid var(--hairline, #e9e9e6); border-radius: 6px; padding: 2px; } .ds-pair-btn { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 4px; font: 500 12px var(--ui, \"Schibsted Grotesk\", ui-sans-serif, system-ui, sans-serif); color: var(--ink-3, #8b8b85); transition: color 140ms, background-color 140ms; } .ds-pair-btn svg { width: 14px; height: 14px; } .ds-pair-btn:hover { color: var(--ink, #1a1a18); } .ds-pair-btn[aria-pressed=\"true\"] { background: var(--surface, #ffffff); color: var(--ink, #1a1a18); box-shadow: 0 1px 2px rgba(20,20,18,.06); } .ds-pair-btn:focus-visible { outline: 2px solid var(--accent, #3b5bdb); outline-offset: 1px; }"
+    },
+    {
+      "name": "Rail nav item",
+      "kind": "nav",
+      "refersTo": "nav-item",
+      "description": "A workspace destination with its count. Current carries a fill and a 2px accent edge bar, so it is never signalled by colour alone.",
+      "html": "<nav class=\"ds-rail\" aria-label=\"Sections\"><a class=\"ds-nav\" href=\"#\" aria-current=\"page\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M16 6l4 14\"/><path d=\"M12 6v14\"/><path d=\"M8 8v12\"/><path d=\"M4 4v16\"/></svg>Skills<span class=\"ds-nav-n\">426</span></a><a class=\"ds-nav\" href=\"#\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M3 3v16a2 2 0 0 0 2 2h16\"/><rect x=\"7\" y=\"9\" width=\"4\" height=\"8\" rx=\"1\"/><rect x=\"14\" y=\"5\" width=\"4\" height=\"12\" rx=\"1\"/></svg>Analysis<span class=\"ds-nav-n\">21</span></a></nav>",
+      "css": ".ds-rail { display: flex; flex-direction: column; gap: 1px; width: 196px; padding: 12px; background: var(--panel, #f6f6f4); border-right: 1px solid var(--hairline, #e9e9e6); } .ds-nav { position: relative; display: flex; align-items: center; gap: 8px; text-decoration: none; font: 500 13px var(--ui, \"Schibsted Grotesk\", ui-sans-serif, system-ui, sans-serif); color: var(--ink-2, #5e5e59); padding: 5px 8px; border-radius: 6px; transition: background-color 140ms, color 140ms; } .ds-nav svg { width: 16px; height: 16px; flex: none; } .ds-nav:hover { background: var(--raise, #f1f1ef); color: var(--ink, #1a1a18); } .ds-nav[aria-current=\"page\"] { background: var(--raise, #f1f1ef); color: var(--ink, #1a1a18); } .ds-nav[aria-current=\"page\"]::before { content: \"\"; position: absolute; left: -12px; top: 4px; bottom: 4px; width: 2px; border-radius: 0 2px 2px 0; background: var(--accent, #3b5bdb); } .ds-nav-n { margin-left: auto; font-family: var(--data, \"JetBrains Mono\", ui-monospace, Menlo, monospace); font-size: 11px; font-variant-numeric: tabular-nums; color: var(--ink-3, #8b8b85); } .ds-nav:focus-visible { outline: 2px solid var(--accent, #3b5bdb); outline-offset: 2px; }"
+    },
+    {
+      "name": "Reading panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "The one floating surface: a record read in full, opened from a row and closed with Escape. Labels are 11px uppercase, values are ink, anything that is a value is mono.",
+      "html": "<aside class=\"ds-panel\" role=\"dialog\" aria-label=\"Skill detail\"><button class=\"ds-panel-shut\">Close</button><h2 class=\"ds-panel-h\">claude-handoff</h2><div class=\"ds-panel-sub\"><span class=\"ds-pip ds-pip-never\"></span>never used</div><p class=\"ds-panel-read\">Hand the current conversation off to a fresh background agent that picks up the work immediately.</p><dl class=\"ds-dl\"><dt>Call it</dt><dd class=\"ds-loc\">/claude-handoff</dd><dt>Category</dt><dd>Engineering / Converter <span class=\"ds-quiet\">inferred, correctable</span></dd><dt>Evidence</dt><dd class=\"ds-quiet\">nothing in 167 days of history</dd></dl></aside>",
+      "css": ".ds-panel { position: relative; width: min(440px, 100%); max-height: 420px; overflow-y: auto; padding: 24px; background: var(--surface, #ffffff); border: 1px solid var(--hairline, #e9e9e6); border-radius: 10px; box-shadow: 0 1px 2px rgba(20,20,18,.04), 0 12px 32px rgba(20,20,18,.10); font: 400 13px/1.55 var(--ui, \"Schibsted Grotesk\", ui-sans-serif, system-ui, sans-serif); color: var(--ink, #1a1a18); } .ds-panel-shut { all: unset; position: absolute; top: 14px; right: 16px; cursor: pointer; font: 500 12px var(--ui, \"Schibsted Grotesk\", sans-serif); color: var(--ink-3, #8b8b85); padding: 4px 6px; border-radius: 6px; } .ds-panel-shut:hover { color: var(--ink, #1a1a18); background: var(--raise, #f1f1ef); } .ds-panel-h { margin: 0; font: 600 17px/1.3 var(--ui, \"Schibsted Grotesk\", sans-serif); letter-spacing: -0.012em; } .ds-panel-sub { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12px; color: var(--ink-3, #8b8b85); } .ds-panel-read { margin: 20px 0 0; max-width: 62ch; color: var(--ink-2, #5e5e59); } .ds-dl { margin: 20px 0 0; display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 8px 16px; padding-top: 16px; border-top: 1px solid var(--hairline, #e9e9e6); } .ds-dl dt { font: 550 11px var(--ui, \"Schibsted Grotesk\", sans-serif); letter-spacing: 0.02em; text-transform: uppercase; color: var(--ink-3, #8b8b85); padding-top: 3px; } .ds-dl dd { margin: 0; min-width: 0; overflow-wrap: anywhere; } .ds-loc { font-family: var(--data, \"JetBrains Mono\", ui-monospace, Menlo, monospace); font-size: 12px; color: var(--ink-2, #5e5e59); user-select: all; } .ds-quiet { color: var(--ink-3, #8b8b85); } .ds-pip { display: inline-block; width: 6px; height: 6px; border-radius: 50%; box-sizing: border-box; } .ds-pip-never { background: var(--cold, #b0592c); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Cold-Outreach CRM, for skills",
+    "overview": "Wayfinder is a records workspace. A skill is a record; the last time it ran is the last time it was contacted; a skill with 167 days of silence is a cold account, not a table cell. The whole system is borrowed from the CRM the audience already reads daily — the Attio register: a quiet workspace chrome that stays out of the way, hairline-ruled rows at real density, and one small blue accent that only ever means \"current\" or \"selected\". Nothing here is editorial. There is no serif, no display face, no page that reads like an essay. It reads like a tool that expects to be used again in ten minutes.\n\nThe register earns the product's actual job. Recall beats lookup here: the point of opening Wayfinder is to be told about a skill you own and forgot. A CRM is the one interface family whose native grammar is exactly that — pipeline bands, last-contact recency, a queue of accounts that have gone quiet. So the bands are not a filter widget bolted onto a table; they are the spine, and the table is the register underneath them.\n\nDensity is a feature, not a compromise. 34px rows, 13px text, tabular figures, hairlines instead of cards. Whitespace is spent on the workspace edges and on the reading panel, never inside the register. What the previous design got wrong is recorded as the anti-reference: mixed rhythms between masthead, bench, analysis, and panel; a 34px serif headline sitting above 13px rows; and raw radios and native selects standing in for a filter language.",
+    "keyCharacteristics": [
+      "One family (Schibsted Grotesk), one accent (workspace blue), two signal hues (cold, live).",
+      "Hairlines and tonal layering carry structure. Shadows appear only when something floats.",
+      "A 4px spatial grid, 34px record rows, 30px controls. Every control on a row is the same height.",
+      "Tabular figures everywhere a number can change.",
+      "Every state has a non-color carrier: a word, a dot with a distinct fill, or a border style."
+    ],
+    "rules": [
+      {
+        "name": "The Three-Hue Rule",
+        "body": "Blue, clay, green. A fourth hue does not enter the system, including for charts; the analysis grid bands with tint plus border style, not with a new color.",
+        "section": "colors"
+      },
+      {
+        "name": "The No-Data Rule",
+        "body": "Absent evidence renders as {colors.ink-3} and an em dash, never as a zero and never in a signal hue. Zero uses is a finding and is drawn in clay; no record is a gap and is drawn in gray.",
+        "section": "colors"
+      },
+      {
+        "name": "The One-Family Rule",
+        "body": "No display face, no serif, anywhere. If a heading needs more presence it gets weight and size, not a second family.",
+        "section": "typography"
+      },
+      {
+        "name": "The Compressed-Scale Rule",
+        "body": "Register type deliberately runs 11 / 12 / 13px with no ratio between the steps: at 34px rows, size separates label from value from data, and weight and colour carry the hierarchy. Real scale contrast lives above the register, in the 24px view title and the 17px panel headline.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Rule",
+        "body": "Any number that can change between rows or renders is JetBrains Mono with font-variant-numeric: tabular-nums, right-aligned in the register.",
+        "section": "typography"
+      },
+      {
+        "name": "The Sentence Rule",
+        "body": "Uppercase is for labels of 3 words or fewer. Everything else is sentence case, including buttons and chips.",
+        "section": "typography"
+      },
+      {
+        "name": "The Equal-Height Rule",
+        "body": "Every control in the register bar is 30px tall, and so is every select in the facet column. A control that cannot be 30px does not belong in either.",
+        "section": "layout"
+      },
+      {
+        "name": "The Flat Register Rule",
+        "body": "Rows and cards never lift on hover. Hover is a background change ({colors.surface} over canvas) and nothing else. No translate, no shadow, no scale.",
+        "section": "elevation"
+      },
+      {
+        "name": "The No-Pill Rule",
+        "body": "The previous design's 999px chips, buttons, and search field are the anti-reference. Everything interactive is 6px.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do keep every register-bar control at 30px and every register row at 34px.",
+      "Do render counts, day deltas, and paths in JetBrains Mono with tabular figures.",
+      "Do give every state a second carrier: a word, a dot fill, a dashed border, or an edge bar.",
+      "Do state provenance where a value was inferred, in the panel and in the analysis notes.",
+      "Do keep hover cheap: background only, 140ms, no transform."
+    ],
+    "donts": [
+      "Don't introduce a serif or any second family. Weight and size carry hierarchy.",
+      "Don't use 999px radii. Controls are 6px; the usage dot is the only circle.",
+      "Don't dress facet options as bare native radios. The column stays, the controls wear the register's own row language.",
+      "Don't lift rows or cards on hover, and don't add shadows to anything that is not floating.",
+      "Don't paint a large region in the accent, or use the accent for anything but current, selected, focused, or a path link.",
+      "Don't show a zero where there is no evidence. Absent data is an em dash in ink-3."
+    ]
+  }
+}

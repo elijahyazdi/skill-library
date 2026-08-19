@@ -285,8 +285,8 @@ overlays at 480px. The register column is fluid with a 1440px comfortable target
 
 ### Named Rules
 
-**The Equal-Height Rule.** Every control in the filter bar is 30px tall. A control that cannot be
-30px does not belong in the bar.
+**The Equal-Height Rule.** Every control in the register bar is 30px tall, and so is every select
+in the facet column. A control that cannot be 30px does not belong in either.
 
 ## Elevation & Depth
 
@@ -339,6 +339,21 @@ anti-reference. Everything interactive is 6px.
   plus a leading check glyph so selection is not color-only. A chip carrying a count shows it in
   JetBrains Mono after the label in `{colors.ink-3}`.
 
+### Identity marks
+
+The `Author` column, the card badge and the panel's `Written by` row all lead with one 16px mark:
+a 4px radius square (the badge radius), 1px `{colors.edge}`, `{colors.raise}` fill, glyph in
+`{colors.ink-2}`.
+
+- **Monochrome, always.** Brand color is refused here. Seventeen brands' palettes on 426 rows is
+  confetti, and it would take the accent's only job — showing what is current. An 11px silhouette
+  is read by shape, not hue.
+- **Mark or monogram.** A drawn silhouette exists only where it can be drawn faithfully; every
+  other identity gets its initials at 8px/550, taken from the name's own capitals (`PostHog` is
+  PH). A letterform pretending to be a logo is a monogram, so it is one.
+- **Assumed authorship is dashed.** Where the author was inferred rather than declared, the ring
+  is dashed. The tool does not dress a guess as a fact.
+
 ### Cards / Containers
 
 - **Corner Style:** 8px (`{rounded.md}`).
@@ -364,11 +379,13 @@ anti-reference. Everything interactive is 6px.
 
 ### Signature Component: the band strip
 
-The product's spine. A row of four tabs — Never called, Gone quiet, In rotation, All — each with a
+The product's spine. A row of five tabs — All, then Never called, Gone quiet, In rotation, No
+record — each with a
 JetBrains Mono count, sitting directly above the register. The selected tab carries ink text and a 2px
 accent underline flush with the register's top hairline; unselected tabs are ink-3. The strip is
 always visible, never collapses into a menu, and always opens on the most neglected non-empty
-band. It is a statement of what the tool is for, so it never moves into the facet bar.
+band — `All` leads the strip as the widest scope, but it is not the default; opening on everything
+would delete the reason the strip exists. It is a statement of what the tool is for, so it never moves into the facet bar.
 
 ### Signature Component: the record row
 
@@ -383,7 +400,7 @@ hue.
 
 ### Do:
 
-- **Do** keep every filter-bar control at 30px and every register row at 34px.
+- **Do** keep every register-bar control at 30px and every register row at 34px.
 - **Do** render counts, day deltas, and paths in JetBrains Mono with tabular figures.
 - **Do** give every state a second carrier: a word, a dot fill, a dashed border, or an edge bar.
 - **Do** state provenance where a value was inferred, in the panel and in the analysis notes.

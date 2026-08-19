@@ -264,6 +264,17 @@
                border-color: color-mix(in srgb, var(--cold) 34%, var(--edge)); }
   .badge.cly { color: var(--ink-2); background: var(--raise); border-style: dashed; }
 
+  /* 16px identity mark: 4px radius per the badge rule, hairline ring, ink-2 so it sits at the
+     weight of the cell text it leads. Dashed where the author was assumed, not declared. */
+  .av { flex: none; display: inline-flex; align-items: center; justify-content: center;
+        width: 16px; height: 16px; border-radius: 4px; box-sizing: border-box;
+        border: 1px solid var(--edge); background: var(--raise); color: var(--ink-2);
+        vertical-align: -3px; overflow: hidden; }
+  .av.guess { border-style: dashed; }
+  .av svg { width: 11px; height: 11px; }
+  .av b { font: 550 8px/1 var(--ui); letter-spacing: 0.02em; }
+  .by { display: flex; align-items: center; gap: 6px; }
+
   .entry-in { padding: 24px 24px 40px; display: flex; flex-direction: column; gap: 20px; }
   .entry-in .head { display: flex; flex-direction: column; gap: 6px; padding-right: 48px; }
   .entry-in .head h2 { margin: 0; font: 600 17px/1.3 var(--ui); letter-spacing: -0.012em;
@@ -444,7 +455,7 @@ const F = {
   // state and URL param: the plumbing and refresh() path already exist (006 amendment).
   mode: MODES.includes(qp.get('mode')) ? qp.get('mode') : 'index',
   table: qp.get('mode') === 'entries' ? 'entries' : 'index',
-  q: '', source: 'global', role: 'all', condition: 'all',
+  q: '', source: 'all', author: 'all', role: 'all', condition: 'all',
   // The usage facet used to be a Record radio group in the left column. The band strip
   // replaced it: same field, finer grain (it splits `used` into gone-quiet and in-rotation,
   // which the radios could not), and one control instead of two that could disagree.
@@ -467,7 +478,54 @@ const ANY = 'Any';
 const DOMAIN = e => e.domain || ANY;
 const facet = key => [...new Set(ALL.map(key))].sort((a, b) =>
   a === ANY ? 1 : b === ANY ? -1 : a.localeCompare(b));
-const ORIGIN = e => e.plugin ? e.plugin.split('@')[0] : e.source === 'global' ? 'yours' : e.source;
+// `From` used to show the plugin slug, or `yours` for anything in the global directory. Measured,
+// that chip was a restatement: for all 13 plugin origins the author is a pure function of the
+// slug, and in the one bucket where it is not — the 167 global entries — `yours` was wrong about
+// 87 of them, which are vendored third-party skills sitting in your directory. So one identity,
+// keyed on the author. The plugin slug is not lost: the panel's `Lives at` carries the full path.
+//
+// Author strings arrive inconsistent (repo slugs, lowercase brands), so this map fixes the
+// display name and picks the mark. It lives here, not in overrides.json, because that file is
+// keyed on entry id and merged per entry — an author-keyed table would need scanner plumbing and
+// payload bytes for something only the page reads.
+const IDENTITY = {
+  'mattpocock/skills': 'Matt Pocock',
+  'coreyhaines31/marketingskills': 'Corey Haines',
+  'remotion-dev/skills': 'Remotion',
+  'sanity': 'Sanity',
+  'supabase': 'Supabase',
+};
+// Monochrome by decision, not by omission: DESIGN.md reserves color for current-state, and a
+// silhouette at 16px is read by shape anyway. 24px viewBox on all of them, currentColor.
+const MARKS = {
+  vercel: '<path d="M12 3l9 16H3z"/>',
+  'vercel-labs': '<path d="M12 3l9 16H3z"/>',
+  anthropic: '<path d="M6.5 20L12 4l5.5 16h-3l-1-3.2h-5L7.4 20z"/><path d="M11.1 13.6h1.8L12 10.6z" fill="var(--raise)"/>',
+  figma: '<rect x="5" y="2.5" width="6.4" height="6.4" rx="3.2"/><rect x="12.6" y="2.5" width="6.4" height="6.4" rx="3.2"/><rect x="5" y="10.2" width="6.4" height="6.4" rx="3.2"/><circle cx="15.8" cy="13.4" r="3.2"/><circle cx="8.2" cy="18.3" r="3.2"/>',
+  supabase: '<path d="M13 3v7h6.3a.9.9 0 01.7 1.5L11 21v-7H4.7a.9.9 0 01-.7-1.5z"/>',
+  paper: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4" fill="var(--raise)"/>',
+  remotion: '<circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z" fill="var(--raise)"/>',
+};
+// A new plugin author picks up an existing mark for free, instead of monogramming silently until
+// someone edits the map.
+const slugOf = name => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+// A name's own capitals first, so `PostHog` is PH and not P, then word initials.
+const initials = name => (name.match(/[A-Z]/g) || []).slice(0, 2).join('')
+  || name.split(/[\s\/]+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
+  || '?';
+const who = e => {
+  const name = IDENTITY[e.author] || e.author || 'Unknown';
+  return { name, slug: slugOf(name), assumed: e.author_source === 'assumed' };
+};
+// A dashed ring where the author was assumed rather than declared: 82 entries say `Eli` only
+// because nothing said otherwise (scan.py falls back), and a guess should not look like a fact.
+function avatar(e) {
+  const w = who(e);
+  const inner = MARKS[w.slug]
+    ? `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${MARKS[w.slug]}</svg>`
+    : `<b>${esc(initials(w.name))}</b>`;
+  return `<span class="av${w.assumed ? ' guess' : ''}" title="${esc(w.name)}">${inner}</span>`;
+}
 const ageText = e => age(e) == null ? WORD[state(e)] : (age(e) === 0 ? 'used today' : age(e) + 'd ago');
 
 // 009. Every flag is a statement about the file. None of them means the skill cannot load:
@@ -488,6 +546,7 @@ function pool() {
   const q = F.q.trim().toLowerCase();
   return ALL.filter(e => {
     if (F.source !== 'all' && e.source !== F.source) return false;
+    if (F.author !== 'all' && who(e).slug !== F.author) return false;
     if (F.role === 'orchestrator' && !e.orchestration_verdict) return false;
     if (F.condition === 'flagged' && !flagged(e)) return false;
     if (F.condition === 'clean' && (flagged(e) || !scored(e))) return false;
@@ -512,7 +571,7 @@ const KEY = {
   age: e => state(e) === 'never_used' ? Infinity : age(e),
   uses: e => e.usage.total_count, calls: e => e.orchestration_degree || null,
   kind: e => (e.kind || '').toLowerCase(),
-  origin: e => ORIGIN(e).toLowerCase(), size: e => e.body_lines,
+  author: e => who(e).name.toLowerCase(), size: e => e.body_lines,
 };
 function ordered(rows) {
   const get = KEY[F.sort], sign = F.dir === 'asc' ? 1 : -1;
@@ -610,7 +669,11 @@ const OPEN_MAX = 5;
 function facetSets() {
   const uncat = ALL.filter(e => !e.kind).length;
   return [
-    ['source', 'From', [['global', 'Yours'], ['plugin', 'Plugins'], ['repo', 'Repo'], ['all', 'Everything']]],
+    ['source', 'Where', [['all', 'Everywhere'], ['global', 'Your directory'], ['plugin', 'Plugins'],
+      ['repo', 'This repo']]],
+    ['author', 'Author', [['all', 'Any author'], ...[...new Map(ALL.map(e => {
+      const w = who(e); return [w.slug, w.name];
+    })).entries()].sort((a, b) => a[1].localeCompare(b[1]))]],
     ['role', 'Role', [['all', 'Any'], ['orchestrator', 'Orchestrators'], ['leaf', 'Reached only via']]],
     ['domain', 'Domain', [['all', 'Any domain'], ...facet(DOMAIN).map(d =>
       d === ANY ? ['any', 'Universal only'] : [d, d])]],
@@ -620,7 +683,7 @@ function facetSets() {
   ];
 }
 
-const dirty = () => F.q || F.source !== 'global' || F.role !== 'all' || F.condition !== 'all'
+const dirty = () => F.q || F.source !== 'all' || F.author !== 'all' || F.role !== 'all' || F.condition !== 'all'
                  || F.domain !== 'all' || F.kind !== 'all' || F.band !== BANDS[0][0];
 
 function facets() {
@@ -657,7 +720,7 @@ function toolbar(n) {
 
 // ---------------------------------------------------------------- index
 const COLS = [['title', 'Skill', ''], ['gloss', 'Gloss', ''], ['age', 'Last used', 'r'],
-              ['uses', 'Uses', 'r'], ['calls', 'Calls', 'r'], ['origin', 'From', ''],
+              ['uses', 'Uses', 'r'], ['calls', 'Calls', 'r'], ['author', 'Author', ''],
               ['kind', 'Kind', ''], ['size', 'Lines', 'r']];
 // Kind sorts by kind then domain, since the cell shows both.
 
@@ -681,7 +744,7 @@ function indexView(rows) {
       <td class="stat r fig">${age(e) == null ? '—' : (age(e) === 0 ? 'today' : age(e) + 'd')}</td>
       <td class="stat r fig">${e.usage.total_count ?? '—'}</td>
       <td class="stat r fig">${e.orchestration_degree || '—'}</td>
-      <td class="stat">${esc(ORIGIN(e))}</td>
+      <td class="stat by">${avatar(e)}${esc(who(e).name)}</td>
       <td class="stat">${esc(e.kind || '—')}<span class="kd${e.domain ? '' : ' any'}">${esc(DOMAIN(e))}</span></td>
       <td class="stat r fig">${e.body_lines}</td></tr>`;
     return row;
@@ -719,7 +782,7 @@ function entry(e) {
         <span style="color:var(--ink-3)">${e.category_source === 'llm' ? 'inferred, correctable' : esc(e.category_source)}</span></dd>
       ${e.orchestration_class ? `<dt>Adjudged</dt><dd>${esc(e.orchestration_class)}
         <span style="color:var(--ink-3)">${esc(e.orchestration_reason || '')}</span></dd>` : ''}
-      <dt>Written by</dt><dd>${esc(e.author)} <span style="color:var(--ink-3)">via ${esc(e.author_source)}</span></dd>
+      <dt>Written by</dt><dd class="by">${avatar(e)}${esc(who(e).name)} <span style="color:var(--ink-3)">via ${esc(e.author_source)}</span></dd>
       <dt>Version</dt><dd>${e.version ? esc(e.version) : '<span style="color:var(--ink-3)">unknown</span>'}${e.updated_at ? ', updated ' + esc(e.updated_at.slice(0, 10)) : ''}</dd>
       ${e.upstream_url ? `<dt>Upstream</dt><dd class="loc">${esc(e.upstream_url)}</dd>` : ''}
       <dt>Notes</dt><dd>${notes.length ? esc(notes.join(' · ')) : '<span style="color:var(--ink-3)">—</span>'}</dd>
@@ -777,9 +840,9 @@ function bandStrip(b, total) {
   // Buttons with aria-pressed, not role="tab": the page already toggles its layout that way,
   // and a real tablist owes arrow-key navigation and a tabpanel that #rows is not.
   const tab = (k, label, n) => `<button data-band="${k}" aria-pressed="${F.band === k}">${label}<span class="n">${n}</span></button>`;
-  return `<div class="tabs" role="group" aria-label="Usage record">${
+  return `<div class="tabs" role="group" aria-label="Usage record">${tab(ANY_BAND, 'All', total)}${
     b.live.map(([k, title]) => tab(k, title, b.groups[k].length)).join('')
-  }${tab(ANY_BAND, 'All', total)}</div>`;
+  }</div>`;
 }
 
 function entriesView(b) {
@@ -796,7 +859,7 @@ function entriesView(b) {
         <div class="sub"><span class="pip ${state(e)}"></span>${esc(ageText(e))}</div>
         <p>${esc(e.description || 'No gloss on record.')}</p>
         <div class="tail">
-          <span class="badge">${esc(ORIGIN(e))}</span>
+          ${avatar(e)}
           ${e.health_flags.length ? `<span class="badge flg">needs work${e.health_flags.length > 1 ? ' ×' + e.health_flags.length : ''}</span>` : ''}
           ${e.orchestration_verdict ? '<span class="badge ind">orchestrator</span>' : ''}
           ${isLeaf(e) ? '<span class="badge cly">reached only via</span>' : ''}
@@ -1091,7 +1154,8 @@ function wireShell() {
   document.querySelector('.scrim').addEventListener('click', closePanel);
   document.querySelectorAll('.js-insights').forEach(b => b.addEventListener('click', () => openPanel('insights')));
   document.querySelectorAll('.js-reset').forEach(b => b.addEventListener('click', () => {
-    F.q = ''; F.band = BANDS[0][0]; F.role = 'all'; F.source = 'global'; F.domain = 'all';
+    F.q = ''; F.band = BANDS[0][0]; F.role = 'all'; F.source = 'all'; F.author = 'all';
+    F.domain = 'all';
     F.kind = 'all'; F.condition = 'all';
     F.open = null; syncFacets(); refresh();
   }));
@@ -1117,14 +1181,15 @@ function wireRows() {
   document.querySelectorAll('thead th[data-sort]').forEach(th => th.addEventListener('click', () => {
     const k = th.dataset.sort;
     if (F.sort === k) F.dir = F.dir === 'asc' ? 'desc' : 'asc';
-    else { F.sort = k; F.dir = ['title', 'gloss', 'origin'].includes(k) ? 'asc' : 'desc'; }
+    else { F.sort = k; F.dir = ['title', 'gloss', 'author'].includes(k) ? 'asc' : 'desc'; }
     refresh();
   }));
   // A cell answers "what is in here?" by handing the table the same two filters. Source goes to
-  // everything, since the grid scores repo skills alongside yours and the table opens on global.
+  // everything, which is also the table's default now (010 amendment), since the grid scores repo
+  // skills alongside yours.
   const jump = (domain, kind) => {
     F.source = 'all'; F.domain = domain; F.kind = kind || 'all'; F.q = ''; F.band = ANY_BAND;
-    F.role = 'all'; F.condition = 'all'; F.open = null;
+    F.role = 'all'; F.condition = 'all'; F.author = 'all'; F.open = null;
     F.mode = F.table;
     const p = new URLSearchParams(location.search); p.set('mode', F.mode);
     history.replaceState(null, '', location.pathname + '?' + p);

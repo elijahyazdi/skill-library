@@ -267,6 +267,36 @@ where corrected numbers confirm them. Tickets 002 and 004 re-measured everything
   scale ratio. At 34px rows weight and colour carry the hierarchy; the real scale contrast lives
   in the 24px view title and the 17px panel headline.
 
+- **[011 — Authorship replaces origin] (2026-08-19, no ticket file)** — The register's `From`
+  column is **retired**, and with it `ORIGIN()`. Measured, it restated the author: for all 13
+  plugin origins the author is a pure function of the plugin slug, and in the one bucket where it
+  is not — the 167 global entries — `yours` was false for 87 of them, which are vendored
+  third-party skills (`mattpocock/skills` 34, `coreyhaines31/marketingskills` 49) living in the
+  global directory. One `Author` column now carries a 16px identity mark plus the display name,
+  sorted by name. Nothing is lost: the plugin slug is still in the panel's `Lives at` path, and
+  `source` survives as a facet, retitled **Where** (Your directory / Plugins / This repo /
+  Everywhere) because location and authorship are different questions and were sharing a word.
+  Marks are inline monochrome SVG keyed on a slug derived from the display name, with an initials
+  monogram fallback — 9 drawn, 8 monogrammed of 17 identities. Rejected: brand colors (DESIGN.md
+  reserves color for current-state), GitHub avatar URLs and favicons (constraint 3, the page must
+  be correct offline), data-URI photos in the payload (page weight against `prune()`'s 22%), and
+  an author-keyed table in `overrides.json` (that file is id-keyed and merged per entry, so
+  display-only data would have cost scanner plumbing and payload bytes; the map sits in the
+  template beside `FLAG` and `BANDS` instead). PostHog's hedgehog, Sentry's arc and Sanity's
+  letterform were drawn, reviewed at 4× and cut — a wrong-but-close logo is worse than initials.
+  **Two 006 defaults are reversed.** The register no longer opens on Source=Yours; `F.source`
+  defaults to `all`, `dirty()` compares against `all`, and the band strip leads with `All` instead
+  of appending it. Opening on 426 is only correct *because* Author exists — before it, everything
+  outside your directory was labelled `yours` and widening the default would have widened a lie.
+  **What did not reverse:** the strip still opens on `never_used` (006, `KEY.age`). All is the
+  widest scope, not the default; opening on everything would delete the tool's headline claim.
+  **Amendment, same day:** authorship is also a facet, sixth in the register, sitting next to
+  Where. 17 options is past `OPEN_MAX`, so it collapses to a select on its own. It filters on the
+  identity slug rather than the raw author string, which is what keeps Vercel and Vercel Labs
+  separable and makes `mattpocock/skills` filter as Matt Pocock. The coverage-cell drill-through
+  clears it along with the other filters: a cell answers "what is in here?", and a surviving
+  author filter would make the cell's count disagree with the rows it opens.
+
 ## Not yet specified
 
 - **Starting real version history for the skills.** Finding: no per-skill history exists. Making

@@ -297,6 +297,29 @@ where corrected numbers confirm them. Tickets 002 and 004 re-measured everything
   clears it along with the other filters: a cell answers "what is in here?", and a surviving
   author filter would make the cell's count disagree with the rows it opens.
 
+- [010 — Reach](tickets/010-reach.md) — The permission model does not exist: 2 entries of 426
+  declare `allowed-tools`, so the unit is instructed behaviour, not requested permission. Seven
+  text-and-filesystem checks, 111 of 426 entries flagged, every label phrased as "contains" and
+  never as a verdict. No score, ever. Runs on all 426 including plugin skills, unlike health
+  flags, because "stop using it" is an available action. Tier-two adjudication is specified and
+  deliberately unbuilt: it would live in the gitignored sidecar and so would not travel.
+- [011 — Duplicates](tickets/011-duplicates.md) — Group on the id with the plugin prefix stripped:
+  27 groups, 54 entries, 12 byte-identical. Fuzzy matching not built, because cross-name
+  similarity found nothing name matching missed. The recommendation names the single deciding
+  criterion and refuses to pick when nothing separates two copies. No delete: `file://` cannot
+  write, and for 25 of 27 groups deletion is the wrong fix anyway since both files belong to
+  enabled plugins and an update restores them. The Resolve dialog copies the command instead.
+- [012 — Workflow](tickets/012-workflow-flow.md) — Idea 4's node-link graph became a Workflow
+  section: the skill's own Step headings, in document order, with the skills each step calls under
+  it. Nothing is inferred and nothing is ordered by the tool. HTML and CSS, not SVG, because once
+  the order comes from the file there is no layout to compute. Cycles are stated on the row rather
+  than drawn; 5 of 10 orchestrators sit in one, so falling back to the flat list would have
+  degraded half the feature. Gated on `orchestration_verdict`, so 10 of 426 entries carry `steps`.
+  Idea 5's factual half was already shipped as `Calls` / `Called by`; idea 6 was demoted after
+  007's amendment retired its premise. Also fixed `step_section_spread()`, which ended a step at
+  its own first subheading and dropped a real target on `launch-sprint`: verdict-neutral, 10
+  orchestrators before and after, 0 field diffs across the 426.
+
 ## Not yet specified
 
 - **Starting real version history for the skills.** Finding: no per-skill history exists. Making
@@ -346,5 +369,7 @@ denylist). It is 007's resolution verbatim, waiting on someone wanting to publis
   deliberately; the tool hands over a file path instead.
 - Any cloud or team sync service.
 - Analytics dashboards, charts, or trend lines over skill usage. A recency column is not a
-  charting product.
+  charting product. The exclusion covers measurements plotted over time or aggregated across
+  entries; one entry's own step structure, read from its own file, is not a measurement, which is
+  why 012's Workflow section does not reverse this.
 - Maintaining or improving plugin skills. They are indexed for discovery only.

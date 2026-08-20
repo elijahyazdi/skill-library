@@ -396,6 +396,19 @@ cells in JetBrains Mono. Hover fills with `{colors.surface}`; the open record fi
 (solid live, solid clay, hollow gray for no record) so the three states differ in shape as well as
 hue.
 
+### Component: the Workflow section
+
+Sits in the record panel after the description and before the `<dl>`, on the ten orchestrators
+only. An 11px uppercase ink-3 heading, one line of ink-3 provenance under it, then an ordered list
+with a CSS-drawn spine: a 1px `{colors.edge}` left border per step, a 6px dot on it, accent-filled
+where the step calls something and `{colors.edge}` where it does not. Step titles are 12px, ink on
+a calling step and ink-2 on a prose-only one, single-line and ellipsised. Targets are 11px
+JetBrains Mono chips: a bordered button where the name resolves, a muted `out` span where it does
+not, so an unresolved target is visibly present rather than dropped. A back-edge is a line of ink-3
+text on the row, never an arrow. Names not sitting in any step follow in a hairline-topped "Also
+references" group. The list scrolls internally at `46vh`; `Calls` and `Called by` stay in the `<dl>`
+below as the fallback and the copy surface. No SVG, no curves, no layout math.
+
 ## Do's and Don'ts
 
 ### Do:

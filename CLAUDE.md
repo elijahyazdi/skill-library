@@ -59,7 +59,8 @@ restore. Do not reintroduce a full render on a filter change.
 Listeners are split to match: `wireShell()` runs once at boot for everything that survives a
 refresh, `wireRows()` runs after every refresh for what lives inside `#rows`. Putting a persistent
 element's listener in `wireRows()` double-binds it. Putting a row's listener in `wireShell()` means
-it stops working after the first filter.
+it stops working after the first filter. `wirePanel()` is the third site: `openPanel()` rebuilds the
+panel with `innerHTML` on every open, so anything inside it binds there or not at all.
 
 **The facet controls are never re-rendered.** Anything that changes `F` without a user gesture on
 the control itself has to call `syncFacets()` to put the DOM back in step. Clear and Escape do.

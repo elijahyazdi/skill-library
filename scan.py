@@ -24,7 +24,7 @@ try:
 except ImportError:
     sys.exit("PyYAML required. It is already installed on this machine: python3 -c 'import yaml'")
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2  # 012: entries gained `steps`.
 SCANNER_VERSION = "0.1.0"
 
 HOME = os.path.expanduser("~")
@@ -343,7 +343,11 @@ def collect_entries():
 FENCE = re.compile(r"```.*?```", re.DOTALL)
 FOOTER = re.compile(r"^#{1,6}\s*(Dependencies|Related skills?|See also|Next steps?)\b.*?"
                     r"(?=^#{1,6}\s|\Z)", re.DOTALL | re.MULTILINE | re.IGNORECASE)
-SECTION = re.compile(r"^#{1,6}\s*(.*)$", re.MULTILINE)
+SECTION = re.compile(r"^(#{1,6})\s*(.*)$", re.MULTILINE)
+# A heading carrying a `[placeholder]` is template output the skill instructs the agent to
+# write, not document structure. launch-sprint's "## Launch log — [Product name] — [Date]"
+# is indistinguishable from a real section otherwise, and it ends the step above it early.
+PLACEHOLDER = re.compile(r"\[[^\]]+\]")
 CODE_SPAN = re.compile(r"`[^`\n]*`")
 # 006 Q12: the old pattern had no left-context guard and no URL awareness, so any path
 # segment matched. `https://app.example.com/pricing` scored as a call to `pricing`, and
@@ -407,16 +411,42 @@ def refs_in(text, vocab, self_name):
     return found
 
 
-def step_section_spread(body, vocab, self_name):
-    """How many Step/Phase sections contain a reference. Second half of 003's rule."""
-    hits, marks = 0, [(m.start(), m.group(1)) for m in SECTION.finditer(body)]
-    for i, (start, title) in enumerate(marks):
+def step_blocks(body, vocab, self_name):
+    """Every Step/Phase section, in document order, with the references inside it.
+
+    A section runs to the next heading at the same or a shallower level. Ending it at the
+    next heading of any level was measured wrong: launch-sprint's "## Step 6: Comms" ended
+    at its own "### Build-in-public post", which is where the /marketing-sprint handoff
+    lives, so a real target in a real step was dropped.
+
+    Shared by 003's verdict rule and 012's workflow section, deliberately: one definition of
+    what a step is. Verdict-neutral when it landed - 10 orchestrators before and after, and
+    no field diffs across the 426.
+    """
+    marks = [(m.start(), len(m.group(1)), m.group(2)) for m in SECTION.finditer(body)
+             if not PLACEHOLDER.search(m.group(2))]
+    blocks = []
+    for i, (start, level, title) in enumerate(marks):
         if not re.search(r"\b(step|phase)\b", title, re.IGNORECASE):
             continue
-        end = marks[i + 1][0] if i + 1 < len(marks) else len(body)
-        if refs_in(body[start:end], vocab, self_name):
-            hits += 1
-    return hits
+        end = next((s for s, lvl, _ in marks[i + 1:] if lvl <= level), len(body))
+        blocks.append((title, sorted(refs_in(body[start:end], vocab, self_name))))
+    return blocks
+
+
+def step_section_spread(body, vocab, self_name):
+    """How many Step/Phase sections contain a reference. Second half of 003's rule."""
+    return sum(1 for _, refs in step_blocks(body, vocab, self_name) if refs)
+
+
+# Step titles are authored markdown: "Step 2: Current state - run `/ux-flow`",
+# "Step 8: Roadmap *(client mode only)*". Stripping the two markers here rather than in the
+# page keeps the payload smaller and the page free of a markdown parser it has no dependency for.
+TITLE_MARKERS = re.compile(r"[`*]")
+
+
+def clean_title(title):
+    return TITLE_MARKERS.sub("", title).strip()
 
 
 def build_graph(entries, commands):
@@ -445,6 +475,14 @@ def build_graph(entries, commands):
                                  or step_section_spread(stripped, vocab, e["name"]) >= 2))
         e["orchestration_class"] = None
         e["orchestration_source"] = "rule"
+        # 012: the workflow section. Gated on the verdict so 10 of 426 entries carry it -
+        # wider is payload for a surface nothing renders, and prune() cannot drop a non-empty
+        # list. Whether a ref is unresolved is a set membership test against
+        # delegates_to_unresolved, and targets named outside any step are delegates_to minus
+        # the union of these refs. Neither needs its own field.
+        e["steps"] = [{"title": clean_title(t), "refs": refs}
+                      for t, refs in step_blocks(stripped, vocab, e["name"])] \
+            if e["orchestration_verdict"] else []
 
     # reached_via is the inverse index. 003 found it is the strongest field in the model:
     # it exactly recovers the four skills design-sprint hand-labelled "do not run ad hoc".
@@ -662,10 +700,11 @@ UI_ENTRY_FIELDS = (
     "id", "name", "description", "source", "plugin", "author", "author_source", "version",
     "updated_at", "skill_file", "upstream_url", "body_lines", "has_resources", "model_invocable",
     "repo_differs", "parse_status", "is_symlink", "orchestration_verdict", "orchestration_degree",
-    "delegates_to", "delegates_to_unresolved", "reached_via",
+    "delegates_to", "delegates_to_unresolved", "reached_via", "steps",
     "domain", "domain_secondary", "kind", "category_source", "category_status",
     "orchestration_class", "orchestration_reason",
     "health_flags", "health_candidate", "health_verdict", "health_source",
+    "reach_flags", "twin_group",
 )
 UI_USAGE_FIELDS = (
     "state", "total_count", "last_used_at", "days_since_last_use", "sources", "coverage",
@@ -694,6 +733,7 @@ def ui_payload(snapshot):
         "counts": snapshot["counts"],
         "usage_sources": snapshot["usage_sources"],
         "releases": snapshot["releases"],
+        "duplicates": snapshot["duplicates"],
         "entries": [
             prune(dict({k: e[k] for k in UI_ENTRY_FIELDS},
                        usage=prune({k: e["usage"][k] for k in UI_USAGE_FIELDS})))
@@ -754,6 +794,110 @@ def attach_health(entries):
         e["health_flags"] = flags
         e["health_candidate"] = ((e["body_lines"] or 0) < THIN_LINES
                                  or not TRIGGER.search(e["description"] or ""))
+
+
+# ---------------------------------------------------------------- reach (010)
+
+# What a skill can touch. The obvious framing — "what permissions does it request" — is the
+# wrong one and the measurement says so: 2 entries of 426 declare `allowed-tools`. A skill's
+# real capability is whatever the agent running it is allowed to do, and the file says nothing.
+# So the unit here is instructed behaviour: what the body tells an agent to do.
+#
+# Every flag is a statement about the text, never a verdict. `rm -rf` inside a fenced example
+# and `rm -rf` in a step the agent will run look identical to a regex, so the labels say
+# "contains" and the panel says to read the file. Tier two — adjudicating what the match
+# actually means — is deliberately not built; it needs an LLM pass and the sidecar it would
+# write to is gitignored, so it would not survive a move to another machine.
+#
+# Unlike health flags, these run on all 426 including plugin skills. The action on a flagged
+# plugin skill is "stop using it", which is available even though fixing it is not.
+REACH = (
+    ("declares_tools",    re.compile(r"^allowed-tools:", re.M)),
+    ("destructive",       re.compile(r"\brm\s+-[a-z]*[rf]|git\s+push\s+(-f\b|--force(?!-with-lease))"
+                                     r"|git\s+reset\s+--hard|\bDROP\s+(TABLE|DATABASE)\b"
+                                     r"|\bkillall\b|\bTRUNCATE\s+TABLE\b", re.I)),
+    ("network",           re.compile(r"\b(curl|wget)\s|\brequests\.(get|post|put|delete)\("
+                                     r"|\burllib\.request\b|\bfetch\(\s*[\"'`]https?://")),
+    ("credential_paths",  re.compile(r"~/\.ssh|~/\.aws|~/\.config/gcloud|\bid_rsa\b|[Kk]eychain"
+                                     r"|\bcredentials\.json\b|(?<![\w.])\.env(?![\w])")),
+    ("mcp_server",        re.compile(r"\bmcp__|\bMCP server\b")),
+    ("claude_home",       re.compile(r"~/\.claude|\$HOME/\.claude")),
+    ("bundles_scripts",   None),   # filesystem, not text
+)
+
+# The four that mean the skill can act outside the file it lives in. The other three are
+# context a reader wants once the panel is open, not a reason to mark a row in the list.
+REACH_SHARP = ("destructive", "network", "credential_paths", "mcp_server")
+
+SCRIPTABLE = (".py", ".sh", ".js", ".ts", ".rb", ".pl")
+
+
+def attach_reach(entries):
+    for e in entries:
+        text = (e.get("_front") or "") + (e.get("_body") or "")
+        flags = [name for name, pat in REACH if pat and pat.search(text)]
+        scripts = os.path.join(e["path"], "scripts")
+        try:
+            if os.path.isdir(scripts) and any(f.endswith(SCRIPTABLE) for f in os.listdir(scripts)):
+                flags.append("bundles_scripts")
+        except OSError as exc:
+            err(scripts, "reach_scripts", exc)
+        e["reach_flags"] = flags
+
+
+# ---------------------------------------------------------------- duplicates (011)
+
+# Grouping is on the id with any plugin prefix stripped, which is the only signal that
+# actually fires here: `vercel:ai-sdk` and `vercel-plugin:ai-sdk` are the same file installed
+# twice. Cross-name similarity was measured first and found nothing — 12 byte-identical body
+# groups, all of them already same-name — so no fuzzy description matching is built. It can be
+# added when a group exists that name matching misses.
+#
+# The recommendation ranks on evidence the snapshot already holds, and stops at a
+# recommendation. Nothing here deletes, edits or merges: decision 1.
+# Each label finishes the sentence "Keep <id> — ...", so the page never has to rewrite them.
+KEEP_RANK = (
+    ("it has more recorded uses", lambda e: e["usage"]["total_count"] or 0),
+    ("it was used more recently", lambda e: -(e["usage"]["days_since_last_use"]
+                                              if e["usage"]["days_since_last_use"] is not None else 10 ** 6)),
+    ("it is yours, not a plugin's", lambda e: e["source"] != "plugin"),
+    ("it carries fewer defects",  lambda e: -len(e["health_flags"])),
+    ("its frontmatter parses",    lambda e: e["parse_status"] == "ok"),
+    ("it bundles resources",      lambda e: e["has_resources"]),
+    ("it has a longer body",      lambda e: e["body_lines"] or 0),
+)
+
+
+def attach_duplicates(entries):
+    """Group same-named entries, recommend one, return the groups for the snapshot."""
+    for e in entries:
+        e["twin_group"] = None
+
+    by_name = collections.defaultdict(list)
+    for e in entries:
+        by_name[e["id"].rsplit(":", 1)[-1]].append(e)
+
+    groups = []
+    for key, members in sorted(by_name.items()):
+        if len(members) < 2:
+            continue
+        bodies = {e["id"]: ((e.get("_front") or "") + (e.get("_body") or "")) for e in members}
+        # Every rank function returns a number or a bool, and more is better in all of them,
+        # so one negation orders the whole tuple. Ties fall through to the id, which keeps the
+        # order stable across scans rather than letting sort order decide a recommendation.
+        ranked = sorted(members, key=lambda e: (tuple(-int(fn(e)) for _, fn in KEEP_RANK), e["id"]))
+        top, rest = ranked[0], ranked[1]
+        why = next((label for label, fn in KEEP_RANK if fn(top) != fn(rest)), None)
+        for e in members:
+            e["twin_group"] = key
+        groups.append({
+            "key": key,
+            "members": [e["id"] for e in ranked],
+            "identical": len(set(bodies.values())) == 1,
+            "keep": top["id"] if why else None,
+            "why": why,
+        })
+    return groups
 
 
 # ---------------------------------------------------------------- release history
@@ -905,6 +1049,7 @@ def main():
     commands = command_vocabulary()
     build_graph(entries, commands)
     attach_health(entries)
+    attach_reach(entries)
     merge_categories(entries)
 
     vocab = {e["name"] for e in entries} | set(commands)
@@ -913,6 +1058,7 @@ def main():
     record_count, h_window = scan_history(store, vocab)
     attach_usage(entries, store, generated_at, t_window, h_window)
     orphans = orphan_usage(entries, store)
+    duplicates = attach_duplicates(entries)   # ranks on usage, so it runs after usage lands
 
     settings = read_json(SETTINGS, {}) or {}
     retention = (settings.get("cleanupPeriodDays"))
@@ -934,6 +1080,8 @@ def main():
             "uncategorized": sum(1 for e in entries if e["category_status"] == "uncategorized"),
             "flagged": sum(1 for e in entries if e["health_flags"]),
             "health_candidates": sum(1 for e in entries if e["health_candidate"]),
+            "reaching": sum(1 for e in entries if e["reach_flags"]),
+            "duplicate_groups": len(duplicates),
             "orphan_usage": len(orphans),
         },
         "roots": roots,
@@ -953,6 +1101,7 @@ def main():
             "unrecoverable_paths": ["subagent_start_injection", "session_start_seen_skills"],
         },
         "orphan_usage": orphans,
+        "duplicates": duplicates,
         "releases": release_history(),
         "scan_errors": SCAN_ERRORS,
         "entries": entries,
@@ -994,6 +1143,12 @@ def main():
           % (sum(1 for e in entries if e["health_flags"]),
              dict(collections.Counter(f for e in entries for f in e["health_flags"])),
              sum(1 for e in entries if e["health_candidate"])))
+    print("reach: %d entries flagged %s"
+          % (sum(1 for e in entries if e["reach_flags"]),
+             dict(collections.Counter(f for e in entries for f in e["reach_flags"]))))
+    print("duplicates: %d groups covering %d entries, %d byte-identical"
+          % (len(duplicates), sum(len(g["members"]) for g in duplicates),
+             sum(1 for g in duplicates if g["identical"])))
     if SCAN_ERRORS:
         print("scan_errors: %d (see snapshot)" % len(SCAN_ERRORS))
 

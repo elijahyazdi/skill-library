@@ -263,6 +263,75 @@
   .badge.flg { color: var(--cold); background: var(--cold-wash);
                border-color: color-mix(in srgb, var(--cold) 34%, var(--edge)); }
   .badge.cly { color: var(--ink-2); background: var(--raise); border-style: dashed; }
+  /* Reach is not a defect, so it must not read like one: same weight as `needs work`,
+     different hue, and the word carries the meaning without the colour. */
+  .badge.rch { color: var(--ink-2); background: var(--panel); border-color: var(--edge); }
+
+  .twins { max-width: 1000px; padding-bottom: 48px; }
+  .twins h2 { margin: 0 0 6px; font: 600 17px/1.3 var(--ui); letter-spacing: -0.012em; }
+  .twins .lede { margin: 0 0 20px; max-width: 68ch; font-size: 13px; color: var(--ink-2); }
+  .twins .pair-set { display: grid; gap: 12px; }
+  .twins .group { border: 1px solid var(--hairline); border-radius: 10px; background: var(--surface);
+    padding: 12px 14px; }
+  .twins .group > h3 { margin: 0 0 2px; font: 600 13px var(--data); letter-spacing: -0.01em; }
+  .twins .verdict { margin: 0 0 10px; font-size: 12px; color: var(--ink-2); }
+  .twins .verdict b { color: var(--ink); font-weight: 550; }
+  .twins .copies { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; }
+  .twins .copy { border: 1px solid var(--hairline); border-radius: 8px; padding: 8px 10px;
+    background: var(--canvas); cursor: pointer; }
+  .twins .copy:hover { border-color: var(--edge); background: var(--raise); }
+  .twins .copy[data-keep] { border-color: var(--accent-edge); background: var(--accent-wash); }
+  .twins .copy .who { display: flex; align-items: baseline; gap: 6px; font: 550 12px var(--data);
+    color: var(--ink); word-break: break-all; }
+  .twins .copy .keep { font: 550 10px var(--ui); letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--accent); }
+  .twins .copy dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; margin: 6px 0 0;
+    font-size: 11px; color: var(--ink-3); }
+  .twins .copy dt { color: var(--ink-3); }
+  .twins .copy dd { margin: 0; color: var(--ink-2); font-family: var(--data); }
+  .twins .group > header { display: flex; align-items: baseline; gap: 10px; }
+  .twins .fix { all: unset; margin-left: auto; font: 550 11px var(--ui); color: var(--accent);
+    border: 1px solid var(--accent-edge); border-radius: 6px; padding: 3px 9px; cursor: pointer; }
+  .twins .fix:hover { background: var(--accent-wash); }
+  .twins .fix:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Native dialog: file:// blocks module loading, not the platform. No library, no scrim of
+     our own, and Escape and focus trapping come for free. */
+  dialog.ask { border: 1px solid var(--edge); border-radius: 12px; background: var(--surface);
+    color: var(--ink); padding: 0; max-width: 560px; width: calc(100vw - 32px);
+    max-height: calc(100vh - 64px); overflow: hidden; display: flex; flex-direction: column;
+    box-shadow: var(--float); }
+  dialog.ask:not([open]) { display: none; }
+  dialog.ask .in { overflow-y: auto; }
+  dialog.ask::backdrop { background: rgba(20,20,18,.32); }
+  dialog.ask .in { padding: 18px 20px 16px; }
+  dialog.ask h2 { margin: 0 0 6px; font: 600 16px var(--ui); letter-spacing: -0.012em; }
+  dialog.ask .why { margin: 0 0 14px; font-size: 13px; line-height: 1.55; color: var(--ink-2); }
+  dialog.ask .why b { color: var(--ink); font-weight: 550; }
+  dialog.ask .step { border-top: 1px solid var(--hairline); padding: 12px 0 0; margin-top: 12px; }
+  dialog.ask .step:first-of-type { border-top: 0; margin-top: 0; }
+  dialog.ask .step h3 { margin: 0 0 4px; font: 550 12px var(--ui); color: var(--ink); }
+  dialog.ask .step p { margin: 0 0 8px; font-size: 12px; color: var(--ink-2); }
+  dialog.ask code.sel { display: block; font: 11px/1.5 var(--data); color: var(--ink-2);
+    background: var(--raise); border: 1px solid var(--hairline); border-radius: 6px;
+    padding: 7px 9px; margin: 0 0 8px; overflow-wrap: anywhere; user-select: all; }
+  dialog.ask .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  dialog.ask button.act { all: unset; font: 550 11px var(--ui); border-radius: 6px;
+    padding: 4px 10px; cursor: pointer; border: 1px solid var(--edge); color: var(--ink-2); }
+  dialog.ask button.act:hover { background: var(--raise); color: var(--ink); }
+  dialog.ask button.act:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  dialog.ask button.act[data-danger] { color: var(--cold); border-color: var(--cold); }
+  dialog.ask button.act[data-danger]:hover { background: var(--cold-wash); }
+  dialog.ask .said { font-size: 11px; color: var(--live); }
+  dialog.ask .foot { display: flex; gap: 10px; align-items: center; border-top: 1px solid var(--hairline);
+    padding: 12px 20px; background: var(--panel); border-radius: 0 0 12px 12px; }
+  dialog.ask .foot p { margin: 0; font-size: 11px; color: var(--ink-3); }
+  dialog.ask .foot button { all: unset; margin-left: auto; font: 550 12px var(--ui); color: var(--ink);
+    border: 1px solid var(--edge); border-radius: 7px; padding: 5px 14px; cursor: pointer; }
+  dialog.ask .foot button:hover { background: var(--raise); }
+  dialog.ask .foot button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .twins .notes { margin: 20px 0 0; max-width: 68ch; font-size: 12px; color: var(--ink-3); }
 
   /* 16px identity mark: 4px radius per the badge rule, hairline ring, ink-2 so it sits at the
      weight of the cell text it leads. Dashed where the author was assumed, not declared. */
@@ -283,6 +352,8 @@
                          font-size: 12px; color: var(--ink-3); }
   .entry-in .head .badge { margin-left: 0; }
   .flags { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .entry-in .lead { margin: 0 0 8px; font: 500 15px/1.45 var(--ui); letter-spacing: -0.008em;
+    color: var(--ink); max-width: 56ch; }
   .entry-in .read { margin: 0; font-size: 13px; line-height: 1.6; color: var(--ink-2); max-width: 62ch; }
   .entry-in dl { margin: 0; display: grid; grid-template-columns: 92px minmax(0, 1fr);
                  gap: 8px 16px; font-size: 13px; padding-top: 16px; border-top: 1px solid var(--hairline); }
@@ -294,14 +365,50 @@
   .links span { font-family: var(--data); font-size: 11px; padding: 1px 6px; border-radius: 4px;
                 border: 1px solid var(--edge); color: var(--ink-2); background: var(--surface); }
 
+  /* 012: the workflow. Rows are the skill's own Step headings, in document order, so there is
+     no layout to compute and no reason for SVG - an ordered list with a CSS spine keeps the
+     text selectable, gives assistive tech a real list, and survives the font request failing. */
+  .flow-wrap { display: grid; gap: 8px; }
+  .flow-wrap h3 { margin: 0; font: 550 11px var(--ui); letter-spacing: 0.02em;
+                  text-transform: uppercase; color: var(--ink-3); }
+  .flow-wrap .note { margin: 0; font-size: 12px; line-height: 1.5; color: var(--ink-3); }
+  /* The dot straddles the spine at left:-3.5px, and overflow-y:auto makes this a scroll
+     container that clips the overhang. 4px of left padding keeps the whole dot inside. */
+  .flow { list-style: none; margin: 4px 0 0; padding: 0 0 0 4px; max-height: 46vh;
+          overflow-y: auto; overflow-x: hidden; }
+  .flow li { position: relative; padding: 0 2px 14px 18px; border-left: 1px solid var(--edge); }
+  .flow li:last-child { border-left-color: transparent; padding-bottom: 0; }
+  .flow li::before { content: ""; position: absolute; left: -3.5px; top: 5px; width: 6px;
+                     height: 6px; border-radius: 50%; background: var(--edge); }
+  .flow li[data-calls]::before { background: var(--accent); }
+  .flow .t { display: block; font-size: 12px; line-height: 1.45; color: var(--ink-2);
+             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .flow li[data-calls] .t { color: var(--ink); }
+  .flow .links, .also .links { margin-top: 5px; }
+  .flow .cyc { display: block; margin-top: 4px; font-size: 11px; color: var(--ink-3); }
+  .also { display: grid; gap: 2px; padding-top: 10px; border-top: 1px solid var(--hairline); }
+  .also > span { font: 550 11px var(--ui); letter-spacing: 0.02em; text-transform: uppercase;
+                 color: var(--ink-3); }
+  /* A resolvable target navigates the panel; one that matches nothing on disk is stated and
+     left inert rather than dropped, so a filtered flow never reads as a shorter workflow. */
+  button.ref { all: unset; font-family: var(--data); font-size: 11px; padding: 1px 6px;
+               border-radius: 4px; border: 1px solid var(--edge); color: var(--ink-2);
+               background: var(--surface); cursor: pointer; }
+  button.ref:hover { border-color: var(--accent); color: var(--accent); }
+  button.ref:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  span.ref.out { font-family: var(--data); font-size: 11px; padding: 1px 6px; border-radius: 4px;
+                 border: 1px dashed var(--edge); color: var(--ink-3); background: transparent; }
+
   /* ---------------------------------------------------------- analysis */
   /* 006 amendment: 7 domains x 7 kinds, Platform excluded. The grid scrolls inside its own
      wrapper rather than reflowing into a second layout — below 760px seven columns land at
      ~45px, too narrow for a label, and one shape everywhere beats two that must stay in step.
      Band is carried by border style as well as tint, so the read never depends on colour. */
-  .bench[data-mode="analysis"], .bench[data-mode="history"] { grid-template-columns: minmax(0, 1fr); }
+  .bench[data-mode="analysis"], .bench[data-mode="history"],
+  .bench[data-mode="twins"] { grid-template-columns: minmax(0, 1fr); }
   .bench[data-mode="analysis"] .facets, .bench[data-mode="analysis"] .toolbar,
-  .bench[data-mode="history"] .facets, .bench[data-mode="history"] .toolbar { display: none; }
+  .bench[data-mode="history"] .facets, .bench[data-mode="history"] .toolbar,
+  .bench[data-mode="twins"] .facets, .bench[data-mode="twins"] .toolbar { display: none; }
   .analysis { max-width: 1000px; padding-bottom: 48px; }
   .analysis h2 { margin: 0 0 6px; font: 600 17px/1.3 var(--ui); letter-spacing: -0.012em; }
   .analysis .lede { margin: 0 0 16px; max-width: 68ch; font-size: 13px; color: var(--ink-2); }
@@ -446,16 +553,20 @@ const ALL = SNAP.entries;
 // The snapshot omits empty and null fields to keep the inlined payload down. Everything is
 // read with a truthiness or null check except these three, which are indexed into directly.
 ALL.forEach(e => { e.delegates_to ||= []; e.reached_via ||= []; e.delegates_to_unresolved ||= [];
-  e.health_flags ||= []; });
+  e.health_flags ||= []; e.reach_flags ||= []; });
+// 012: a step ref is a name or an id. Resolving it is what makes it clickable; a ref matching
+// nothing on disk is a command or a typo and stays inert.
+const BY_REF = new Map();
+ALL.forEach(e => { BY_REF.set(e.id, e); if (!BY_REF.has(e.name)) BY_REF.set(e.name, e); });
 const qp = new URLSearchParams(location.search);
 
-const MODES = ['index', 'entries', 'analysis', 'history'];
+const MODES = ['index', 'entries', 'analysis', 'history', 'twins'];
 const F = {
   // Analysis is a rail destination, not a layout of the table, but it rides the same `mode`
   // state and URL param: the plumbing and refresh() path already exist (006 amendment).
   mode: MODES.includes(qp.get('mode')) ? qp.get('mode') : 'index',
   table: qp.get('mode') === 'entries' ? 'entries' : 'index',
-  q: '', source: 'all', author: 'all', role: 'all', condition: 'all',
+  q: '', source: 'all', author: 'all', role: 'all', condition: 'all', reach: 'all',
   // The usage facet used to be a Record radio group in the left column. The band strip
   // replaced it: same field, finer grain (it splits `used` into gone-quiet and in-rotation,
   // which the radios could not), and one control instead of two that could disagree.
@@ -538,6 +649,35 @@ const FLAG = {
   foreign_marker: 'The body carries a path or a language from another machine.',
 };
 const flagged = e => e.health_flags.length > 0;
+
+// What a skill can touch, stated as what its text contains. Never a verdict and never a
+// score: `rm -rf` in a fenced example and `rm -rf` in a step the agent runs look the same to
+// the scanner, so the wording says "contains" and the panel says to read the file (010).
+const REACH_LABEL = {
+  declares_tools: 'declares an allowed-tools list',
+  destructive: 'contains a destructive shell command',
+  network: 'contains an outbound network call',
+  credential_paths: 'names credential or environment files',
+  mcp_server: 'names an MCP server or connector',
+  claude_home: 'references your ~/.claude directory',
+  bundles_scripts: 'bundles executable scripts',
+};
+// The four that mean the skill can act outside its own file. The other three are context
+// once the panel is open, not a reason to mark up a row in the list.
+const SHARP = ['destructive', 'network', 'credential_paths', 'mcp_server'];
+const reaches = e => e.reach_flags.some(f => SHARP.includes(f));
+
+// The gloss is written to trigger a model, not to inform a person, and several run 80 words.
+// First sentence, truncated. No inference: an LLM-written one-liner would be better prose and
+// would live in the gitignored sidecar, so it would vanish on any other machine (roadmap 3).
+const GLOSS_MAX = 110;
+function gloss(e) {
+  const d = (e.description || '').trim();
+  const cut = (d.match(/^.*?[.!?](?=\s|$)/) || [d])[0].trim();
+  if (cut.length >= d.length && d.length <= GLOSS_MAX) return '';   // the whole gloss already fits
+  return cut.length > GLOSS_MAX
+    ? cut.slice(0, GLOSS_MAX).replace(/\s+\S*$/, '') + '…' : cut;
+}
 // A plugin skill is never scored (the MAP puts improving them out of scope), so it is neither
 // flagged nor clean. Calling 257 unscored rows "Clean" would be a lie the count then repeats.
 const scored = e => e.source !== 'plugin';
@@ -550,6 +690,8 @@ function pool() {
     if (F.role === 'orchestrator' && !e.orchestration_verdict) return false;
     if (F.condition === 'flagged' && !flagged(e)) return false;
     if (F.condition === 'clean' && (flagged(e) || !scored(e))) return false;
+    if (F.reach === 'out' && !reaches(e)) return false;
+    if (F.reach === 'none' && e.reach_flags.length) return false;
     if (F.role === 'leaf' && !isLeaf(e)) return false;
     // Universal joins every domain except Platform, which is a provenance bucket rather
     // than a kind of work: `xlsx` serves marketing, it does not serve "Platform".
@@ -621,7 +763,7 @@ function snapshotAge() {
   return { d, level: 'ok', note: '' };
 }
 
-const NAV_OF = m => (m === 'analysis' || m === 'history') ? m : 'skills';
+const NAV_OF = m => ['analysis', 'history', 'twins'].includes(m) ? m : 'skills';
 
 function rail() {
   const a = snapshotAge();
@@ -636,6 +778,7 @@ function rail() {
     <nav aria-label="Sections">
       <a href="?mode=index" data-nav="skills"${NAV_OF(F.mode) === 'skills' ? ' aria-current="page"' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 6l4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg>Skills<span class="n">${ALL.length}</span></a>
       <a href="?mode=analysis" data-nav="analysis" title="Empty domain-and-kind cells"${NAV_OF(F.mode) === 'analysis' ? ' aria-current="page"' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><rect x="7" y="9" width="4" height="8" rx="1"/><rect x="14" y="5" width="4" height="12" rx="1"/></svg>Analysis<span class="n">${gapList(coverage()).all.length}</span></a>
+      <a href="?mode=twins" data-nav="twins" title="The same skill installed more than once"${NAV_OF(F.mode) === 'twins' ? ' aria-current="page"' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="11" height="14" rx="2"/><path d="M7 4h10a3 3 0 0 1 3 3v10"/></svg>Duplicates<span class="n">${(SNAP.duplicates || []).length}</span></a>
       <a href="?mode=history" data-nav="history" title="What changed in Wayfinder itself"${NAV_OF(F.mode) === 'history' ? ' aria-current="page"' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>History<span class="n">${(SNAP.releases || []).length}</span></a>
     </nav>
     <div class="foot${a.level === 'warn' ? ' warn' : ''}">
@@ -680,10 +823,11 @@ function facetSets() {
     ['kind', 'Kind', [['all', 'Any kind'], ...facet(e => e.kind).filter(Boolean).map(k => [k, k]),
       ['none', 'Uncategorized (' + uncat + ')']]],
     ['condition', 'Condition', [['all', 'Any'], ['flagged', 'Needs work'], ['clean', 'Clean']]],
+    ['reach', 'Reach', [['all', 'Any'], ['out', 'Acts outside the file'], ['none', 'Touches nothing']]],
   ];
 }
 
-const dirty = () => F.q || F.source !== 'all' || F.author !== 'all' || F.role !== 'all' || F.condition !== 'all'
+const dirty = () => F.q || F.source !== 'all' || F.author !== 'all' || F.role !== 'all' || F.condition !== 'all' || F.reach !== 'all'
                  || F.domain !== 'all' || F.kind !== 'all' || F.band !== BANDS[0][0];
 
 function facets() {
@@ -752,6 +896,48 @@ function indexView(rows) {
   return `<div class="index"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
 }
 
+// 012: the Workflow section. Only the 10 rule-true orchestrators carry `steps`, so everything
+// below is absent for everyone else and the Calls / Called by rows are unchanged. The two
+// derived sets - which refs are unresolved, and which targets sit outside every step - come
+// from arrays the entry already has; neither earned a field of its own in the payload.
+function ref(name, e) {
+  const t = BY_REF.get(name);
+  return t && t.id !== e.id
+    ? `<button class="ref js-go" data-go="${esc(t.id)}">${esc(name)}</button>`
+    : `<span class="ref out">${esc(name)}</span>`;
+}
+
+// A back-edge is a fact about the library, not a rendering failure, and half the orchestrators
+// have one. Stated on the row rather than drawn: an arrow running back up an HTML list is the
+// only thing here that would need SVG, and it is not worth reintroducing SVG for five entries.
+function mutual(name, e) {
+  const t = BY_REF.get(name);
+  return t && t.id !== e.id && (t.delegates_to || []).some(n => n === e.name || n === e.id);
+}
+
+function flow(e) {
+  if (!e.steps) return '';
+  const chips = list => `<span class="links">${list.map(n => ref(n, e)).join('')}</span>`;
+  const named = new Set(e.steps.flatMap(s => s.refs || []));
+  const outside = e.delegates_to.filter(n => !named.has(n));
+  const rows = e.steps.map(s => {
+    const refs = s.refs || [];
+    const back = refs.filter(n => mutual(n, e));
+    return `<li${refs.length ? ' data-calls' : ''}><span class="t">${esc(s.title)}</span>
+      ${refs.length ? chips(refs) : ''}
+      ${back.length ? `<span class="cyc">&#8634; also references ${esc(back.join(', '))}</span>` : ''}</li>`;
+  }).join('');
+  return `<section class="flow-wrap">
+    <h3>Workflow</h3>
+    <p class="note">The Step headings in this skill&rsquo;s file, in order. Names are the skills
+      it calls.</p>
+    <ol class="flow">${rows}</ol>
+    ${outside.length ? `<div class="also"><span>Also references</span>${chips(outside)}
+      ${outside.some(n => mutual(n, e)) ? `<span class="cyc">&#8634; also references ${
+        esc(outside.filter(n => mutual(n, e)).join(', '))}</span>` : ''}</div>` : ''}
+  </section>`;
+}
+
 function entry(e) {
   const u = e.usage;
   const links = list => list.length
@@ -770,11 +956,14 @@ function entry(e) {
     e.health_flags.length ? '<span class="badge flg">needs work</span>' : '',
     e.orchestration_verdict ? '<span class="badge ind">orchestrator</span>' : '',
     isLeaf(e) ? '<span class="badge cly">reached only via</span>' : '',
+    reaches(e) ? '<span class="badge rch">acts outside the file</span>' : '',
   ].filter(Boolean).join('');
   return `<div class="entry-in">
     <header class="head"><h2>${esc(e.name)}</h2>
       <div class="sub"><span class="pip ${state(e)}"></span>${esc(ageText(e))}${badges}</div></header>
+    ${gloss(e) ? `<p class="lead">${esc(gloss(e))}</p>` : ''}
     <p class="read">${esc(e.description || 'No gloss on record.')}</p>
+    ${flow(e)}
     <dl>
       <dt>Call it</dt><dd class="loc">/${esc(e.id)}</dd>
       <dt>Lives at</dt><dd class="loc">${esc(e.skill_file)}</dd>
@@ -789,6 +978,13 @@ function entry(e) {
       ${e.health_flags.length ? `<dt>Needs work</dt><dd><ul class="flags">${
         e.health_flags.map(f => `<li>${esc(FLAG[f] || f)}</li>`).join('')}</ul>
         ${e.health_verdict ? `<span style="color:var(--ink-3)">${esc(e.health_verdict)}</span>` : ''}</dd>` : ''}
+      <dt>Reach</dt><dd>${e.reach_flags.length
+        ? `<ul class="flags">${e.reach_flags.map(f => `<li>${esc(REACH_LABEL[f] || f)}</li>`).join('')}</ul>
+           <span style="color:var(--ink-3)">Pattern matches in the file, not a verdict. Read it
+             before you trust it.</span>`
+        : '<span style="color:var(--ink-3)">Nothing in the file calls out, deletes, or names a credential.</span>'}</dd>
+      ${e.twin_group ? `<dt>Twin</dt><dd>${links(ALL.filter(x => x.twin_group === e.twin_group
+        && x.id !== e.id).map(x => x.id))}</dd>` : ''}
     </dl>
     <dl>
       <dt>Record</dt><dd><span class="pip ${state(e)}"></span>${WORD[state(e)]}${u.total_count != null ? `, ${plural(u.total_count, 'use')}` : ''}</dd>
@@ -863,7 +1059,9 @@ function entriesView(b) {
           ${e.health_flags.length ? `<span class="badge flg">needs work${e.health_flags.length > 1 ? ' ×' + e.health_flags.length : ''}</span>` : ''}
           ${e.orchestration_verdict ? '<span class="badge ind">orchestrator</span>' : ''}
           ${isLeaf(e) ? '<span class="badge cly">reached only via</span>' : ''}
-          ${e.kind ? `<span class="badge">${esc(e.kind)}</span>` : ''}
+          ${reaches(e) ? '<span class="badge rch">acts outside</span>' : ''}
+          ${e.kind && !(e.orchestration_verdict && e.kind === 'Orchestrator')
+            ? `<span class="badge">${esc(e.kind)}</span>` : ''}
           <span class="u">${e.usage.total_count != null ? plural(e.usage.total_count, 'use') : 'no record'}</span>
         </div></article>`).join('')}</div>
     </section>`).join('')}</div>`;
@@ -983,6 +1181,127 @@ function analysisView() {
   </div>`;
 }
 
+// ---------------------------------------------------------------- duplicates
+// Grouping is on the id with any plugin prefix stripped, which is the only signal that fires
+// on this library: the vercel and vercel-plugin marketplaces ship the same files twice. The
+// recommendation names the one piece of evidence that actually decided it, and when nothing
+// decides it, it says so rather than picking. Nothing here deletes or merges: decision 1.
+function twinsView() {
+  const G = SNAP.duplicates || [];
+  if (!G.length) return `<div class="empty"><h2>No skill appears twice</h2>
+    <p>Every id in the library is unique once a plugin prefix is stripped.</p></div>`;
+  const byId = new Map(ALL.map(e => [e.id, e]));
+  const covered = G.reduce((n, g) => n + g.members.length, 0);
+  const same = G.filter(g => g.identical).length;
+
+  const copy = (id, keep) => {
+    const e = byId.get(id);
+    if (!e) return '';
+    return `<div class="copy" data-id="${esc(id)}"${keep ? ' data-keep' : ''} tabindex="0"
+        role="button" aria-haspopup="dialog" aria-label="${esc(id)}">
+      <div class="who">${esc(id)}${keep ? '<span class="keep">keep</span>' : ''}</div>
+      <dl>
+        <dt>Where</dt><dd>${esc(e.source === 'plugin' ? e.plugin || 'plugin' : e.source)}</dd>
+        <dt>Record</dt><dd>${e.usage.total_count != null ? plural(e.usage.total_count, 'use') : 'no record'}</dd>
+        <dt>Lines</dt><dd>${e.body_lines}</dd>
+      </dl>
+    </div>`;
+  };
+
+  return `<div class="twins">
+    <h2>The same skill, installed more than once</h2>
+    <p class="lede">${plural(G.length, 'group')} covering ${covered} of ${ALL.length} entries.
+      ${same} are byte-identical. Grouping is on the name with any plugin prefix removed, so
+      <code>vercel:ai-sdk</code> and <code>vercel-plugin:ai-sdk</code> are one group. Wayfinder
+      recommends and hands over a path. It never deletes anything.</p>
+    <div class="pair-set">${G.map(g => `<section class="group">
+      <header><h3>${esc(g.key)}</h3>
+        <button class="fix" data-fix="${esc(g.key)}">Resolve</button></header>
+      <p class="verdict">${g.identical ? 'Byte-identical. ' : ''}${g.keep
+        ? `Keep <b>${esc(g.keep)}</b> — ${esc(g.why)}.`
+        : 'Nothing on record separates these copies. Either one will do.'}</p>
+      <div class="copies">${g.members.map(id => copy(id, id === g.keep)).join('')}</div>
+    </section>`).join('')}</div>
+    <p class="notes">Byte-identical means the two files match exactly, so the choice is only
+      about which install you want to keep. The rest differ, usually because one marketplace
+      ships a newer copy than the other. Ranking is usage, then recency, then yours over a
+      plugin's, then defects, then parse, then bundled resources, then length. Two copies often
+      show the same use count because hook injections drop the plugin prefix: the record names
+      the skill, not which installation of it ran, so it cannot be split.</p>
+  </div>`;
+}
+
+// Wayfinder cannot delete anything and should not: the page runs from file:// with no write
+// channel, and read-only is decision 1. What the dialog does instead is name the real cause and
+// hand over the exact text to run. For 25 of the 27 groups here deletion would not even work —
+// both files belong to enabled plugins, and the next plugin update puts back whatever you removed.
+function askBody(g) {
+  const byId = new Map(ALL.map(e => [e.id, e]));
+  const members = g.members.map(id => byId.get(id)).filter(Boolean);
+  const plugins = members.filter(e => e.source === 'plugin');
+  const mine = members.filter(e => e.source !== 'plugin');
+  const drop = members.filter(e => e.id !== (g.keep || g.members[0]));
+
+  const copy = (label, text, danger) =>
+    `<button class="act" data-copy="${esc(text)}"${danger ? ' data-danger' : ''}>${esc(label)}</button>`;
+
+  const why = plugins.length === members.length
+    ? `Both copies belong to enabled plugins: ${plugins.map(e => `<b>${esc(e.plugin)}</b>`).join(' and ')}.
+       Deleting either file does nothing lasting — the next plugin update restores it. Disable one
+       plugin instead.`
+    : `One copy is yours, in <b>~/.claude/skills</b>. The other arrived with
+       <b>${esc(plugins.map(e => e.plugin).join(', '))}</b> and cannot be edited, only disabled.`;
+
+  const opts = members.map(e => `<div class="step">
+      <h3>${esc(e.id)}${e.id === g.keep ? ' — recommended keep' : ''}</h3>
+      <p>${esc(e.source === 'plugin' ? 'From ' + (e.plugin || 'a plugin') : 'Yours')},
+        ${e.usage.total_count != null ? plural(e.usage.total_count, 'use') : 'no usage record'},
+        ${e.body_lines} lines.</p>
+      <code class="sel">${esc(e.skill_file)}</code>
+      <div class="row">${copy('Copy path', e.skill_file)}${e.source === 'plugin'
+        ? copy('Copy plugin key', e.plugin || '')
+        : (drop.includes(e) ? copy('Copy remove command', 'rm -rf ' + e.skill_file.replace(/\/SKILL\.md$/, ''), true) : '')}</div>
+    </div>`).join('');
+
+  return `<div class="in">
+    <h2>Resolve ${esc(g.key)}</h2>
+    <p class="why">${why}${g.identical ? ' The two files are byte-identical.' : ''}</p>
+    ${opts}
+    ${plugins.length === members.length ? `<div class="step">
+      <h3>How to disable one</h3>
+      <p>Run <code>/plugin</code> in Claude Code and turn it off, or set it false under
+        <code>enabledPlugins</code> in <code>~/.claude/settings.json</code>. Rescan afterwards.</p>
+      <code class="sel">${esc('"' + (plugins[0].plugin || '') + '": false')}</code>
+      <div class="row">${copy('Copy the settings line', '"' + (plugins[0].plugin || '') + '": false')}</div>
+    </div>` : ''}
+  </div>
+  <div class="foot">
+    <p>Wayfinder never deletes, moves or edits a skill. Every button here copies text for you to
+      run yourself.</p>
+    <button class="js-ask-close">Close</button>
+  </div>`;
+}
+
+// The clipboard is the one place this page reaches outside itself, and it is allowed to fail:
+// file:// origins refuse the async API in some browsers. execCommand is the fallback, and the
+// text sits in a `user-select: all` block either way, so a failure costs one manual selection.
+function toClipboard(text, said) {
+  const done = ok => { if (said) { said.textContent = ok ? 'Copied' : 'Select the text above to copy';
+    setTimeout(() => { said.textContent = ''; }, 2400); } };
+  try {
+    navigator.clipboard.writeText(text).then(() => done(true), () => done(legacyCopy(text)));
+  } catch (_) { done(legacyCopy(text)); }
+}
+function legacyCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+  document.body.appendChild(ta); ta.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch (_) { ok = false; }
+  ta.remove();
+  return ok;
+}
+
 // ---------------------------------------------------------------- panel
 // One drawer, two payloads: the thesis and a skill's full entry. A row used to expand in
 // place, which pushed the rest of the table out from under the cursor on every click.
@@ -1024,6 +1343,7 @@ function panelBody() {
 function viewBody(rows, b) {
   if (F.mode === 'analysis') return analysisView();
   if (F.mode === 'history') return historyView();
+  if (F.mode === 'twins') return twinsView();
   if (!rows.length) return empty();
   return bandStrip(b, rows.length) +
     (F.mode === 'index' ? indexView(b.shown) : entriesView(b));
@@ -1034,6 +1354,7 @@ const TITLES = {
   entries: ['Skills', 'Every skill this machine can reach, with what the record shows about its use.'],
   analysis: ['Analysis', 'Coverage by domain and kind, scored on what you have and whether you still call it.'],
   history: ['History', 'What changed in Wayfinder itself, in plain language, with the commits underneath.'],
+  twins: ['Duplicates', 'Skills installed more than once, with the evidence for which copy to keep.'],
 };
 
 function render() {
@@ -1047,7 +1368,8 @@ function render() {
     `<div class="scrim${F.panelIn ? ' open' : ''}"></div>` +
     `<aside class="panel${F.panelIn ? ' open' : ''}" role="dialog" aria-modal="true"
        aria-label="${F.panel === 'insights' ? 'Insights' : 'Skill detail'}"${F.panelIn ? '' : ' inert'}>
-       <button class="shut js-shut">Close</button>${panelBody()}</aside>`;
+       <button class="shut js-shut">Close</button>${panelBody()}</aside>` +
+    `<dialog class="ask" id="ask" aria-label="Resolve a duplicate"></dialog>`;
   wireShell();
   wireRows();
 }
@@ -1103,6 +1425,7 @@ function openPanel(what) {
   box.setAttribute('aria-label', what === 'insights' ? 'Insights' : 'Skill detail');
   box.innerHTML = '<button class="shut js-shut">Close</button>' + panelBody();
   box.querySelector('.js-shut').addEventListener('click', closePanel);
+  wirePanel(box);
   refresh();
   requestAnimationFrame(() => {
     F.panelIn = true;
@@ -1112,6 +1435,19 @@ function openPanel(what) {
     document.querySelector('.js-insights').setAttribute('aria-expanded', what === 'insights');
     box.querySelector('.js-shut').focus();
   });
+}
+
+// The third wiring site. wireShell() is boot-only and wireRows() runs after every refresh;
+// the panel is rebuilt by openPanel(), so anything inside it binds here or not at all.
+// Navigating panel-to-panel to an entry the current filter excludes leaves closePanel() with
+// no row to return focus to; it falls through to the search box, which is the existing
+// behaviour and preferred to a click inside a panel silently rewriting the user's facets.
+function wirePanel(box) {
+  box.querySelectorAll('.js-go').forEach(b => b.addEventListener('click', () => {
+    const id = b.dataset.go;
+    F.open = id;
+    openPanel(id);
+  }));
 }
 
 function closePanel() {
@@ -1156,7 +1492,7 @@ function wireShell() {
   document.querySelectorAll('.js-reset').forEach(b => b.addEventListener('click', () => {
     F.q = ''; F.band = BANDS[0][0]; F.role = 'all'; F.source = 'all'; F.author = 'all';
     F.domain = 'all';
-    F.kind = 'all'; F.condition = 'all';
+    F.kind = 'all'; F.condition = 'all'; F.reach = 'all';
     F.open = null; syncFacets(); refresh();
   }));
   document.querySelectorAll('.pair [data-mode]').forEach(b => b.addEventListener('click', () => {
@@ -1170,6 +1506,31 @@ function wireShell() {
     ev.preventDefault();
     goMode(el.dataset.nav === 'skills' ? F.table : el.dataset.nav);
   }));
+}
+
+// The dialog's contents are rebuilt on every open, so its listeners are bound there rather
+// than in wireShell. A copy that deletes asks twice: the first click arms the button and says
+// what it will copy, the second does it. Copying `rm -rf` is not itself destructive, but the
+// line it puts on the clipboard is one paste away from being so.
+function wireAsk(ask) {
+  ask.querySelector('.js-ask-close').addEventListener('click', () => ask.close());
+  ask.querySelectorAll('[data-copy]').forEach(b => {
+    const said = document.createElement('span');
+    said.className = 'said';
+    b.after(said);
+    let armed = false;
+    b.addEventListener('click', () => {
+      if (b.hasAttribute('data-danger') && !armed) {
+        armed = true;
+        b.textContent = 'Copy rm -rf? Click again';
+        said.textContent = 'Deletes the whole skill directory when you run it';
+        return;
+      }
+      said.textContent = '';
+      toClipboard(b.dataset.copy, said);
+      if (armed) { armed = false; b.textContent = 'Copy remove command'; }
+    });
+  });
 }
 
 // Rebound after every refresh: these live inside #rows and are replaced with it.
@@ -1189,7 +1550,7 @@ function wireRows() {
   // skills alongside yours.
   const jump = (domain, kind) => {
     F.source = 'all'; F.domain = domain; F.kind = kind || 'all'; F.q = ''; F.band = ANY_BAND;
-    F.role = 'all'; F.condition = 'all'; F.author = 'all'; F.open = null;
+    F.role = 'all'; F.condition = 'all'; F.reach = 'all'; F.author = 'all'; F.open = null;
     F.mode = F.table;
     const p = new URLSearchParams(location.search); p.set('mode', F.mode);
     history.replaceState(null, '', location.pathname + '?' + p);
@@ -1204,6 +1565,15 @@ function wireRows() {
       if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); go(); }
     });
   });
+  const ask = document.getElementById('ask');
+  document.querySelectorAll('[data-fix]').forEach(b => b.addEventListener('click', ev => {
+    ev.stopPropagation();
+    const g = (SNAP.duplicates || []).find(x => x.key === b.dataset.fix);
+    if (!g || !ask) return;
+    ask.innerHTML = askBody(g);
+    wireAsk(ask);
+    ask.showModal();
+  }));
   document.querySelectorAll('[data-id]').forEach(el => {
     const toggle = () => { F.open = el.dataset.id; openPanel(el.dataset.id); };
     el.addEventListener('click', toggle);
@@ -1214,6 +1584,9 @@ function wireRows() {
 }
 
 addEventListener('keydown', e => {
+  // The dialog handles its own Escape. Without this, one keypress closed it and cleared the
+  // search box underneath it in the same tick.
+  if (document.getElementById('ask')?.open) return;
   const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable;
   if (e.key === '/' && !typing) { e.preventDefault(); document.getElementById('q').focus(); }
   if (e.key === 'Escape') {

@@ -1,7 +1,8 @@
 # Roadmap: candidate work after 009
 
 Parent: `MAP.md`
-Status: draft, no decisions locked
+Status: tier Now is built and closed as tickets 010 and 011. Ideas 4, 5 and 6 are settled by
+ticket 012: 4 shipped as a Workflow section, 5 closed as already shipped, 6 demoted to Later.
 Written: 2026-08-19
 
 Eleven ideas, scored and ordered. Nothing here is a decision. Each entry states what it is, what
@@ -32,12 +33,12 @@ Priority is `Value x Fit / Cost`, rounded to a tier by judgment, not arithmetic.
 
 | # | Idea | Value | Cost | Fit | Tier |
 |---|------|-------|------|-----|------|
-| 1 | Risk assessment of permissions and data reach | 5 | 3 | 5 | **Now** |
-| 2 | Duplicate skill finder | 5 | 2 | 5 | **Now** |
-| 3 | One-liner gloss above the full description | 3 | 1 | 4 | **Now** |
-| 4 | Orchestration workflow visualization | 4 | 3 | 4 | **Next** |
-| 5 | Best inputs and outputs for a skill | 4 | 2 | 3 | **Next** |
-| 6 | Copy and share, with orchestration bundling | 4 | 4 | 2 | **Next**, gated |
+| 1 | Risk assessment of permissions and data reach | 5 | 3 | 5 | **Shipped** ([010](tickets/010-reach.md)) |
+| 2 | Duplicate skill finder | 5 | 2 | 5 | **Shipped** ([011](tickets/011-duplicates.md)) |
+| 3 | One-liner gloss above the full description | 3 | 1 | 4 | **Shipped**, first-sentence form |
+| 4 | Orchestration workflow visualization | 4 | 1 | 5 | **Shipped** ([012](tickets/012-workflow-flow.md)) |
+| 5 | Best inputs and outputs for a skill | 4 | 2 | 3 | **Shipped**, factual half; rest Later |
+| 6 | Copy and share, with orchestration bundling | 4 | 4 | 2 | **Later** ([012](tickets/012-workflow-flow.md)) |
 | 7 | Feedback capture for future refinement | 3 | 2 | 2 | **Later** |
 | 8 | Skill creator and duplicate buttons | 3 | 2 | 2 | **Later** |
 | 9 | Image or GIF output example | 2 | 3 | 1 | **Later** |
@@ -46,7 +47,12 @@ Priority is `Value x Fit / Cost`, rounded to a tier by judgment, not arithmetic.
 
 ---
 
-## Tier: Now
+## Tier: Now — built 2026-08-19
+
+What shipped differs from what this section proposed, in three places worth reading before
+reversing anything: the permission framing was wrong and ticket 010 says why, tier-two
+adjudication was cut because it cannot travel off this machine, and the duplicate finder gained
+a Resolve dialog because deleting a duplicate turns out not to fix 25 of the 27 groups.
 
 ### 1. Risk assessment of permissions and data reach
 
@@ -170,9 +176,18 @@ because the page has to be correct on a machine that never ran the LLM pass.
 
 ---
 
-## Tier: Next
+## Tier: Next — settled by ticket 012
 
-### 4. Orchestration workflow visualization
+Nothing remains in this tier. Read [012](tickets/012-workflow-flow.md) before reversing any of the
+three entries below: it measured each one and two of them do not survive the measurement.
+
+### 4. Orchestration workflow visualization — shipped as a workflow, not a graph
+
+**Superseded.** 012 built the panel's Workflow section instead: the file's own `Step` headings in
+document order, in HTML and CSS. The framing below is kept because it is what was scored, and
+because every part of it that measurement overturned is worth seeing. Cycles are not the edge case
+this text assumes — 5 of 10 roots sit in one — and the layered SVG layout was unnecessary once the
+order came from the file.
 
 **The idea.** Draw the graph. `delegates_to`, `delegates_to_unresolved`, and `reached_via` already
 exist on every entry, and the entry panel already lists them as flat text. A picture of a
@@ -195,7 +210,12 @@ decision. If it ships, the MAP should say why the distinction holds.
 **Scope discipline.** One orchestrator's graph, opened from its panel. Not a whole-library map.
 The library-wide version is a hairball at 426 nodes and would be a demo, not a tool.
 
-### 5. Best inputs and outputs for a skill
+### 5. Best inputs and outputs for a skill — factual half already shipped
+
+**Closed, not built.** 012 found the usage object carries no adjacency and no session ordering, so
+"typically called after X" is not derivable from usage at all. The only real source is the static
+delegation graph, which the panel already renders as `Calls` and `Called by`. What remains is the
+LLM-inferred half, which this entry itself calls a bad fact; it is Later.
 
 **The idea.** On the panel: what to give this skill, what you get back.
 
@@ -210,7 +230,12 @@ narrower claim than "best inputs" but the tool can actually make it.
 Recommendation: ship the derived-from-usage version first, since it is free and factual. Treat the
 LLM-written "best inputs" as a separate, later, clearly-inferred field.
 
-### 6. Copy and share, with orchestration bundling
+### 6. Copy and share, with orchestration bundling — demoted to Later
+
+**Demoted by 012.** 007's amendment replaced the sharing model: teammates get the tool and the
+scanner and run them against their own `~/.claude`. Under that model nobody needs a bundle of Eli's
+skills. Handing a colleague one orchestrator plus its closure is a different product move that
+nobody has asked for.
 
 **The idea.** A copy-and-share action. For an orchestrator, bundle it with everything it calls, so
 a colleague can import the whole workflow rather than a broken root node. Land it somewhere a
@@ -345,29 +370,36 @@ out not to be enough, the video argument gets stronger and can be revisited with
 
 ## Suggested order
 
+Items 1 to 3 are done. What follows is the remaining order.
+
 1. **Duplicate finder** (idea 2). Highest value per unit of cost, pure read, no constraint fights,
    and the library visibly has duplicates today.
 2. **One-liner gloss** (idea 3). Nearly free, rides an existing LLM pass.
 3. **Risk assessment** (idea 1). Highest value overall; needs a ticket first because the
    measurement above shows the obvious framing, "what permissions does it request", is the wrong
    one.
-4. **Usage-derived inputs and outputs** (idea 5, the factual half). Free, derived from the graph
-   that already exists.
-5. **Orchestration visualization** (idea 4). Do it after 5, since both work the same graph.
+4. ~~**Usage-derived inputs and outputs**~~ (idea 5, the factual half). Already shipped as `Calls`
+   and `Called by`; 012 closed it.
+5. ~~**Orchestration visualization**~~ (idea 4). Shipped as 012's Workflow section.
 6. **Publish and bundle** (idea 6). Only when someone actually wants to publish, and only through
-   007's rules.
+   007's rules. 012 demoted it to Later; nothing is queued behind it.
 
-Everything else waits for evidence that it is wanted.
+Nothing is queued. Everything remaining waits for evidence that it is wanted.
 
 ## Tickets this implies
 
 Following the repo's own convention, three of these need a decision ticket before code:
 
-- **010 — What "risk" means when nothing declares permissions.** Two entries of 426 declare
+- ~~**010 — What "risk" means when nothing declares permissions.**~~ Closed, built.
+  Superseded text:  Two entries of 426 declare
   `allowed-tools`. Decide whether the unit is declared permission or instructed behavior, what is
   fact versus adjudged, and whether plugin entries are flagged.
-- **011 — Duplicate grouping and the keep recommendation.** Which signals define a group, how the
+- ~~**011 — Duplicate grouping and the keep recommendation.**~~ Closed, built.
+  Superseded text:  Which signals define a group, how the
   recommendation is ranked, and the explicit refusal to merge or delete.
-- **012 — Does Wayfinder create files.** Forced by ideas 6 and 8. Bundling writes a `.zip`,
+- ~~**012 — Drawing an orchestrator's workflow.**~~ Closed, built. Took the number the roadmap had
+  reserved below, because it is the ticket ideas 4, 5 and 6 actually needed first.
+- **013 — Does Wayfinder create files.** Forced by ideas 6 and 8. Unwritten until idea 6 has a
+  demand behind it. Bundling writes a `.zip`,
   forking writes a new skill directory. Decision 1 covers editing existing skills, not creating
   new ones, and that gap should be closed deliberately rather than by a button.

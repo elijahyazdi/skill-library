@@ -32,7 +32,7 @@ Violating any of these breaks the product, not just the style:
 ## Layout
 
 ```
-scan.py               # scanner and page builder, one file
+scan.py               # scanner, page builder and categorize prompt, one file
 index.template.html   # the page: inline CSS, inline JS, __SNAPSHOT_JSON__ placeholder
 index.html            # generated
 test_scan.py          # unittest, stdlib only; live counts skip on other machines
@@ -40,11 +40,23 @@ data/                 # generated, except overrides.json
 docs/                 # MAP.md, tickets/, architecture review
 ```
 
+`python3 scan.py --categorize` writes `data/categorize.md`, the prompt for the judgment calls the
+scanner cannot make: domain, kind, gloss, the orchestration class, the health verdict and the
+reach verdict. Paste it into an assistant, which writes `data/sidecar.json`, then scan again. It
+emits only what the sidecar has not already answered, and writes nothing when every pool is empty.
+Read ticket 013 before changing the prompt.
+
 Splitting `scan.py` into a package was considered and deferred. It earns itself when the
 `public.json` publish command from ticket 007 exists and gives the shared code a second consumer.
 Until then it stays one file, because distribution is "copy two files".
 
 ## Things that will bite you
+
+**Sidecar values must not contradict scanner values.** Kind and `orchestration_class` make the
+same claim about the same skill and the panel prints them four lines apart, so
+`kind == "Orchestrator"` and `orchestration_class == "orchestrator"` have to agree.
+`test_kind_never_contradicts_the_adjudication` is the guard. Anything else the pass writes lands
+next to a measured field: read what the page already says before adding a judgment beside it.
 
 **The payload omits empty fields.** `prune()` in `scan.py` drops `None`, `False`, and empty
 strings, lists and dicts before inlining, which is worth about 22% of page weight at 426 entries.
@@ -76,7 +88,7 @@ directory — it is a teammate's first screen and the easiest thing in the repo 
 ## Verifying a scanner change
 
 ```bash
-python3 test_scan.py        # 61 tests, standard library unittest, no new dependency
+python3 test_scan.py        # 74 tests, standard library unittest, no new dependency
 ```
 
 Two kinds of test, and the split matters. The `Invariant*` classes build fixtures in a temp
@@ -86,6 +98,8 @@ id shape, the frontmatter repair, 006 Q12's reference guards, 002's three usage 
 assert (426 / 167 / 257 / 2, parse statuses, 22 candidates, 27 duplicate groups) and **skips
 itself** unless `data/skills.json` exists and matches that library, because those numbers describe
 one person's `~/.claude` and a teammate would otherwise get a red suite on a correct scan.
+`LiveCategorized` is the same idea one level in and skips unless `data/sidecar.json` is present
+too, because that file is gitignored and deleting it must not turn a correct scan red.
 
 When a heuristic change moves a live number, that is the signal. Fix the code, or change the
 number and amend the ticket that explains it. Do not change the number alone.
@@ -103,11 +117,9 @@ and `agent-browser errors` clean.
 
 ## Highest value thing to add
 
-`data/sidecar.json` has no producer. Five tickets route domain, kind, the orchestration class and
-the health verdict through "one batched LLM pass" and nothing in the repo writes the file, so 169
-of 426 entries read `uncategorized`, the Domain facet carries 2 of 8 options, Kind carries 2 of 7,
-and the Analysis view scores nothing. [Ticket 013](docs/tickets/013-categorize-command.md) resolves
-it as `scan.py --categorize`, emitting a prompt for a model outside the tool to answer. It is the
-last thing between here and a v1 somebody else can use.
+**Reach tier two.** `scan.py --categorize` emits 85 entries in section 4 and nobody has answered
+them, so `reach_verdict` is null on all 426 and the panel says "Pattern matches in the file, not a
+verdict" for every flagged entry. It is the one section that needs 85 files opened, which is why
+it was skipped, and it is the last unrun piece of ticket 013.
 
-`test_scan.py` was the previous entry here and now exists.
+`test_scan.py` and the categorize pass were the previous entries here and both now exist.

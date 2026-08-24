@@ -30,16 +30,39 @@ You can also copy `scan.py` and `index.template.html` into any directory and run
 python3 scan.py               # snapshot only, leaves the page alone
 python3 scan.py --prototype   # snapshot plus index.html
 python3 scan.py --repo PATH   # also scan a skills checkout outside ~/.claude
+python3 scan.py --categorize  # write the prompt for the judgment calls
 python3 scan.py --help
 ```
 
+## Filling in domain and kind
+
+The scanner reads what is on disk. It cannot tell you a skill's domain, its kind, a one-line
+gloss, whether it really orchestrates the skills it names, or what a `rm -rf` in its body is
+actually doing. Those come from one pass you run yourself:
+
 ```bash
-python3 test_scan.py          # 61 tests, standard library, no test framework to install
+python3 scan.py --categorize   # writes data/categorize.md
 ```
 
-48 of them pin rules and pass anywhere. The other 13 pin the counts this repo's tickets assert and
+Paste that file into Claude Code or any assistant. It writes `data/sidecar.json`. Scan again and
+the Domain and Kind facets fill in and the Analysis view starts scoring. Re-running `--categorize`
+emits only what the sidecar has not already answered, so adding four skills means a four-entry
+prompt. It writes nothing when there is nothing left to ask.
+
+No API key, no network, no account. The tool prepares the prompt and hands it over, which is the
+same thing it does with a skill's path.
+
+## Tests
+
+```bash
+python3 test_scan.py          # 74 tests, standard library, no test framework to install
+```
+
+57 of them pin rules and pass anywhere. The other 17 pin the counts this repo's tickets assert and
 skip themselves unless `data/skills.json` came from the library those numbers describe, so a
 correct scan on your machine never shows up as a failure.
+
+## Keeping it current
 
 There is no watcher and no hook. Rescan when you want to; the page states its own age and warns
 at 14 days, then again at 30, because transcripts roll off at 30 and usage coverage degrades.
@@ -57,7 +80,7 @@ Three files, merged in order:
 | File | Written by | Tracked |
 | --- | --- | --- |
 | `data/skills.json` | `scan.py`, every run | no |
-| `data/sidecar.json` | one batched LLM pass: domain, kind, orchestration verdict | no |
+| `data/sidecar.json` | `scan.py --categorize`, then an assistant | no |
 | `data/overrides.json` | you, by hand, and it wins | yes |
 
 All three key on the entry `id`. `index.template.html` is the source for the page; `scan.py`
@@ -88,11 +111,11 @@ not evidence of absence. Domain and kind are inferred, not read off disk, and th
 
 ## Known gaps
 
-- **Nothing produces `data/sidecar.json` yet.** Domain, kind, the orchestration class and the
-  health verdict all come from a batched LLM pass that is specified across five tickets and
-  built in none of them. Until it exists, every skill outside a plugin reads as `uncategorized`,
-  the Domain and Kind facets carry two options apiece, and the Analysis view is empty. See
-  ticket 013.
+- **The reach verdicts are unanswered.** `--categorize` emits them as section 4, which needs
+  every flagged file opened. Until someone does, the panel says "Pattern matches in the file, not
+  a verdict" for all 111 flagged entries, which is true and is the point. See ticket 013.
+- **The sidecar does not travel.** It is gitignored like every other generated file, so each
+  person runs `--categorize` against their own library. That is the design, not an oversight.
 - **The page has no tests.** `test_scan.py` covers the scanner. The HTML is verified by hand
   against a real browser; CLAUDE.md lists what to check.
 - **Roughly 14 built-in skills are invisible.** They ship inside the harness, not on disk.

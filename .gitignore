@@ -5,6 +5,10 @@ data/*.json
 # (tickets 001, 005, 007). Must be tracked.
 !data/overrides.json
 
+# The categorize prompt (ticket 013). Regenerated from the snapshot every run, and it quotes
+# every description in the library, so it is generated data like the rest.
+data/categorize.md
+
 # The built page inlines the whole snapshot, so it carries the same personal data.
 # index.template.html is the source; run the scan to produce it.
 index.html

@@ -3,7 +3,7 @@
 Parent: `../MAP.md`
 Label: `wayfinder:grilling` (HITL)
 Blocked by: 001, 003, 005, 008, 009, 010
-Status: open, written 2026-08-24
+Status: closed 2026-08-24, built. Sections 1-3 run; section 4 deliberately not run.
 
 Takes the number `ROADMAP.md` reserved for "Does Wayfinder create files", on 012's precedent:
 that ticket has no demand behind it and this one blocks the ship. The reserved question is
@@ -154,3 +154,51 @@ CLAUDE.md's existing list, plus:
 6 and 8: bundling writes a `.zip`, forking writes a new skill directory under `~/.claude/skills`.
 Decision 1 covers editing existing skills, not creating new ones, and that gap should be closed
 deliberately rather than by a button. Still unwritten, still waiting on demand behind idea 6.
+
+## What shipped, 2026-08-24
+
+Built as decided, with three things worth reading before changing any of it.
+
+**`scan.py --categorize` writes `data/categorize.md`.** One file, four labelled sections, and on
+the first run it was 163 KB: 169 category, 22 orchestration, 43 health, 85 reach. It carries
+descriptions, the step structure the scanner read out of each file's own headings, `delegates_to`,
+the flags, and the absolute path. It carries no bodies. Run it again after the pass and it emits
+85 reach and nothing else, which is decision 5 working.
+
+**Sections 1 to 3 were answered; section 4 was not.** That is the split the ticket predicted:
+the first three are answerable from the emitted file, and reach needs 85 files opened. The page
+renders `reach_verdict` when it exists and says "Pattern matches in the file, not a verdict" when
+it does not, so nothing about the unrun section is hidden. `test_reach_tier_two_is_still_unrun`
+is the test that will tell whoever runs it that it landed.
+
+**The result, measured.** `uncategorized` 169 to **0**. `category_source` is `llm` on 169 and
+`rule` on 257. All 8 domains and all 7 kinds populate: Platform 263, Marketing 53, Engineering 28,
+Product & Design 21, universal 20, PM & Delivery 15, Personal 11, Writing 10, Business & Clients 5.
+The orchestration adjudication split the 22 mechanical candidates into 11 orchestrators, 5 routers
+and 6 leaves. The Analysis rail count went from 0 to 19 and the coverage grid now scores 143
+entries across 49 cells: 12 strong, 18 thin, 19 gaps.
+
+**Three findings from running it, none of which reopen a decision:**
+
+1. **The adjudication corrected the mechanical verdict twice, which is the whole point of tier
+   two.** `weekly` and `wayfinder` both clear `degree >= 2` and are `leaf`: `weekly` reads what
+   `daily-reflection` wrote and informs `morning` without running either, and `wayfinder`
+   sequences its own tickets rather than skills, naming three as optional consults in a template
+   field. Two of the posthog scouts matched only on shared boilerplate, and two matched the
+   English words "pricing" and "signup" rather than the skills of those names - the 006 Q12
+   lesson surviving into a second layer.
+2. **Kind and `orchestration_class` can contradict each other, and the panel prints both four
+   lines apart.** The first pass made `ask-matt` and `wayfinder` Kind=Orchestrator while adjudging
+   them router and leaf. 001 defines Orchestrator as sequencing other skills, which is the same
+   claim the class makes, so the two must agree. Fixed in the sidecar and pinned by
+   `test_kind_never_contradicts_the_adjudication`.
+3. **The Uncategorized option in the Kind facet is now conditional.** 008 wants it so a new skill
+   is reachable the moment it lands, but at 0 it is a control that selects nothing. It renders
+   only when the count is non-zero, which satisfies 008 without leaving dead furniture.
+
+**Also shipped:** `gloss` and `reach_verdict` through `merge_categories`, `UI_ENTRY_FIELDS` and
+the panel. The gloss chain is sidecar first, the description's first sentence second, and the
+panel labels a written gloss "inferred". The colophon now counts glosses alongside domains.
+
+Not shipped and not missed: nothing in `overrides.json`. Two corrections were needed and both
+belonged in the sidecar, because the sidecar is where they were wrong.

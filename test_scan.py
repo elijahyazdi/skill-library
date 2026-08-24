@@ -17,6 +17,10 @@ and nobody else's, so the class **skips itself** unless `data/skills.json` alrea
 generated from that library. Run `python3 scan.py` first to arm it. Asserting them
 unconditionally would hand every teammate a red suite on a correct scan, which is the same
 mistake as reading a blank usage record as a zero.
+
+`LiveCategorized` is the same idea one level in: it pins what ticket 013's pass produced, and
+skips unless `data/sidecar.json` is also present. That file is gitignored and regenerable, so
+deleting it must not turn a correct scan red.
 """
 
 import json
@@ -30,6 +34,7 @@ import scan
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SNAPSHOT = os.path.join(HERE, "data", "skills.json")
+SIDECAR = os.path.join(HERE, "data", "sidecar.json")
 
 # The library these counts describe. LiveLibrary skips unless the snapshot on disk matches.
 EXPECTED = {"entries": 426, "global": 167, "plugin": 257, "repo": 2}
@@ -422,6 +427,117 @@ class InvariantPayload(unittest.TestCase):
             self.assertIn(field, scan.UI_ENTRY_FIELDS)
 
 
+# ---------------------------------------------------------------- categorize pass (013)
+
+class InvariantCategorize(unittest.TestCase):
+    """`--categorize` prepares the pass; a model outside the tool performs it."""
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.saved = {k: getattr(scan, k) for k in ("SIDECAR", "OVERRIDES", "CATEGORIZE")}
+        scan.SIDECAR = os.path.join(self.tmp, "sidecar.json")
+        scan.OVERRIDES = os.path.join(self.tmp, "overrides.json")
+        scan.CATEGORIZE = os.path.join(self.tmp, "categorize.md")
+
+    def tearDown(self):
+        for k, v in self.saved.items():
+            setattr(scan, k, v)
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def sidecar(self, entries):
+        with open(scan.SIDECAR, "w") as f:
+            json.dump({"schema_version": 1, "entries": entries}, f)
+
+    def entry(self, entry_id="x", **kw):
+        e = {"id": entry_id, "name": entry_id, "source": "global", "skill_file": "/tmp/%s" % entry_id,
+             "description": "d", "body_lines": 5, "kind": None, "domain": None,
+             "domain_secondary": None, "gloss": None, "category_status": "uncategorized",
+             "category_source": "none", "orchestration_degree": 0, "orchestration_class": None,
+             "orchestration_reason": None, "orchestration_source": "rule", "orchestration_verdict": False,
+             "health_candidate": False, "health_flags": [], "health_verdict": None,
+             "health_source": "none", "reach_flags": [], "reach_verdict": None,
+             "reach_source": "none", "publishable": False, "plugin": None,
+             "delegates_to": [], "reached_via": [], "steps": []}
+        e.update(kw)
+        return e
+
+    def test_pools_are_the_four_sections(self):
+        entries = [self.entry("a"),
+                   self.entry("b", orchestration_degree=2),
+                   self.entry("c", health_candidate=True),
+                   self.entry("d", reach_flags=["network"])]
+        self.assertEqual({k: [e["id"] for e in v] for k, v in scan.categorize_pools(entries)},
+                         {"category": ["a", "b", "c", "d"], "orchestration": ["b"],
+                          "health": ["c"], "reach": ["d"]})
+
+    def test_an_answered_entry_leaves_its_pool(self):
+        """013 decision 5: a re-run after adding four skills is a four-entry prompt."""
+        entries = [self.entry("a"), self.entry("b")]
+        self.sidecar({"a": {"kind": "Reference"}})
+        pools = dict(scan.categorize_pools(entries))
+        self.assertEqual([e["id"] for e in pools["category"]], ["b"])
+
+    def test_a_non_sharp_reach_flag_is_not_in_the_pool(self):
+        """010: only the four that mean the skill can act outside its own file."""
+        pools = dict(scan.categorize_pools([self.entry("a", reach_flags=["claude_home"])]))
+        self.assertEqual(pools["reach"], [])
+
+    def test_nothing_is_written_when_every_pool_is_empty(self):
+        """013 decision 6: a command that emits an empty prompt gets pasted anyway."""
+        entries = [self.entry("a", kind="Reference", category_status="assigned")]
+        self.assertEqual(scan.write_categorize(entries, "2026-08-24T00:00:00Z"),
+                         {"category": 0, "orchestration": 0, "health": 0, "reach": 0})
+        self.assertFalse(os.path.exists(scan.CATEGORIZE))
+
+    def test_the_prompt_never_carries_a_body(self):
+        """013 decision 3. Inlining the core pool's bodies is 36,828 lines."""
+        e = self.entry("a", description="what it does")
+        e["_body"] = "SECRET BODY TEXT"
+        scan.write_categorize([e], "2026-08-24T00:00:00Z")
+        with open(scan.CATEGORIZE) as f:
+            text = f.read()
+        self.assertIn("what it does", text)
+        self.assertNotIn("SECRET BODY TEXT", text)
+
+    def test_the_prompt_carries_the_path_so_section_four_can_open_it(self):
+        scan.write_categorize([self.entry("a", reach_flags=["destructive"])],
+                              "2026-08-24T00:00:00Z")
+        with open(scan.CATEGORIZE) as f:
+            self.assertIn("path: /tmp/a", f.read())
+
+    def test_a_skipped_section_is_omitted_not_left_empty(self):
+        scan.write_categorize([self.entry("a")], "2026-08-24T00:00:00Z")
+        with open(scan.CATEGORIZE) as f:
+            text = f.read()
+        self.assertIn("Section 1", text)
+        self.assertNotIn("Section 4", text)
+
+    def test_merge_precedence_sidecar_then_override(self):
+        """005's precedence, extended to the two fields 013 added."""
+        e = self.entry("a")
+        self.sidecar({"a": {"kind": "Reference", "gloss": "from sidecar",
+                            "reach_verdict": "no reach"}})
+        with open(scan.OVERRIDES, "w") as f:
+            json.dump({"entries": {"a": {"gloss": "from override"}}}, f)
+        scan.merge_categories([e])
+        self.assertEqual(e["gloss"], "from override")
+        self.assertEqual(e["kind"], "Reference")
+        self.assertEqual(e["category_source"], "llm")
+        self.assertEqual(e["reach_verdict"], "no reach")
+        self.assertEqual(e["reach_source"], "adjudicated")
+
+    def test_a_missing_sidecar_never_fails_the_scan(self):
+        """005: a skill missing from the sidecar shows uncategorized and the scan continues."""
+        e = self.entry("a")
+        scan.merge_categories([e])
+        self.assertEqual(e["category_status"], "uncategorized")
+        self.assertIsNone(e["gloss"])
+
+    def test_gloss_and_reach_verdict_reach_the_page(self):
+        for field in ("gloss", "reach_verdict"):
+            self.assertIn(field, scan.UI_ENTRY_FIELDS)
+
+
 # ---------------------------------------------------------------- the live library
 
 def live_snapshot():
@@ -520,12 +636,47 @@ class LiveLibrary(unittest.TestCase):
         """007: allowlist only, fail closed. `publishable` is false on all 426 today."""
         self.assertFalse([e for e in self.entries if e.get("publishable")])
 
-    def test_categorisation_is_rule_only_until_ticket_013(self):
-        """The gap 013 exists to close. When the sidecar pass ships this test changes, and
-        that is the point: the number moving is how you know it landed."""
-        self.assertEqual(self.snap["counts"]["uncategorized"], 169)
-        self.assertFalse([e for e in self.entries if e["category_source"] == "llm"])
 
+
+
+@unittest.skipIf(live_snapshot() is None or not os.path.exists(SIDECAR),
+                 "no sidecar from the categorize pass; run python3 scan.py --categorize")
+class LiveCategorized(unittest.TestCase):
+    """What ticket 013's pass produced, on top of a live snapshot.
+
+    Separate from LiveLibrary because the sidecar is gitignored: delete it and a correct scan
+    still holds every count above, but nothing here is true any more. The invariants in
+    InvariantCategorize cover the merge itself and pass with no sidecar at all.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.snap = live_snapshot()
+        cls.entries = cls.snap["entries"]
+
+    def test_the_categorize_pass_has_run(self):
+        """Ticket 013. This test previously asserted 169 uncategorized and no `llm` source;
+        the pass landing is exactly what flipped it, which is what a live count is for."""
+        self.assertEqual(self.snap["counts"]["uncategorized"], 0)
+        self.assertEqual(sum(1 for e in self.entries if e["category_source"] == "llm"), 169)
+        self.assertEqual(sum(1 for e in self.entries if e["orchestration_source"] == "adjudicated"), 22)
+        self.assertEqual(sum(1 for e in self.entries if e["health_source"] == "adjudicated"), 43)
+
+    def test_every_domain_and_kind_is_populated(self):
+        """The symptom 013 was written about: 2 of 8 domains and 2 of 7 kinds in the facets."""
+        self.assertEqual({e["domain"] for e in self.entries if e["domain"]}, set(scan.DOMAINS))
+        self.assertEqual({e["kind"] for e in self.entries}, set(scan.KINDS))
+
+    def test_kind_never_contradicts_the_adjudication(self):
+        """001 defines Orchestrator as sequencing other skills, which is the same claim
+        `orchestration_class: orchestrator` makes. The panel prints both, four lines apart."""
+        self.assertFalse([e["id"] for e in self.entries if e["orchestration_class"]
+                          and (e["kind"] == "Orchestrator") != (e["orchestration_class"] == "orchestrator")])
+
+    def test_reach_tier_two_is_still_unrun(self):
+        """013 section 4 is skippable by design and was skipped. When someone runs it, this
+        is the test that tells them it landed."""
+        self.assertFalse([e for e in self.entries if e.get("reach_verdict")])
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

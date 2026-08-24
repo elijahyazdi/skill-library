@@ -385,16 +385,22 @@ reading a blank usage record as a zero. One finding while writing them, measured
 006 Q12's `(?![/.])` guard also suppresses a sentence-final `/name.`, which occurs in 5 files and
 is a self-reference in all 5, so it costs zero real edges. Pinned as a test rather than fixed.
 
-**Still blocking a v1 ship, found 2026-08-24 and now [ticket 013](tickets/013-categorize-command.md):
-nothing writes `data/sidecar.json`.** Five tickets route their inferred fields through "one batched
-LLM pass" and no code path produces the file. `merge_categories()` only reads it. Measured cost on
-the page: 169 of 426 entries uncategorized (all 167 global plus the 2 repo, since 001 assigns
-plugins by rule), the Domain facet down to 2 of 8 options, Kind down to 2 of 7, the Analysis view
-scoring nothing and its rail count reading `0`, and `orchestration_source` reading `rule` on all
-426 so 003's `orchestrator`/`router`/`leaf` classes have never once been populated. Two of six
-facets and one of four views are dead, and the dead half is the half about the skills the user
-wrote. 013 resolves it as `scan.py --categorize` emitting a prompt for a model outside the tool to
-answer, because that is the only shape that works with no API key on a teammate's machine.
+- [013 — How the sidecar gets written](tickets/013-categorize-command.md) — Nothing produced
+  `data/sidecar.json`. Five tickets routed their inferred fields through "one batched LLM pass"
+  and no code path wrote the file, so 169 of 426 entries read `uncategorized`, the Domain facet
+  carried 2 of 8 options, Kind carried 2 of 7, and the Analysis view scored nothing with a rail
+  count of `0`. Resolved as `scan.py --categorize`, which writes `data/categorize.md` and hands
+  it to a model outside the tool — the only shape that works with no API key on a teammate's
+  machine. One file, four sections, descriptions and computed fields and paths but **never
+  bodies**, and it emits only what the sidecar has not already answered. Sections 1 to 3 were
+  run: `uncategorized` 0, all 8 domains and all 7 kinds populated, the 22 mechanical
+  orchestration candidates split 11 orchestrator / 5 router / 6 leaf, the coverage grid scoring
+  143 entries across 49 cells. Section 4, reach, needs 85 files opened and was deliberately not
+  run; the panel says so rather than hiding it. Tier two corrected the mechanical verdict twice
+  (`weekly` and `wayfinder` are leaves) and caught two posthog edges that matched the English
+  words "pricing" and "signup" — 006 Q12's lesson surviving into a second layer. Rejected:
+  calling an API from `scan.py`, shipping the pass as a harness-bound skill, a rule-based
+  classifier, and cutting Domain and Kind from v1.
 
 ## Out of scope
 

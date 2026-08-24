@@ -35,6 +35,7 @@ Violating any of these breaks the product, not just the style:
 scan.py               # scanner and page builder, one file
 index.template.html   # the page: inline CSS, inline JS, __SNAPSHOT_JSON__ placeholder
 index.html            # generated
+test_scan.py          # unittest, stdlib only; live counts skip on other machines
 data/                 # generated, except overrides.json
 docs/                 # MAP.md, tickets/, architecture review
 ```
@@ -65,9 +66,33 @@ panel with `innerHTML` on every open, so anything inside it binds there or not a
 **The facet controls are never re-rendered.** Anything that changes `F` without a user gesture on
 the control itself has to call `syncFacets()` to put the DOM back in step. Clear and Escape do.
 
+**There are two empty states and they are not interchangeable.** `empty()` means the filters
+matched nothing and offers a reset. `firstRun()` means the scan returned nothing, so it names the
+roots and prints `scan_errors` instead, and it is the only reader of that field in the payload.
+`colophon()` and `thesis()` return early on an empty library for the same reason: a paragraph of
+zeros reads as a finding. Test this by running the scanner with `HOME` pointed at an empty
+directory — it is a teammate's first screen and the easiest thing in the repo to break silently.
+
+## Verifying a scanner change
+
+```bash
+python3 test_scan.py        # 61 tests, standard library unittest, no new dependency
+```
+
+Two kinds of test, and the split matters. The `Invariant*` classes build fixtures in a temp
+directory and pin the rules the tickets decided — the one-level glob, the exclusion prefixes, the
+id shape, the frontmatter repair, 006 Q12's reference guards, 002's three usage states,
+`prune()` keeping zero. They pass on any machine. `LiveLibrary` pins the counts the tickets
+assert (426 / 167 / 257 / 2, parse statuses, 22 candidates, 27 duplicate groups) and **skips
+itself** unless `data/skills.json` exists and matches that library, because those numbers describe
+one person's `~/.claude` and a teammate would otherwise get a red suite on a correct scan.
+
+When a heuristic change moves a live number, that is the signal. Fix the code, or change the
+number and amend the ticket that explains it. Do not change the number alone.
+
 ## Verifying a UI change
 
-There are no tests. `agent-browser` is available and drives a real browser against
+There are no tests for the page. `agent-browser` is available and drives a real browser against
 `file://$PWD/index.html`. One caveat learned the hard way: `agent-browser click` does not reliably
 land on the `all: unset` text buttons (`.js-reset`, `.js-insights`). Focus them and press Enter
 instead, or you will chase a bug that is not there.
@@ -78,6 +103,11 @@ and `agent-browser errors` clean.
 
 ## Highest value thing to add
 
-A `test_scan.py` pinning the numbers the tickets already assert: 426 entries, 167 global, 257
-plugin, 2 repo, parse status counts, and the orchestration candidate count. The scanner is 831
-lines of heuristics whose correctness currently rests on nobody having broken it yet.
+`data/sidecar.json` has no producer. Five tickets route domain, kind, the orchestration class and
+the health verdict through "one batched LLM pass" and nothing in the repo writes the file, so 169
+of 426 entries read `uncategorized`, the Domain facet carries 2 of 8 options, Kind carries 2 of 7,
+and the Analysis view scores nothing. [Ticket 013](docs/tickets/013-categorize-command.md) resolves
+it as `scan.py --categorize`, emitting a prompt for a model outside the tool to answer. It is the
+last thing between here and a v1 somebody else can use.
+
+`test_scan.py` was the previous entry here and now exists.

@@ -514,6 +514,9 @@
                   font: 500 13px var(--ui); color: var(--surface);
                   background: var(--ink); border-radius: 6px; padding: 0 12px; }
   .empty button:hover { background: var(--ink-2); }
+  .empty code { font: 400 12px var(--data); color: var(--ink); }
+  .empty .errs { margin: 0 0 16px; padding-left: 18px; color: var(--ink-2); max-width: 72ch; }
+  .empty .errs li { margin-bottom: 4px; }
   .colophon { border-top: 1px solid var(--hairline); margin-top: auto; }
   .colophon .inner { padding: 16px 24px 32px; font-size: 12px; color: var(--ink-3); max-width: 72ch; }
 
@@ -729,6 +732,10 @@ function ordered(rows) {
 
 // ---------------------------------------------------------------- thesis
 function thesis() {
+  if (!ALL.length) return `<div class="thesis"><span class="kicker">Insights</span>
+    <p class="claim">There is nothing to draw a conclusion from yet.</p>
+    <div class="after"><p>The scan returned no entries, so every count on this page is an
+      empty scan rather than a finding.</p></div></div>`;
   const c = SNAP.counts, u = SNAP.usage_sources;
   const mine = ALL.filter(e => e.source === 'global');
   const never = mine.filter(e => state(e) === 'never_used').length;
@@ -1075,6 +1082,22 @@ function empty() {
     <button class="js-reset">Start over</button></div>`;
 }
 
+// A different failure from the one above, and it reads as the same one unless it is written
+// separately: no filter is wrong, the scan came back with nothing. This is the first screen on
+// a machine where the roots are missing, so it names what was read instead of offering a reset.
+function firstRun() {
+  const errs = SNAP.scan_errors || [];
+  return `<div class="empty">
+    <h2>The scan found no skills</h2>
+    <p>Wayfinder reads <code>~/.claude/skills</code>, the plugins your settings enable, and a
+      skills checkout passed with <code>--repo</code>. None of them returned an entry.</p>
+    ${errs.length
+      ? `<p>What the scan reported:</p><ul class="errs">${errs.map(x =>
+          `<li><code>${esc(x.path)}</code> ${esc(x.error)}</li>`).join('')}</ul>`
+      : `<p>The scan reported no errors, so those roots exist and are empty.</p>`}
+    <p>Install a skill, then run <code>python3 scan.py --prototype</code> again.</p></div>`;
+}
+
 // ---------------------------------------------------------------- analysis
 // Scored in the page, not baked into the snapshot: it is one pass over ~144 entries, costs no
 // payload, and keeps the band thresholds a template edit instead of a rescan.
@@ -1344,6 +1367,7 @@ function viewBody(rows, b) {
   if (F.mode === 'analysis') return analysisView();
   if (F.mode === 'history') return historyView();
   if (F.mode === 'twins') return twinsView();
+  if (!ALL.length) return firstRun();
   if (!rows.length) return empty();
   return bandStrip(b, rows.length) +
     (F.mode === 'index' ? indexView(b.shown) : entriesView(b));
@@ -1410,6 +1434,7 @@ function syncFacets() {
 }
 
 function colophon() {
+  if (!ALL.length) return '';   // a paragraph of zeros reads as a finding. It is an empty scan.
   const c = SNAP.counts, guessed = ALL.filter(e => e.category_source === 'llm').length;
   const universal = ALL.filter(e => !e.domain).length;
   return `<div class="colophon"><div class="inner">Domain and kind are a judgment call, not a

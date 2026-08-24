@@ -6,7 +6,7 @@ root, precedence rule and null semantic below is decided there, not here.
 
 Never writes to any SKILL.md. Read-only is MAP decision 1.
 
-Usage:  python3 scan.py [--out data/skills.json]
+Usage:  python3 scan.py [--out data/skills.json] [--repo PATH] [--prototype]
 """
 
 import argparse
@@ -22,10 +22,10 @@ import sys
 try:
     import yaml
 except ImportError:
-    sys.exit("PyYAML required. It is already installed on this machine: python3 -c 'import yaml'")
+    sys.exit("PyYAML required: pip3 install pyyaml")
 
 SCHEMA_VERSION = 2  # 012: entries gained `steps`.
-SCANNER_VERSION = "0.1.0"
+SCANNER_VERSION = "1.0.0"   # tracks the release tag; SCHEMA_VERSION tracks the payload
 
 HOME = os.path.expanduser("~")
 GLOBAL_ROOT = os.path.join(HOME, ".claude", "skills")
@@ -35,6 +35,8 @@ SETTINGS = os.path.join(HOME, ".claude", "settings.json")
 SKILL_LOCK = os.path.join(HOME, ".agents", ".skill-lock.json")
 HISTORY = os.path.join(HOME, ".claude", "history.jsonl")
 TRANSCRIPT_GLOB = os.path.join(HOME, ".claude", "projects", "*", "*.jsonl")
+# A second skills checkout outside ~/.claude. This default is Eli's and contributes 2 of 426
+# entries; --repo points it somewhere else, and an absent path is skipped, not an error.
 REPO_ROOT = os.path.join(HOME, "Development", "claude-skills")
 
 # Ticket 005 section 0: exactly one level. A recursive walk over-collects 29 non-skills
@@ -734,6 +736,9 @@ def ui_payload(snapshot):
         "usage_sources": snapshot["usage_sources"],
         "releases": snapshot["releases"],
         "duplicates": snapshot["duplicates"],
+        # The first-run state is the only reader: with no entries the page has nothing to
+        # show and must say which root came back empty. Costs 2 bytes on a clean scan.
+        "scan_errors": snapshot["scan_errors"],
         "entries": [
             prune(dict({k: e[k] for k in UI_ENTRY_FIELDS},
                        usage=prune({k: e["usage"][k] for k in UI_USAGE_FIELDS})))
@@ -1036,13 +1041,18 @@ def merge_categories(entries):
 
 
 def main():
+    global REPO_ROOT
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                   "data", "skills.json"))
     ap.add_argument("--prototype", action="store_true",
                     help="also write prototype-ui.html with the snapshot inlined "
                          "(file:// origins cannot fetch a sibling JSON)")
+    ap.add_argument("--repo", default=REPO_ROOT, metavar="PATH",
+                    help="a skills checkout outside ~/.claude, scanned one level deep. "
+                         "Skipped when absent. Default: %(default)s")
     args = ap.parse_args()
+    REPO_ROOT = os.path.expanduser(args.repo)
     generated_at = iso(when=dt.datetime.now(dt.timezone.utc))
 
     entries, roots, plugins = collect_entries()

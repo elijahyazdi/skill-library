@@ -386,7 +386,7 @@ already installed on them.
 Specified and deliberately not built: the publish path (`public.json`, the allowlist, the field
 denylist). It is 007's resolution verbatim, waiting on someone wanting to publish Eli's own library.
 
-**`test_scan.py` exists as of 2026-08-24.** 61 tests, standard library `unittest`, no new
+**`test_scan.py` exists as of 2026-08-24.** 74 tests, standard library `unittest`, no new
 dependency. The split is the decision worth recording: the `Invariant*` classes build fixtures in
 a temp directory and pin the *rules* — one-level glob, exclusion prefixes, id shape, the
 force-quote repair, 006 Q12's reference guards, 002's three usage states, `prune()` keeping zero —
@@ -408,7 +408,21 @@ is a self-reference in all 5, so it costs zero real edges. Pinned as a test rath
   run: `uncategorized` 0, all 8 domains and all 7 kinds populated, the 22 mechanical
   orchestration candidates split 11 orchestrator / 5 router / 6 leaf, the coverage grid scoring
   143 entries across 49 cells. Section 4, reach, needs 85 files opened and was deliberately not
-  run; the panel says so rather than hiding it. Tier two corrected the mechanical verdict twice
+  run; the panel says so rather than hiding it.
+  **Amended 2026-08-24, after the pass was re-run on a second machine.** The prompt's output
+  shape is the union of every section's fields, and a model answering section 1 volunteers
+  `orchestration_class` for section 1's ids: 35 non-candidates arrived classed, 32 of them
+  `leaf` but two `orchestrator` and one `router`, which is the model promoting entries the
+  mechanical rule never nominated. `merge_categories()` now gates the `llm` source on
+  `orchestration_degree >= 2`, which is 003's architecture stated in code rather than assumed,
+  and counts the discards instead of pruning them. The `override` source is never gated, because
+  a hand-written correction is meant to win. The prompt now says the shape is not a form.
+  **Also measured:** `TRIGGER` matches `when\b`, so it misses **`whenever`** — the most common
+  phrasing in the library. Six of the 43 health nominations are strongly-triggered skills caught
+  only by that gap, which is why tier two answers "false positive" on 19 of the 43. The regex was
+  left alone: it nominates and never flags, so a loose nomination costs one sentence and a tight
+  one would lose real cases.
+  Tier two corrected the mechanical verdict twice
   (`weekly` and `wayfinder` are leaves) and caught two posthog edges that matched the English
   words "pricing" and "signup" — 006 Q12's lesson surviving into a second layer. Rejected:
   calling an API from `scan.py`, shipping the pass as a harness-bound skill, a rule-based

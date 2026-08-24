@@ -1072,6 +1072,11 @@ OVERRIDES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "ov
 CATEGORY_FIELDS = ("domain", "domain_secondary", "kind")
 
 
+# Sidecar orchestration classes dropped for lack of a mechanical nomination. An override is
+# hand-written and wins by design, so only the `llm` source is ever gated.
+SIDECAR_DISCARDS = []
+
+
 def merge_categories(entries):
     """skills.json, then sidecar.json, then overrides.json. Overrides last (005).
 
@@ -1095,10 +1100,17 @@ def merge_categories(entries):
                 for f in CATEGORY_FIELDS:
                     e[f] = rec.get(f)
                 e["category_source"] = src
+            # 003's architecture is that the scanner nominates and the model adjudicates the
+            # nominees. A class on an entry `degree >= 2` never nominated is not an adjudication,
+            # it is an unrequested promotion: the model filling section 1 fills its neighbours,
+            # which took `adjudicated` from 22 to 57. Discards are counted, not pruned (008).
             if rec.get("orchestration_class"):
-                e["orchestration_class"] = rec["orchestration_class"]
-                e["orchestration_reason"] = rec.get("orchestration_reason")
-                e["orchestration_source"] = "adjudicated" if src == "llm" else "override"
+                if src == "llm" and e["orchestration_degree"] < 2:
+                    SIDECAR_DISCARDS.append(e["id"])
+                else:
+                    e["orchestration_class"] = rec["orchestration_class"]
+                    e["orchestration_reason"] = rec.get("orchestration_reason")
+                    e["orchestration_source"] = "adjudicated" if src == "llm" else "override"
             if "publishable" in rec:
                 e["publishable"] = rec["publishable"]
             if rec.get("health_verdict"):
@@ -1149,6 +1161,11 @@ you did not write. Orphaned keys are kept on purpose (ticket 008).
 Every key is optional. Write only the fields the section you are answering asks for, and only
 for the ids that section lists. An id you leave out stays unadjudicated, which is a correct
 state and not a failure.
+
+The shape above is the union of every section's fields, not a form to complete. A field written
+outside its own section is discarded on the next scan, and `orchestration_class` is the one that
+gets volunteered: it belongs to section 2 only, whose ids the scanner nominated mechanically.
+Answering it for a section 1 id does not promote that skill, it just gets dropped.
 
 ## Rules that apply to every section
 
@@ -1437,6 +1454,9 @@ def main():
     print("orchestration candidates (degree>=2): %d, rule verdict true: %d"
           % (sum(1 for e in entries if e["orchestration_degree"] >= 2),
              sum(1 for e in entries if e["orchestration_verdict"])))
+    if SIDECAR_DISCARDS:
+        print("sidecar: %d orchestration classes dropped, no mechanical nomination (%s)"
+              % (len(SIDECAR_DISCARDS), ", ".join(sorted(SIDECAR_DISCARDS)[:3]) + ", ..."))
     print("parse: %s" % dict(collections.Counter(e["parse_status"] for e in entries)))
     print("health: %d flagged %s, %d candidates for adjudication"
           % (sum(1 for e in entries if e["health_flags"]),

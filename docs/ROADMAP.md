@@ -3,7 +3,10 @@
 Parent: `MAP.md`
 Status: tier Now is built and closed as tickets 010 and 011. Ideas 4, 5 and 6 are settled by
 ticket 012: 4 shipped as a Workflow section, 5 closed as already shipped, 6 demoted to Later.
-Written: 2026-08-19
+Ideas 7, 8 and 9 are settled by ticket 013: 7 shipped as a clipboard handoff, 8 shipped as a fork
+prompt with its file-writing half refused, 9 split — the image closed, the file's own Example
+section shipped. Nothing remains in Later but idea 6.
+Written: 2026-08-19, amended 2026-08-20
 
 Eleven ideas, scored and ordered. Nothing here is a decision. Each entry states what it is, what
 it costs, what already exists that it can lean on, and which of the repo's four hard constraints
@@ -39,9 +42,9 @@ Priority is `Value x Fit / Cost`, rounded to a tier by judgment, not arithmetic.
 | 4 | Orchestration workflow visualization | 4 | 1 | 5 | **Shipped** ([012](tickets/012-workflow-flow.md)) |
 | 5 | Best inputs and outputs for a skill | 4 | 2 | 3 | **Shipped**, factual half; rest Later |
 | 6 | Copy and share, with orchestration bundling | 4 | 4 | 2 | **Later** ([012](tickets/012-workflow-flow.md)) |
-| 7 | Feedback capture for future refinement | 3 | 2 | 2 | **Later** |
-| 8 | Skill creator and duplicate buttons | 3 | 2 | 2 | **Later** |
-| 9 | Image or GIF output example | 2 | 3 | 1 | **Later** |
+| 7 | Feedback capture for future refinement | 3 | 2 | 2 | **Shipped** ([013](tickets/013-handoff-and-example.md)) |
+| 8 | Skill creator and duplicate buttons | 3 | 2 | 2 | **Shipped** in part ([013](tickets/013-handoff-and-example.md)) |
+| 9 | Image or GIF output example | 2 | 3 | 1 | **Split** ([013](tickets/013-handoff-and-example.md)) |
 | 10 | Is this skill worth turning into an app | 2 | 2 | 2 | **Probably not** |
 | 11 | Video on how to use | 2 | 4 | 1 | **Probably not** |
 
@@ -271,9 +274,19 @@ floor.
 
 ---
 
-## Tier: Later
+## Tier: Later — settled by ticket 013
 
-### 7. Feedback capture for future refinement
+Only idea 6 is left in this tier. Read [013](tickets/013-handoff-and-example.md) before reversing
+any of the three entries below: it measured each one and the framing of two did not survive.
+
+### 7. Feedback capture for future refinement — shipped as the clipboard handoff
+
+**Shipped.** 013 built the panel's Hand off section: a textarea and a **Copy a revision prompt**
+button carrying the skill name, its path and the note. `data/notes.json` was not built, and the
+reason is narrower than the entry below assumes — getting text out of a `file://` page means copy
+and paste either way, so `notes.json` only changes *where* you paste, and Claude Code is where the
+revision actually happens.
+
 
 **The idea.** A textarea on a skill: notes on what to fix next time.
 
@@ -294,7 +307,15 @@ to get text from the page into the file, which off `file://` means copy and past
 
 Recommendation: clipboard handoff first. Promote to `data/notes.json` if the notes accumulate.
 
-### 8. Skill creator and duplicate buttons
+### 8. Skill creator and duplicate buttons — the prompt shipped, the writer was refused
+
+**Half shipped, half closed.** 013 built the **Copy a fork prompt** button, shown where the entry
+has a closure, and dropped the `/skill-creator` button outright: it would copy a nine-character
+string faster to type than the panel is to open. `scan.py fork` was refused with the argument this
+entry asked for — writing a new skill directory violates nothing on decision 1's own terms, but it
+makes the next scan index something Wayfinder wrote, and then every count on the page is partly a
+measurement of the tool.
+
 
 **The idea.** A button that invokes `skill-creator`, and a button that duplicates a skill,
 particularly an orchestrator being forked for a different workflow.
@@ -317,7 +338,14 @@ argues it, not in a button someone adds on a Tuesday.
 Cross-reference: this shares its whole closure-walking mechanism with idea 6. If both ship, they
 share code.
 
-### 9. Image or GIF output example
+### 9. Image or GIF output example — the image closed, the file's own example shipped
+
+**Split.** 013 closed the image half for want of a source and shipped the alternative this entry
+names in its own last paragraph: the skill's `Example` or `Usage` section, verbatim, capped at 18
+lines, on the 39 of 426 entries that have one. It is a literal string, so it is fact and needs no
+LLM pass. Note the measurement that closed the other route for good: `usage` carries counts, never
+invocation text, so there is no "real invocation from the transcripts" to show.
+
 
 **The idea.** Show what a skill produces.
 
@@ -381,7 +409,11 @@ Items 1 to 3 are done. What follows is the remaining order.
 4. ~~**Usage-derived inputs and outputs**~~ (idea 5, the factual half). Already shipped as `Calls`
    and `Called by`; 012 closed it.
 5. ~~**Orchestration visualization**~~ (idea 4). Shipped as 012's Workflow section.
-6. **Publish and bundle** (idea 6). Only when someone actually wants to publish, and only through
+6. ~~**Feedback capture**~~ (idea 7). Shipped as 013's Hand off section.
+7. ~~**Fork prompt**~~ (idea 8, the clipboard half). Shipped as 013's fork button. Its
+   file-writing half is refused, not deferred.
+8. ~~**Example**~~ (idea 9, the text half). Shipped as 013's Example block.
+9. **Publish and bundle** (idea 6). Only when someone actually wants to publish, and only through
    007's rules. 012 demoted it to Later; nothing is queued behind it.
 
 Nothing is queued. Everything remaining waits for evidence that it is wanted.
@@ -403,7 +435,11 @@ Following the repo's own convention, three of these need a decision ticket befor
   number reserved below, on 012's precedent: nothing in the repo produces `data/sidecar.json`, so
   every field ideas 1, 3 and 4 route through it is unpopulated, and idea 3's gloss has nowhere to
   land. Blocks a v1 ship.
-- **014 — Does Wayfinder create files.** Renumbered from 013. Forced by ideas 6 and 8. Unwritten
-  until idea 6 has a demand behind it. Bundling writes a `.zip`,
-  forking writes a new skill directory. Decision 1 covers editing existing skills, not creating
-  new ones, and that gap should be closed deliberately rather than by a button.
+- ~~**[014 — Does Wayfinder create files](tickets/014-handoff-and-example.md).**~~ Renumbered from
+  013. Closed, built in part. Written for ideas 7, 8 and 9 rather than waiting on idea 6, because 8
+  could not ship at all without it. Superseded text: Forced by ideas 6 and 8. Unwritten until idea
+  6 has a demand behind it. Bundling writes a `.zip`, forking writes a new skill directory.
+  Decision 1 covers editing existing skills, not creating new ones, and that gap should be closed
+  deliberately rather than by a button.
+  Resolution: the gap is closed by keeping the MAP's exclusion, with the argument stated. A fork
+  ships as a prompt, not as a directory.

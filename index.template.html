@@ -369,9 +369,10 @@
      no layout to compute and no reason for SVG - an ordered list with a CSS spine keeps the
      text selectable, gives assistive tech a real list, and survives the font request failing. */
   .flow-wrap { display: grid; gap: 8px; }
-  .flow-wrap h3 { margin: 0; font: 550 11px var(--ui); letter-spacing: 0.02em;
+  .flow-wrap h3, .hand h3 { margin: 0; font: 550 11px var(--ui); letter-spacing: 0.02em;
                   text-transform: uppercase; color: var(--ink-3); }
-  .flow-wrap .note { margin: 0; font-size: 12px; line-height: 1.5; color: var(--ink-3); }
+  .flow-wrap .note, .hand .note { margin: 0; font-size: 12px; line-height: 1.5; color: var(--ink-3); }
+  .flow-wrap .note code { font-family: var(--data); font-size: 11px; }
   /* The dot straddles the spine at left:-3.5px, and overflow-y:auto makes this a scroll
      container that clips the overhang. 4px of left padding keeps the whole dot inside. */
   .flow { list-style: none; margin: 4px 0 0; padding: 0 0 0 4px; max-height: 46vh;
@@ -389,6 +390,25 @@
   .also { display: grid; gap: 2px; padding-top: 10px; border-top: 1px solid var(--hairline); }
   .also > span { font: 550 11px var(--ui); letter-spacing: 0.02em; text-transform: uppercase;
                  color: var(--ink-3); }
+  /* 014: the example, and the handoff. Both borrow the flow section's heading and note, because
+     they are the same thing - a titled block in the panel with its provenance stated under it. */
+  .eg { margin: 4px 0 0; max-height: 34vh; overflow: auto; font: 11px/1.55 var(--data);
+        color: var(--ink-2); background: var(--raise); border: 1px solid var(--hairline);
+        border-radius: 6px; padding: 9px 10px; white-space: pre; tab-size: 2; user-select: all; }
+  .hand { display: grid; gap: 8px; padding-top: 16px; border-top: 1px solid var(--hairline); }
+  .hand textarea { font: 13px/1.5 var(--ui); color: var(--ink); background: var(--surface);
+                   border: 1px solid var(--edge); border-radius: 6px; padding: 7px 9px;
+                   resize: vertical; min-height: 62px; }
+  .hand textarea::placeholder { color: var(--ink-3); }
+  .hand textarea:focus { outline: none; border-color: var(--accent);
+                         box-shadow: 0 0 0 3px var(--accent-wash); }
+  .hand .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .hand button.act { all: unset; font: 550 11px var(--ui); border-radius: 6px; cursor: pointer;
+                     padding: 6px 10px; border: 1px solid var(--edge); color: var(--ink-2); }
+  .hand button.act:hover { background: var(--raise); color: var(--ink); }
+  .hand button.act:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .hand .said { font-size: 11px; color: var(--live); }
+
   /* A resolvable target navigates the panel; one that matches nothing on disk is stated and
      left inert rather than dropped, so a filtered flow never reads as a shorter workflow. */
   button.ref { all: unset; font-family: var(--data); font-size: 11px; padding: 1px 6px;
@@ -952,6 +972,62 @@ function flow(e) {
   </section>`;
 }
 
+// 014: what a skill produces, taken from the skill's own Example or Usage section rather than
+// drawn. 39 of 426 files head one. Absent is stated by the section not being here at all, which
+// is the same rule the Workflow section follows: no heading, no block, no fabricated stand-in.
+function example(e) {
+  if (!e.example) return '';
+  return `<section class="flow-wrap">
+    <h3>Example</h3>
+    <p class="note">The <code>${esc(e.example_from)}</code> section of this file, verbatim${
+      e.example_truncated ? ', first lines only \u2014 open the path below for the rest' : ''}.</p>
+    <pre class="eg">${esc(e.example)}</pre>
+  </section>`;
+}
+
+// The handoff is the product, not a convenience. The page cannot revise a skill and decision 1
+// says it must not, so what it produces is the paste that gets the work done somewhere that can.
+// Both prompts carry the path, because a prompt that makes the agent hunt for the file is worse.
+// The note box is deliberately not persisted: localStorage under file:// is origin-quirky and
+// loses data silently, and a box that forgets without saying so is worse than no box.
+function notePrompt(e, note) {
+  return [
+    `Revise the skill \`${e.name}\`.`,
+    `It lives at ${e.skill_file}. Read it before you change anything.`,
+    note ? `What to change: ${note}`
+         : 'Tell me what would make it trigger more reliably, then wait for me.',
+    'Keep the frontmatter name as it is; other skills reference this one by that name.',
+  ].join('\n');
+}
+
+function forkPrompt(e) {
+  // A name can be in both lists: delegates_to_unresolved is the subset that matched no file, and
+  // it is not subtracted from delegates_to. Naming a skill twice in the prompt reads as a bug.
+  const closure = [...new Set((e.delegates_to || []).concat(e.delegates_to_unresolved || []))];
+  return [
+    `Fork the skill \`${e.name}\` into a new one. Ask me for the new name first.`,
+    `The original is ${e.skill_file}. Copy it to a new directory under ~/.claude/skills, and`
+      + ' leave the original untouched.',
+    closure.length
+      ? `It references ${closure.join(', ')}. For each one, ask me whether the fork calls the same`
+        + ' skill or a fork of it before you rewrite the reference.'
+      : 'It references no other skill, so nothing needs rewriting.',
+  ].join('\n');
+}
+
+function handoff(e) {
+  const forkable = (e.delegates_to || []).length || (e.delegates_to_unresolved || []).length;
+  return `<section class="hand">
+    <h3>Hand off</h3>
+    <p class="note">Wayfinder never writes to a skill. These put text on the clipboard for you to
+      paste into Claude Code, which can. The box is not saved \u2014 copy it before you close.</p>
+    <textarea class="js-note" rows="3" aria-label="What should change about this skill"
+      placeholder="What should change next time?"></textarea>
+    <div class="row"><button class="act js-note-copy">Copy a revision prompt</button>${forkable
+      ? '<button class="act js-fork">Copy a fork prompt</button>' : ''}</div>
+  </section>`;
+}
+
 function entry(e) {
   const u = e.usage;
   const links = list => list.length
@@ -979,6 +1055,7 @@ function entry(e) {
       ? ' <span style="color:var(--ink-3);font-weight:400">inferred</span>' : ''}</p>` : ''}
     <p class="read">${esc(e.description || 'No gloss on record.')}</p>
     ${flow(e)}
+    ${example(e)}
     <dl>
       <dt>Call it</dt><dd class="loc">/${esc(e.id)}</dd>
       <dt>Lives at</dt><dd class="loc">${esc(e.skill_file)}</dd>
@@ -1012,6 +1089,7 @@ function entry(e) {
       <dt>Called by</dt><dd>${links(e.reached_via)}</dd>
       ${e.delegates_to_unresolved.length ? `<dt>Unresolved</dt><dd>${links(e.delegates_to_unresolved)}</dd>` : ''}
     </dl>
+    ${handoff(e)}
   </div>`;
 }
 
@@ -1485,6 +1563,20 @@ function wirePanel(box) {
     F.open = id;
     openPanel(id);
   }));
+  // The revision prompt reads the textarea at click time, so unlike the dialog's data-copy
+  // buttons the payload cannot be baked into the markup.
+  const e = ALL.find(x => x.id === F.panel);
+  const note = box.querySelector('.js-note');
+  const arm = (sel, text) => {
+    const b = box.querySelector(sel);
+    if (!b || !e) return;
+    const said = document.createElement('span');
+    said.className = 'said';
+    b.after(said);
+    b.addEventListener('click', () => toClipboard(text(), said));
+  };
+  arm('.js-note-copy', () => notePrompt(e, note ? note.value.trim() : ''));
+  arm('.js-fork', () => forkPrompt(e));
 }
 
 function closePanel() {

@@ -69,7 +69,8 @@ plus its dependency closure. Nobody has asked for that. Building a zip exporter 
 demand fails the first question worth asking about any feature.
 
 Demoted to **Later**. The roadmap's proposed "012 — Does Wayfinder create files" is renumbered
-**013** and stays unwritten until idea 6 has a demand behind it. If a Copy action falls out of
+**013**, and again to **014** once 013 went to the categorize pass. It stays unwritten until idea
+6 has a demand behind it. If a Copy action falls out of
 this ticket's work for free, that is the only sliver worth keeping, and it copies paths to the
 clipboard — it does not write.
 

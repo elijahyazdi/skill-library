@@ -115,6 +115,10 @@ Worth checking after any render change: search keeps focus and caret, facet chan
 count, Clear resets both the controls and the rows, mode toggle, column sort, panel open and close,
 and `agent-browser errors` clean.
 
+One trap when checking a specific entry: `agent-browser click '[data-id="x"]'` fails when the band
+strip is on a band that row is not in. The search box narrows within the selected band, it does not
+jump bands. This looks exactly like a broken selector.
+
 ## Highest value thing to add
 
 **Reach tier two.** `scan.py --categorize` emits 85 entries in section 4 and nobody has answered

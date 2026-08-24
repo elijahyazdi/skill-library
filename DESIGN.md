@@ -409,6 +409,31 @@ text on the row, never an arrow. Names not sitting in any step follow in a hairl
 references" group. The list scrolls internally at `46vh`; `Calls` and `Called by` stay in the `<dl>`
 below as the fallback and the copy surface. No SVG, no curves, no layout math.
 
+### Component: the Example block
+
+Sits in the record panel directly after the Workflow section and before the `<dl>`, on the 39
+entries whose file heads an Example or Usage section. It reuses the Workflow section's heading and
+provenance line exactly — 11px uppercase ink-3 heading, 12px ink-3 note under it — because it is
+the same object: a titled block with its source stated. The note names the author's own heading in
+JetBrains Mono, so a section the author called "Example: Form submission" is not relabelled. Body is a `<pre>` at 11px/1.55 monospace, ink-2 on `{colors.raise}` with a
+`{colors.hairline}` border and 6px radius, `white-space: pre` so a truncated code fence renders as
+the unterminated fence it is, `user-select: all`, scrolling internally at `34vh`. No syntax
+highlighting, no reflow, no summary. Where the file has no such section the block is absent
+entirely; there is no empty state, because absence here is a fact about the file and the panel
+already hands over the path.
+
+### Component: the Hand off section
+
+Last thing in the record panel, on every entry, above nothing. Hairline top rule and the same 11px
+uppercase heading, then one ink-3 note carrying two statements that have to travel together:
+Wayfinder never writes to a skill, and the box is not saved. Then a `resize: vertical` textarea in
+the register's own input language — 13px, `{colors.edge}` border, 6px radius, accent border with a
+3px `{colors.accent-wash}` halo on focus — and a row of ghost buttons at 11px/550. Copy feedback is
+a `{colors.live}` word placed after the button that was pressed, never a toast and never a colour
+change on the button. The second button appears only where the entry has a closure, so the row is
+one button on 400-odd entries and two on the rest. Buttons are labelled for what they do — "Copy a
+revision prompt", not "Revise" — which is the rule the whole section exists to obey.
+
 ## Do's and Don'ts
 
 ### Do:
@@ -429,3 +454,5 @@ below as the fallback and the copy surface. No SVG, no curves, no layout math.
 - **Don't** paint a large region in the accent, or use the accent for anything but current,
   selected, focused, or a path link.
 - **Don't** show a zero where there is no evidence. Absent data is an em dash in ink-3.
+- **Don't** label a control for an action the page cannot take. A button that copies a prompt says
+  it copies a prompt.

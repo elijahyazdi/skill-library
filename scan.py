@@ -24,7 +24,7 @@ try:
 except ImportError:
     sys.exit("PyYAML required: pip3 install pyyaml")
 
-SCHEMA_VERSION = 2  # 012: entries gained `steps`.
+SCHEMA_VERSION = 3  # 014: entries gained `example`, `example_from`, `example_truncated`.
 SCANNER_VERSION = "1.0.0"   # tracks the release tag; SCHEMA_VERSION tracks the payload
 
 HOME = os.path.expanduser("~")
@@ -707,6 +707,7 @@ UI_ENTRY_FIELDS = (
     "orchestration_class", "orchestration_reason",
     "health_flags", "health_candidate", "health_verdict", "health_source",
     "reach_flags", "reach_verdict", "twin_group",
+    "example", "example_from", "example_truncated",
 )
 UI_USAGE_FIELDS = (
     "state", "total_count", "last_used_at", "days_since_last_use", "sources", "coverage",
@@ -851,6 +852,71 @@ def attach_reach(entries):
         # Tier two, filled by the categorize pass (013) when someone runs section 4.
         e["reach_verdict"] = None
         e["reach_source"] = "none"
+
+
+# ---------------------------------------------------------------- example (014)
+
+# The image half of roadmap idea 9 has no source: nobody is drawing 426 GIFs, and one 200KB
+# data URI is a fifth of a payload `prune()` fought 22% to shrink. The file already answers the
+# question it was meant to answer. 194 of the 1252 `SKILL.md` files under ~/.claude head a
+# section Example, Examples or Usage, which is a literal string and therefore a fact, and needs
+# no LLM pass. Headings inside a fence are skipped, because a skill about writing skills quotes
+# `## Usage` inside a code block.
+ATX = re.compile(r"^(#{1,6})[ \t]+(.*)$")
+FENCE_LINE = re.compile(r"^\s*(```|~~~)")
+# `Example` anything is an example; `Usage` only counts standing alone. Matching `usage\b` as a
+# prefix pulled in "Usage Limits" and "Usage Emails", which are policy sections, not examples.
+EXAMPLE_TITLE = re.compile(r"^(examples?\b|usage examples?$|usage$)", re.I)
+EXAMPLE_LINES = 18
+EXAMPLE_CHARS = 1400
+
+
+def headings(body):
+    """(line index, depth, text) for every ATX heading that is not inside a code fence."""
+    out, fence = [], None
+    for i, line in enumerate(body.split("\n")):
+        opener = FENCE_LINE.match(line)
+        if opener:
+            fence = None if fence and line.strip().startswith(fence) else (fence or opener.group(1))
+            continue
+        if fence:
+            continue
+        m = ATX.match(line)
+        if m:
+            out.append((i, len(m.group(1)), m.group(2).strip()))
+    return out
+
+
+def attach_examples(entries):
+    """The skill's own Example or Usage section, verbatim, capped, when it has one.
+
+    Absent means the file states no example, which is a fact about the file and not a judgment
+    about the skill, so the page says which heading it came from and links to the path for the
+    rest. Nothing here is inferred and nothing is rewritten.
+    """
+    for e in entries:
+        e["example"], e["example_from"], e["example_truncated"] = None, None, False
+        body = e.get("_body") or ""
+        heads = headings(body)
+        hit = next((n for n, (_, depth, title) in enumerate(heads)
+                    if depth >= 2 and EXAMPLE_TITLE.match(title)), None)
+        if hit is None:
+            continue
+        start, depth, title = heads[hit]
+        end = next((j for j, d, _ in heads[hit + 1:] if d <= depth), None)
+        lines = body.split("\n")
+        block = lines[start + 1: end if end is not None else len(lines)]
+        while block and not block[0].strip():
+            block.pop(0)
+        while block and not block[-1].strip():
+            block.pop()
+        if not block:
+            continue
+        kept = "\n".join(block[:EXAMPLE_LINES])
+        text = kept[:EXAMPLE_CHARS].rstrip()
+        e["example"] = text
+        e["example_from"] = title
+        e["example_truncated"] = len(block) > EXAMPLE_LINES or len(text) < len(kept)
 
 
 # ---------------------------------------------------------------- duplicates (011)
@@ -1282,6 +1348,7 @@ def main():
     build_graph(entries, commands)
     attach_health(entries)
     attach_reach(entries)
+    attach_examples(entries)
     merge_categories(entries)
 
     vocab = {e["name"] for e in entries} | set(commands)

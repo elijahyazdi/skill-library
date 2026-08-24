@@ -109,6 +109,12 @@ Three usage states, and the difference matters:
 Two invocation paths leave no trace on disk at all. A blank record is the absence of evidence,
 not evidence of absence. Domain and kind are inferred, not read off disk, and the page says so.
 
+Opening a record shows what the file itself says, never a rewrite of it: the skill's own Step
+headings as a workflow, its own `Example` section verbatim where it has one, and what the text
+reaches for. Every action ends at the clipboard. A **Copy a revision prompt** button turns a note
+into a paste for Claude Code, and a **Copy a fork prompt** button does the same for forking an
+orchestrator, closure and all. Nothing on the page writes, moves, or creates a file.
+
 ## Known gaps
 
 - **The reach verdicts are unanswered.** `--categorize` emits them as section 4, which needs
@@ -127,5 +133,5 @@ not evidence of absence. Domain and kind are inferred, not read off disk, and th
 
 ## Decisions
 
-Every design decision lives in `docs/MAP.md` and the eight tickets under `docs/tickets/`. Read the
+Every design decision lives in `docs/MAP.md` and the fourteen tickets under `docs/tickets/`. Read the
 MAP before changing behavior. It records what was measured, what was rejected, and why.

@@ -319,6 +319,18 @@ where corrected numbers confirm them. Tickets 002 and 004 re-measured everything
   007's amendment retired its premise. Also fixed `step_section_spread()`, which ended a step at
   its own first subheading and dropped a real target on `launch-sprint`: verdict-neutral, 10
   orchestrators before and after, 0 field diffs across the 426.
+- [014 — Handoff and example](tickets/014-handoff-and-example.md) — Settles roadmap ideas 7, 8 and
+  9. Idea 9's image half has no source, so what ships is the skill's own `Example` or `Usage`
+  section, verbatim, capped at 18 lines: 39 of 426 entries have one, a literal string and so a
+  fact, no LLM pass. A looser `usage\b` prefix rule matched 44 and pulled in policy sections, and
+  the block is labelled "Example" in Wayfinder's words, so the tight rule wins even though it
+  loses three probable examples. Ideas 7 and 8 both become clipboard handoffs over 011's existing
+  `toClipboard()`: a note textarea that emits a revision prompt, and a fork prompt carrying the
+  closure. `data/notes.json` was not built, because getting text out of a `file://` page is copy
+  and paste either way. `scan.py fork` was **refused**, closing the gap decision 1 left open:
+  writing a new skill directory breaks no source of truth, but it makes the next scan index
+  something Wayfinder wrote, and then every count on the page is partly a measurement of the tool.
+  The `/skill-creator` button was dropped outright, not deferred.
 
 ## Not yet specified
 
@@ -405,7 +417,9 @@ is a self-reference in all 5, so it costs zero real edges. Pinned as a test rath
 ## Out of scope
 
 - Editing, creating, or version-bumping skills from inside the tool. Read-only was chosen
-  deliberately; the tool hands over a file path instead.
+  deliberately; the tool hands over a file path instead. 014 tested this against the one case with
+  a real workflow behind it — forking an orchestrator — and kept the exclusion: the tool would then
+  be indexing its own output. Creating is now excluded on an argument, not only by omission.
 - Any cloud or team sync service.
 - Analytics dashboards, charts, or trend lines over skill usage. A recency column is not a
   charting product. The exclusion covers measurements plotted over time or aggregated across

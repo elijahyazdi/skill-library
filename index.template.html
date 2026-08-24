@@ -514,6 +514,9 @@
                   font: 500 13px var(--ui); color: var(--surface);
                   background: var(--ink); border-radius: 6px; padding: 0 12px; }
   .empty button:hover { background: var(--ink-2); }
+  .empty code { font: 400 12px var(--data); color: var(--ink); }
+  .empty .errs { margin: 0 0 16px; padding-left: 18px; color: var(--ink-2); max-width: 72ch; }
+  .empty .errs li { margin-bottom: 4px; }
   .colophon { border-top: 1px solid var(--hairline); margin-top: auto; }
   .colophon .inner { padding: 16px 24px 32px; font-size: 12px; color: var(--ink-3); max-width: 72ch; }
 
@@ -671,7 +674,11 @@ const reaches = e => e.reach_flags.some(f => SHARP.includes(f));
 // First sentence, truncated. No inference: an LLM-written one-liner would be better prose and
 // would live in the gitignored sidecar, so it would vanish on any other machine (roadmap 3).
 const GLOSS_MAX = 110;
+// Sidecar first, first sentence second (013 decision 4). The fallback is not optional: the
+// page has to be correct on a machine that never ran the categorize pass, which is every
+// machine on its first run.
 function gloss(e) {
+  if (e.gloss) return e.gloss;
   const d = (e.description || '').trim();
   const cut = (d.match(/^.*?[.!?](?=\s|$)/) || [d])[0].trim();
   if (cut.length >= d.length && d.length <= GLOSS_MAX) return '';   // the whole gloss already fits
@@ -729,6 +736,10 @@ function ordered(rows) {
 
 // ---------------------------------------------------------------- thesis
 function thesis() {
+  if (!ALL.length) return `<div class="thesis"><span class="kicker">Insights</span>
+    <p class="claim">There is nothing to draw a conclusion from yet.</p>
+    <div class="after"><p>The scan returned no entries, so every count on this page is an
+      empty scan rather than a finding.</p></div></div>`;
   const c = SNAP.counts, u = SNAP.usage_sources;
   const mine = ALL.filter(e => e.source === 'global');
   const never = mine.filter(e => state(e) === 'never_used').length;
@@ -820,8 +831,11 @@ function facetSets() {
     ['role', 'Role', [['all', 'Any'], ['orchestrator', 'Orchestrators'], ['leaf', 'Reached only via']]],
     ['domain', 'Domain', [['all', 'Any domain'], ...facet(DOMAIN).map(d =>
       d === ANY ? ['any', 'Universal only'] : [d, d])]],
+    // 008 wants an Uncategorized option so a new skill is reachable the moment it lands. Once
+    // the categorize pass has run it is 0, and an option that selects nothing is a dead control,
+    // so it appears only when it has something in it.
     ['kind', 'Kind', [['all', 'Any kind'], ...facet(e => e.kind).filter(Boolean).map(k => [k, k]),
-      ['none', 'Uncategorized (' + uncat + ')']]],
+      ...(uncat ? [['none', 'Uncategorized (' + uncat + ')']] : [])]],
     ['condition', 'Condition', [['all', 'Any'], ['flagged', 'Needs work'], ['clean', 'Clean']]],
     ['reach', 'Reach', [['all', 'Any'], ['out', 'Acts outside the file'], ['none', 'Touches nothing']]],
   ];
@@ -961,7 +975,8 @@ function entry(e) {
   return `<div class="entry-in">
     <header class="head"><h2>${esc(e.name)}</h2>
       <div class="sub"><span class="pip ${state(e)}"></span>${esc(ageText(e))}${badges}</div></header>
-    ${gloss(e) ? `<p class="lead">${esc(gloss(e))}</p>` : ''}
+    ${gloss(e) ? `<p class="lead">${esc(gloss(e))}${e.gloss
+      ? ' <span style="color:var(--ink-3);font-weight:400">inferred</span>' : ''}</p>` : ''}
     <p class="read">${esc(e.description || 'No gloss on record.')}</p>
     ${flow(e)}
     <dl>
@@ -980,8 +995,9 @@ function entry(e) {
         ${e.health_verdict ? `<span style="color:var(--ink-3)">${esc(e.health_verdict)}</span>` : ''}</dd>` : ''}
       <dt>Reach</dt><dd>${e.reach_flags.length
         ? `<ul class="flags">${e.reach_flags.map(f => `<li>${esc(REACH_LABEL[f] || f)}</li>`).join('')}</ul>
-           <span style="color:var(--ink-3)">Pattern matches in the file, not a verdict. Read it
-             before you trust it.</span>`
+           <span style="color:var(--ink-3)">${e.reach_verdict
+             ? esc(e.reach_verdict) + ' Inferred by someone who opened the file.'
+             : `Pattern matches in the file, not a verdict. Read it before you trust it.`}</span>`
         : '<span style="color:var(--ink-3)">Nothing in the file calls out, deletes, or names a credential.</span>'}</dd>
       ${e.twin_group ? `<dt>Twin</dt><dd>${links(ALL.filter(x => x.twin_group === e.twin_group
         && x.id !== e.id).map(x => x.id))}</dd>` : ''}
@@ -1073,6 +1089,22 @@ function empty() {
     <p>${F.q ? `No skill mentions “${esc(F.q)}”` : 'No skill fits those filters'}.
       Glosses are the trigger text a model reads, so looking them up finds more than names alone.</p>
     <button class="js-reset">Start over</button></div>`;
+}
+
+// A different failure from the one above, and it reads as the same one unless it is written
+// separately: no filter is wrong, the scan came back with nothing. This is the first screen on
+// a machine where the roots are missing, so it names what was read instead of offering a reset.
+function firstRun() {
+  const errs = SNAP.scan_errors || [];
+  return `<div class="empty">
+    <h2>The scan found no skills</h2>
+    <p>Wayfinder reads <code>~/.claude/skills</code>, the plugins your settings enable, and a
+      skills checkout passed with <code>--repo</code>. None of them returned an entry.</p>
+    ${errs.length
+      ? `<p>What the scan reported:</p><ul class="errs">${errs.map(x =>
+          `<li><code>${esc(x.path)}</code> ${esc(x.error)}</li>`).join('')}</ul>`
+      : `<p>The scan reported no errors, so those roots exist and are empty.</p>`}
+    <p>Install a skill, then run <code>python3 scan.py --prototype</code> again.</p></div>`;
 }
 
 // ---------------------------------------------------------------- analysis
@@ -1344,6 +1376,7 @@ function viewBody(rows, b) {
   if (F.mode === 'analysis') return analysisView();
   if (F.mode === 'history') return historyView();
   if (F.mode === 'twins') return twinsView();
+  if (!ALL.length) return firstRun();
   if (!rows.length) return empty();
   return bandStrip(b, rows.length) +
     (F.mode === 'index' ? indexView(b.shown) : entriesView(b));
@@ -1410,13 +1443,17 @@ function syncFacets() {
 }
 
 function colophon() {
+  if (!ALL.length) return '';   // a paragraph of zeros reads as a finding. It is an empty scan.
   const c = SNAP.counts, guessed = ALL.filter(e => e.category_source === 'llm').length;
   const universal = ALL.filter(e => !e.domain).length;
-  return `<div class="colophon"><div class="inner">Domain and kind are a judgment call, not a
-    reading off disk: ${guessed} were inferred one skill at a time and ${c.plugin} were assigned
-    Platform by rule. ${universal} carry no domain at all, which means universal, not unknown —
-    they stay in view under every domain. Two usage channels leave no trace at all, so a blank
-    record is the absence of evidence, not evidence of absence.</div></div>`;
+  const glossed = ALL.filter(e => e.gloss).length;
+  return `<div class="colophon"><div class="inner">Domain, kind and the one-line gloss are a
+    judgment call, not a reading off disk: ${guessed} were inferred one skill at a time,
+    ${glossed} carry a written gloss and the rest fall back to their own first sentence, and
+    ${c.plugin} were assigned Platform by rule. ${universal} carry no domain at all, which means
+    universal, not unknown — they stay in view under every domain. Two usage channels leave no
+    trace at all, so a blank record is the absence of evidence, not evidence of
+    absence.</div></div>`;
 }
 
 function openPanel(what) {

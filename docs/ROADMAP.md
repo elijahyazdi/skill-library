@@ -399,7 +399,11 @@ Following the repo's own convention, three of these need a decision ticket befor
   recommendation is ranked, and the explicit refusal to merge or delete.
 - ~~**012 — Drawing an orchestrator's workflow.**~~ Closed, built. Took the number the roadmap had
   reserved below, because it is the ticket ideas 4, 5 and 6 actually needed first.
-- **013 — Does Wayfinder create files.** Forced by ideas 6 and 8. Unwritten until idea 6 has a
-  demand behind it. Bundling writes a `.zip`,
+- **[013 — How the sidecar gets written](tickets/013-categorize-command.md).** Open. Took the
+  number reserved below, on 012's precedent: nothing in the repo produces `data/sidecar.json`, so
+  every field ideas 1, 3 and 4 route through it is unpopulated, and idea 3's gloss has nowhere to
+  land. Blocks a v1 ship.
+- **014 — Does Wayfinder create files.** Renumbered from 013. Forced by ideas 6 and 8. Unwritten
+  until idea 6 has a demand behind it. Bundling writes a `.zip`,
   forking writes a new skill directory. Decision 1 covers editing existing skills, not creating
   new ones, and that gap should be closed deliberately rather than by a button.

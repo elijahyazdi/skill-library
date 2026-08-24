@@ -360,8 +360,47 @@ Known work the build inherits, none of it reopening a decision:
 5. **Make it run on someone else's machine** per 007's amendment — `REPO_ROOT` optional, every input
    allowed to be missing, empty first-run state, generated `data/*.json` excluded from distribution.
 
+All five are done. Items 1 to 4 shipped with their tickets. Item 5 closed 2026-08-24, and the
+last piece of it was the one nobody had checked: with zero entries the page rendered the
+*no-filter-match* state, "Nothing in the guide matches that / No skill fits those filters / Start
+over", which is the wrong sentence and the wrong offer for a teammate whose scan came back empty.
+There is now a `firstRun()` state that names the roots and lists `scan_errors`, which the UI
+payload carries for the first time; `colophon()` and `thesis()` return early rather than print a
+paragraph of zeros, because a page of zeros reads as a finding. Also in the same pass: `REPO_ROOT`
+became `--repo`, keeping its old value as the default so the 426 / 2-repo numbers every ticket
+asserts do not move, and the PyYAML guard stopped telling other people's machines that PyYAML is
+already installed on them.
+
 Specified and deliberately not built: the publish path (`public.json`, the allowlist, the field
 denylist). It is 007's resolution verbatim, waiting on someone wanting to publish Eli's own library.
+
+**`test_scan.py` exists as of 2026-08-24.** 61 tests, standard library `unittest`, no new
+dependency. The split is the decision worth recording: the `Invariant*` classes build fixtures in
+a temp directory and pin the *rules* — one-level glob, exclusion prefixes, id shape, the
+force-quote repair, 006 Q12's reference guards, 002's three usage states, `prune()` keeping zero —
+and pass anywhere. `LiveLibrary` pins the *counts* the tickets assert and skips itself unless
+`data/skills.json` matches the 426-entry library, because asserting one person's inventory
+unconditionally hands every teammate a red suite on a correct scan, which is the same mistake as
+reading a blank usage record as a zero. One finding while writing them, measured and left alone:
+006 Q12's `(?![/.])` guard also suppresses a sentence-final `/name.`, which occurs in 5 files and
+is a self-reference in all 5, so it costs zero real edges. Pinned as a test rather than fixed.
+
+- [013 — How the sidecar gets written](tickets/013-categorize-command.md) — Nothing produced
+  `data/sidecar.json`. Five tickets routed their inferred fields through "one batched LLM pass"
+  and no code path wrote the file, so 169 of 426 entries read `uncategorized`, the Domain facet
+  carried 2 of 8 options, Kind carried 2 of 7, and the Analysis view scored nothing with a rail
+  count of `0`. Resolved as `scan.py --categorize`, which writes `data/categorize.md` and hands
+  it to a model outside the tool — the only shape that works with no API key on a teammate's
+  machine. One file, four sections, descriptions and computed fields and paths but **never
+  bodies**, and it emits only what the sidecar has not already answered. Sections 1 to 3 were
+  run: `uncategorized` 0, all 8 domains and all 7 kinds populated, the 22 mechanical
+  orchestration candidates split 11 orchestrator / 5 router / 6 leaf, the coverage grid scoring
+  143 entries across 49 cells. Section 4, reach, needs 85 files opened and was deliberately not
+  run; the panel says so rather than hiding it. Tier two corrected the mechanical verdict twice
+  (`weekly` and `wayfinder` are leaves) and caught two posthog edges that matched the English
+  words "pricing" and "signup" — 006 Q12's lesson surviving into a second layer. Rejected:
+  calling an API from `scan.py`, shipping the pass as a harness-bound skill, a rule-based
+  classifier, and cutting Domain and Kind from v1.
 
 ## Out of scope
 

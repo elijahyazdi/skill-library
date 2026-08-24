@@ -6,16 +6,72 @@ Wayfinder scans `~/.claude` and answers four questions: what skills do I have, w
 forgotten, which are worth sharing, and which need work. It is read-only. It never writes to a
 `SKILL.md`.
 
-## Quick start
+## Install
 
 ```bash
-python3 scan.py --prototype   # writes data/skills.json and builds index.html
+git clone https://github.com/elijahyazdi/skill-library.git wayfinder
+cd wayfinder
+pip3 install pyyaml            # the only dependency
+python3 scan.py --prototype    # writes data/skills.json and builds index.html
 open index.html
 ```
 
-Needs Python 3 and PyYAML. Nothing else. No `npm install`, no bundler, no server.
+Python 3.9 or later and PyYAML. Nothing else. No `npm install`, no bundler, no server.
 
-`scan.py` without `--prototype` writes the snapshot only and leaves the page alone.
+Everything the page needs is inlined into `index.html`, so it opens off the filesystem. The one
+external request is the Google Fonts stylesheet, and the page is correct without it.
+
+You can also copy `scan.py` and `index.template.html` into any directory and run them there.
+`scan.py` creates its own `data/` next to itself. Nothing else in the repo is required at runtime.
+
+## Running it
+
+```bash
+python3 scan.py               # snapshot only, leaves the page alone
+python3 scan.py --prototype   # snapshot plus index.html
+python3 scan.py --repo PATH   # also scan a skills checkout outside ~/.claude
+python3 scan.py --categorize  # write the prompt for the judgment calls
+python3 scan.py --help
+```
+
+## Filling in domain and kind
+
+The scanner reads what is on disk. It cannot tell you a skill's domain, its kind, a one-line
+gloss, whether it really orchestrates the skills it names, or what a `rm -rf` in its body is
+actually doing. Those come from one pass you run yourself:
+
+```bash
+python3 scan.py --categorize   # writes data/categorize.md
+```
+
+Paste that file into Claude Code or any assistant. It writes `data/sidecar.json`. Scan again and
+the Domain and Kind facets fill in and the Analysis view starts scoring. Re-running `--categorize`
+emits only what the sidecar has not already answered, so adding four skills means a four-entry
+prompt. It writes nothing when there is nothing left to ask.
+
+No API key, no network, no account. The tool prepares the prompt and hands it over, which is the
+same thing it does with a skill's path.
+
+## Tests
+
+```bash
+python3 test_scan.py          # 74 tests, standard library, no test framework to install
+```
+
+57 of them pin rules and pass anywhere. The other 17 pin the counts this repo's tickets assert and
+skip themselves unless `data/skills.json` came from the library those numbers describe, so a
+correct scan on your machine never shows up as a failure.
+
+## Keeping it current
+
+There is no watcher and no hook. Rescan when you want to; the page states its own age and warns
+at 14 days, then again at 30, because transcripts roll off at 30 and usage coverage degrades.
+
+The snapshot and the built page carry your personal usage record. Both are gitignored. Do not
+send `index.html` to anyone — send them this repo and let them run their own scan.
+
+Nothing here writes to a `SKILL.md`, ever. Acting on a finding means copying the path the page
+gives you and opening it somewhere else.
 
 ## How it works
 
@@ -24,7 +80,7 @@ Three files, merged in order:
 | File | Written by | Tracked |
 | --- | --- | --- |
 | `data/skills.json` | `scan.py`, every run | no |
-| `data/sidecar.json` | one batched LLM pass: domain, kind, orchestration verdict | no |
+| `data/sidecar.json` | `scan.py --categorize`, then an assistant | no |
 | `data/overrides.json` | you, by hand, and it wins | yes |
 
 All three key on the entry `id`. `index.template.html` is the source for the page; `scan.py`
@@ -55,10 +111,16 @@ not evidence of absence. Domain and kind are inferred, not read off disk, and th
 
 ## Known gaps
 
-- **No tests.** The scanner's numbers are asserted in the tickets and enforced by nothing.
+- **The reach verdicts are unanswered.** `--categorize` emits them as section 4, which needs
+  every flagged file opened. Until someone does, the panel says "Pattern matches in the file, not
+  a verdict" for all 111 flagged entries, which is true and is the point. See ticket 013.
+- **The sidecar does not travel.** It is gitignored like every other generated file, so each
+  person runs `--categorize` against their own library. That is the design, not an oversight.
+- **The page has no tests.** `test_scan.py` covers the scanner. The HTML is verified by hand
+  against a real browser; CLAUDE.md lists what to check.
 - **Roughly 14 built-in skills are invisible.** They ship inside the harness, not on disk.
-- **`REPO_ROOT` is hardcoded** to `~/Development/claude-skills`. It is skipped when absent, so the
-  scan still runs elsewhere, but a teammate's own repo will not be picked up.
+- **`--repo` defaults to `~/Development/claude-skills`,** which is one person's path. It is
+  skipped when absent, so the scan runs fine elsewhere, but pass your own path to be indexed.
 - **Publishing is specified and not built.** See ticket 007.
 - **History is Wayfinder's own, not each skill's.** It reads this repo's annotated tags. No
   per-skill version history exists on the machine to show. See the MAP's open questions.

@@ -290,6 +290,15 @@ where corrected numbers confirm them. Tickets 002 and 004 re-measured everything
   outside your directory was labelled `yours` and widening the default would have widened a lie.
   **What did not reverse:** the strip still opens on `never_used` (006, `KEY.age`). All is the
   widest scope, not the default; opening on everything would delete the tool's headline claim.
+  **Amended 2026-08-24, from a teammate dry run.** The residual author was the literal string
+  `"Eli"`, so on anyone else's machine the register told them their own 82-odd undeclared skills
+  were written by someone else. That was the one place the tool asserted a fact it had not
+  measured, which is principle 1 inverted. `machine_owner()` now reads `git config user.name`,
+  falling back to the login name and then to `null`, which the page already renders as `Unknown`
+  with the ring dashed. Absent both is not a scan error: a machine with no git identity is a
+  normal machine. Eli's own rows now read `Elijah Yazdi`, which is the name his git config
+  carries, so the monogram is `EY` and not `E`. The `assumed` flag and the dashed ring are
+  unchanged, because reading the owner correctly does not make the attribution declared.
   **Amendment, same day:** authorship is also a facet, sixth in the register, sitting next to
   Where. 17 options is past `OPEN_MAX`, so it collapses to a select on its own. It filters on the
   identity slug rather than the raw author string, which is what keeps Vercel and Vercel Labs

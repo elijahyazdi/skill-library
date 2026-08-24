@@ -651,8 +651,10 @@ const who = e => {
   const name = IDENTITY[e.author] || e.author || 'Unknown';
   return { name, slug: slugOf(name), assumed: e.author_source === 'assumed' };
 };
-// A dashed ring where the author was assumed rather than declared: 82 entries say `Eli` only
-// because nothing said otherwise (scan.py falls back), and a guess should not look like a fact.
+// A dashed ring where the author was assumed rather than declared: 82 entries carry the name of
+// whoever runs the scan only because nothing on disk said otherwise, and a guess should not look
+// like a fact. The name is read from git rather than hardcoded, so it is the right guess on any
+// machine; it is still a guess.
 function avatar(e) {
   const w = who(e);
   const inner = MARKS[w.slug]
@@ -1063,7 +1065,8 @@ function entry(e) {
         <span style="color:var(--ink-3)">${e.category_source === 'llm' ? 'inferred, correctable' : esc(e.category_source)}</span></dd>
       ${e.orchestration_class ? `<dt>Adjudged</dt><dd>${esc(e.orchestration_class)}
         <span style="color:var(--ink-3)">${esc(e.orchestration_reason || '')}</span></dd>` : ''}
-      <dt>Written by</dt><dd class="by">${avatar(e)}${esc(who(e).name)} <span style="color:var(--ink-3)">via ${esc(e.author_source)}</span></dd>
+      <dt>Written by</dt><dd class="by">${avatar(e)}${esc(who(e).name)}${e.author_source
+        ? ` <span style="color:var(--ink-3)">via ${esc(e.author_source)}</span>` : ''}</dd>
       <dt>Version</dt><dd>${e.version ? esc(e.version) : '<span style="color:var(--ink-3)">unknown</span>'}${e.updated_at ? ', updated ' + esc(e.updated_at.slice(0, 10)) : ''}</dd>
       ${e.upstream_url ? `<dt>Upstream</dt><dd class="loc">${esc(e.upstream_url)}</dd>` : ''}
       <dt>Notes</dt><dd>${notes.length ? esc(notes.join(' · ')) : '<span style="color:var(--ink-3)">—</span>'}</dd>

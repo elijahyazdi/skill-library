@@ -12,6 +12,7 @@ Usage:  python3 scan.py [--out data/skills.json] [--repo PATH] [--prototype]
 import argparse
 import collections
 import datetime as dt
+import getpass
 import glob
 import json
 import os
@@ -223,6 +224,35 @@ def command_vocabulary():
 
 # ---------------------------------------------------------------- entries
 
+# 011 defaulted the residual author to the machine owner and spelled it "Eli", because that is
+# who the machine belonged to. On anyone else's machine that spelling told them their own skills
+# were written by someone else, which is the one place the tool asserted a fact it had not
+# measured. The owner is now read rather than assumed: git's configured name first, because it is
+# a display name a person chose for themselves, then the login name. Absent both, the author stays
+# null, which the page already renders as `Unknown` with the ring dashed. No scan error either
+# way - a machine with no git identity is a normal machine, not a broken one.
+_OWNER = []
+
+
+def machine_owner():
+    """The display name to fall back on when nothing declares an author. Cached: 426 entries."""
+    if not _OWNER:
+        name = None
+        try:
+            out = subprocess.run(("git", "config", "user.name"),
+                                 capture_output=True, text=True, timeout=10)
+            name = out.stdout.strip() if out.returncode == 0 else None
+        except (OSError, subprocess.SubprocessError):
+            pass
+        if not name:
+            try:
+                name = getpass.getuser()
+            except (OSError, KeyError):
+                pass
+        _OWNER.append(name or None)
+    return _OWNER[0]
+
+
 def build_entry(skill_file, source, plugin=None, lock=None):
     path = os.path.dirname(skill_file)
     name = os.path.basename(path)
@@ -256,7 +286,8 @@ def build_entry(skill_file, source, plugin=None, lock=None):
             author, author_source = candidate, tag
             break
     if not author:
-        author, author_source = "Eli", "assumed"
+        owner = machine_owner()
+        author, author_source = owner, ("assumed" if owner else None)
 
     updated_at = (lock_rec or {}).get("updatedAt") or (plugin["last_updated"] if plugin else None)
 

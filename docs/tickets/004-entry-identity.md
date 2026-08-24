@@ -152,8 +152,8 @@ longer:
 - `design-accelerator` 101 versus 203 (global replaces a generic pattern list with a
   reference-backed polish method, and adds `evals/` and `references/`).
 - `morning` 192 versus 227 (global adds a field-intelligence step).
-- `weekly` 125 versus 129 (global corrects the vault root to `~/Documents/Resources/Eli-Brain` and
-  reads the newer `/daily-reflection` output).
+- `weekly` 125 versus 129 (global corrects the notes vault root, path redacted, and reads the
+  newer `/daily-reflection` output).
 - `review` 84 versus 96 (global switched output from JSON to a plain-text report).
 - `data-modeling`, `ux-flow`, `grill-me` likewise updated in global. The repo `ux-flow` has lost its
   frontmatter entirely, which the global copy still has.

@@ -36,7 +36,7 @@ An entry is published only if something says so explicitly. Nothing is published
 
 The measurement settles the argument the ticket asked for. A deliberately crude regex over the
 descriptions of the 169 global and repo skills, matching only `Eli`, `Obsidian`, `vault`,
-`personal`, `Highland`, and `client`, flags **33 of 169**. That is a floor, not a ceiling: it
+`personal`, an employer name redacted here, and `client`, flags **33 of 169**. That is a floor, not a ceiling: it
 catches `daily-reflection`, `intentional-buy`, `morning`, `client-intake` and `client-handoff`,
 and it misses anything that names a client without using the word "client". A blocklist would
 have to be right about all 169 and stay right on every skill added afterwards, and it fails

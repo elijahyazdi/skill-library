@@ -11,12 +11,17 @@ forgotten, which are worth sharing, and which need work. It is read-only. It nev
 ```bash
 git clone https://github.com/elijahyazdi/skill-library.git wayfinder
 cd wayfinder
-pip3 install pyyaml            # the only dependency
+python3 -m venv .venv && source .venv/bin/activate
+pip install pyyaml             # the only dependency
 python3 scan.py --prototype    # writes data/skills.json and builds index.html
 open index.html
 ```
 
 Python 3.9 or later and PyYAML. Nothing else. No `npm install`, no bundler, no server.
+
+macOS Homebrew Python refuses a bare `pip3 install` (PEP 668, "externally-managed-environment").
+The venv above sidesteps it without touching Homebrew's own packages. Re-run just
+`source .venv/bin/activate` in future shells before using `scan.py`.
 
 Everything the page needs is inlined into `index.html`, so it opens off the filesystem. The one
 external request is the Google Fonts stylesheet, and the page is correct without it.

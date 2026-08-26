@@ -1,6 +1,6 @@
 # Skill Library
 
-A browsable, filterable view of every skill this machine can reach.
+A browsable, filterable view of every skill your machine can reach.
 
 Skill Library scans `~/.claude` and answers four questions: what skills do I have, which have I
 forgotten, which are worth sharing, and which need work. It is read-only. It never writes to a

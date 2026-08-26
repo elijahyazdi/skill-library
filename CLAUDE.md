@@ -1,4 +1,4 @@
-# Wayfinder
+# Skill Library
 
 Read-only indexer over `~/.claude`. Python scanner plus one static HTML page. See `README.md` for
 what it does and `docs/MAP.md` for why it does it that way.

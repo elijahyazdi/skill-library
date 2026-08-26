@@ -1,16 +1,16 @@
-# Wayfinder
+# Skill Library
 
 A browsable, filterable view of every skill this machine can reach.
 
-Wayfinder scans `~/.claude` and answers four questions: what skills do I have, which have I
+Skill Library scans `~/.claude` and answers four questions: what skills do I have, which have I
 forgotten, which are worth sharing, and which need work. It is read-only. It never writes to a
 `SKILL.md`.
 
 ## Install
 
 ```bash
-git clone https://github.com/elijahyazdi/skill-library.git wayfinder
-cd wayfinder
+git clone https://github.com/elijahyazdi/skill-library.git skill-library
+cd skill-library
 python3 -m venv .venv && source .venv/bin/activate
 pip install pyyaml             # the only dependency
 python3 scan.py --prototype    # writes data/skills.json and builds index.html
@@ -133,7 +133,7 @@ orchestrator, closure and all. Nothing on the page writes, moves, or creates a f
 - **`--repo` defaults to `~/Development/claude-skills`,** which is one person's path. It is
   skipped when absent, so the scan runs fine elsewhere, but pass your own path to be indexed.
 - **Publishing is specified and not built.** See ticket 007.
-- **History is Wayfinder's own, not each skill's.** It reads this repo's annotated tags. No
+- **History is Skill Library's own, not each skill's.** It reads this repo's annotated tags. No
   per-skill version history exists on the machine to show. See the MAP's open questions.
 
 ## Decisions

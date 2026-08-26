@@ -313,7 +313,7 @@ Recommendation: clipboard handoff first. Promote to `data/notes.json` if the not
 has a closure, and dropped the `/skill-creator` button outright: it would copy a nine-character
 string faster to type than the panel is to open. `scan.py fork` was refused with the argument this
 entry asked for — writing a new skill directory violates nothing on decision 1's own terms, but it
-makes the next scan index something Wayfinder wrote, and then every count on the page is partly a
+makes the next scan index something Skill Library wrote, and then every count on the page is partly a
 measurement of the tool.
 
 
@@ -331,7 +331,7 @@ the tool already knows the closure to copy: `delegates_to` gives the leaves. A `
 prefixed references rewritten.
 
 **But note what that is.** It writes to `~/.claude`. Constraint 1 forbids writing to an existing
-`SKILL.md`; writing a brand new one is not literally that, but it makes Wayfinder a tool that
+`SKILL.md`; writing a brand new one is not literally that, but it makes Skill Library a tool that
 creates things. That is a genuine change in what the product is and it belongs in a ticket that
 argues it, not in a button someone adds on a Tuesday.
 
@@ -435,7 +435,7 @@ Following the repo's own convention, three of these need a decision ticket befor
   number reserved below, on 012's precedent: nothing in the repo produces `data/sidecar.json`, so
   every field ideas 1, 3 and 4 route through it is unpopulated, and idea 3's gloss has nowhere to
   land. Blocks a v1 ship.
-- ~~**[014 — Does Wayfinder create files](tickets/014-handoff-and-example.md).**~~ Renumbered from
+- ~~**[014 — Does Skill Library create files](tickets/014-handoff-and-example.md).**~~ Renumbered from
   013. Closed, built in part. Written for ideas 7, 8 and 9 rather than waiting on idea 6, because 8
   could not ship at all without it. Superseded text: Forced by ideas 6 and 8. Unwritten until idea
   6 has a demand behind it. Bundling writes a `.zip`, forking writes a new skill directory.

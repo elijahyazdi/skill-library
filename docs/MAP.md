@@ -1,6 +1,6 @@
 # Map: Skill Library — a browsable, filterable view of every available skill
 
-Label: `wayfinder:map`
+Label: `skill-library:map`
 Tracker: local markdown. Tickets live in `docs/tickets/NNN-slug.md`.
 
 ## Destination
@@ -180,7 +180,7 @@ where corrected numbers confirm them. Tickets 002 and 004 re-measured everything
   **Amended 2026-08-18, second pass:** the rail ships three entries, not one. `Analysis` was built
   as the domain-and-kind coverage grid. `History` was built too, but it is **not** the item this
   ticket rejected: the rejected one was per-skill version history, which still does not exist and
-  still cannot be faked. What shipped is Wayfinder's own release history, rendered as a vertical
+  still cannot be faked. What shipped is Skill Library's own release history, rendered as a vertical
   timeline: `scan.py` reads the **annotated tags** of its own repo, taking the tag subject as the
   headline, the tag body as the note, and the commits between two tags as the release. A
   hand-written `data/releases.json` mapping shas to prose was built first and then deleted — an
@@ -332,13 +332,13 @@ where corrected numbers confirm them. Tickets 002 and 004 re-measured everything
   9. Idea 9's image half has no source, so what ships is the skill's own `Example` or `Usage`
   section, verbatim, capped at 18 lines: 39 of 426 entries have one, a literal string and so a
   fact, no LLM pass. A looser `usage\b` prefix rule matched 44 and pulled in policy sections, and
-  the block is labelled "Example" in Wayfinder's words, so the tight rule wins even though it
+  the block is labelled "Example" in Skill Library's words, so the tight rule wins even though it
   loses three probable examples. Ideas 7 and 8 both become clipboard handoffs over 011's existing
   `toClipboard()`: a note textarea that emits a revision prompt, and a fork prompt carrying the
   closure. `data/notes.json` was not built, because getting text out of a `file://` page is copy
   and paste either way. `scan.py fork` was **refused**, closing the gap decision 1 left open:
   writing a new skill directory breaks no source of truth, but it makes the next scan index
-  something Wayfinder wrote, and then every count on the page is partly a measurement of the tool.
+  something Skill Library wrote, and then every count on the page is partly a measurement of the tool.
   The `/skill-creator` button was dropped outright, not deferred.
 
 ## Not yet specified
@@ -347,7 +347,7 @@ where corrected numbers confirm them. Tickets 002 and 004 re-measured everything
   it exist from now on (committing `~/.claude/skills` properly, or a version-bump ritual) is
   in scope for the effort but is a separate practice from the library UI, and it is unclear
   whether it belongs to this tool at all. The `History` rail entry does **not** answer this: it
-  tracks Wayfinder's own releases, not any skill's.
+  tracks Skill Library's own releases, not any skill's.
 - **Whether slash commands in `~/.claude/commands` belong in the library as rows.** Partly settled by
   003: commands **must** be in the scanner's name vocabulary regardless, or the orchestration graph is
   wrong. Whether they also get their own library rows is still open. 004 measured them at 11 files, 9
@@ -432,7 +432,7 @@ is a self-reference in all 5, so it costs zero real edges. Pinned as a test rath
   left alone: it nominates and never flags, so a loose nomination costs one sentence and a tight
   one would lose real cases.
   Tier two corrected the mechanical verdict twice
-  (`weekly` and `wayfinder` are leaves) and caught two posthog edges that matched the English
+  (`weekly` and `skill-library` are leaves) and caught two posthog edges that matched the English
   words "pricing" and "signup" — 006 Q12's lesson surviving into a second layer. Rejected:
   calling an API from `scan.py`, shipping the pass as a harness-bound skill, a rule-based
   classifier, and cutting Domain and Kind from v1.

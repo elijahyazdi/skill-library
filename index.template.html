@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Wayfinder</title>
+<title>Skill Library</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400..700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-  /* Wayfinder's world is a records workspace, not a page: one family, hairlines instead of
+  /* Skill Library's world is a records workspace, not a page: one family, hairlines instead of
      cards, 34px rows, and one accent that only ever means current, selected or focused.
      DESIGN.md is the contract; every literal colour lives in the three :root blocks below. */
   :root {
@@ -806,13 +806,13 @@ function rail() {
     <div class="mark">
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
         <path d="M10 2.5 3 6v8l7 3.5L17 14V6z"/><path d="M10 2.5V17"/><path d="M3 6l7 3.5L17 6"/></svg>
-      Wayfinder
+      Skill Library
     </div>
     <nav aria-label="Sections">
       <a href="?mode=index" data-nav="skills"${NAV_OF(F.mode) === 'skills' ? ' aria-current="page"' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 6l4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg>Skills<span class="n">${ALL.length}</span></a>
       <a href="?mode=analysis" data-nav="analysis" title="Empty domain-and-kind cells"${NAV_OF(F.mode) === 'analysis' ? ' aria-current="page"' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><rect x="7" y="9" width="4" height="8" rx="1"/><rect x="14" y="5" width="4" height="12" rx="1"/></svg>Analysis<span class="n">${gapList(coverage()).all.length}</span></a>
       <a href="?mode=twins" data-nav="twins" title="The same skill installed more than once"${NAV_OF(F.mode) === 'twins' ? ' aria-current="page"' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="11" height="14" rx="2"/><path d="M7 4h10a3 3 0 0 1 3 3v10"/></svg>Duplicates<span class="n">${(SNAP.duplicates || []).length}</span></a>
-      <a href="?mode=history" data-nav="history" title="What changed in Wayfinder itself"${NAV_OF(F.mode) === 'history' ? ' aria-current="page"' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>History<span class="n">${(SNAP.releases || []).length}</span></a>
+      <a href="?mode=history" data-nav="history" title="What changed in Skill Library itself"${NAV_OF(F.mode) === 'history' ? ' aria-current="page"' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>History<span class="n">${(SNAP.releases || []).length}</span></a>
     </nav>
     <div class="foot${a.level === 'warn' ? ' warn' : ''}">
       <b>Snapshot</b>
@@ -1021,7 +1021,7 @@ function handoff(e) {
   const forkable = (e.delegates_to || []).length || (e.delegates_to_unresolved || []).length;
   return `<section class="hand">
     <h3>Hand off</h3>
-    <p class="note">Wayfinder never writes to a skill. These put text on the clipboard for you to
+    <p class="note">Skill Library never writes to a skill. These put text on the clipboard for you to
       paste into Claude Code, which can. The box is not saved \u2014 copy it before you close.</p>
     <textarea class="js-note" rows="3" aria-label="What should change about this skill"
       placeholder="What should change next time?"></textarea>
@@ -1179,7 +1179,7 @@ function firstRun() {
   const errs = SNAP.scan_errors || [];
   return `<div class="empty">
     <h2>The scan found no skills</h2>
-    <p>Wayfinder reads <code>~/.claude/skills</code>, the plugins your settings enable, and a
+    <p>Skill Library reads <code>~/.claude/skills</code>, the plugins your settings enable, and a
       skills checkout passed with <code>--repo</code>. None of them returned an entry.</p>
     ${errs.length
       ? `<p>What the scan reported:</p><ul class="errs">${errs.map(x =>
@@ -1325,7 +1325,7 @@ function twinsView() {
     <h2>The same skill, installed more than once</h2>
     <p class="lede">${plural(G.length, 'group')} covering ${covered} of ${ALL.length} entries.
       ${same} are byte-identical. Grouping is on the name with any plugin prefix removed, so
-      <code>vercel:ai-sdk</code> and <code>vercel-plugin:ai-sdk</code> are one group. Wayfinder
+      <code>vercel:ai-sdk</code> and <code>vercel-plugin:ai-sdk</code> are one group. Skill Library
       recommends and hands over a path. It never deletes anything.</p>
     <div class="pair-set">${G.map(g => `<section class="group">
       <header><h3>${esc(g.key)}</h3>
@@ -1344,7 +1344,7 @@ function twinsView() {
   </div>`;
 }
 
-// Wayfinder cannot delete anything and should not: the page runs from file:// with no write
+// Skill Library cannot delete anything and should not: the page runs from file:// with no write
 // channel, and read-only is decision 1. What the dialog does instead is name the real cause and
 // hand over the exact text to run. For 25 of the 27 groups here deletion would not even work —
 // both files belong to enabled plugins, and the next plugin update puts back whatever you removed.
@@ -1389,7 +1389,7 @@ function askBody(g) {
     </div>` : ''}
   </div>
   <div class="foot">
-    <p>Wayfinder never deletes, moves or edits a skill. Every button here copies text for you to
+    <p>Skill Library never deletes, moves or edits a skill. Every button here copies text for you to
       run yourself.</p>
     <button class="js-ask-close">Close</button>
   </div>`;
@@ -1467,7 +1467,7 @@ const TITLES = {
   index: ['Skills', 'Every skill this machine can reach, with what the record shows about its use.'],
   entries: ['Skills', 'Every skill this machine can reach, with what the record shows about its use.'],
   analysis: ['Analysis', 'Coverage by domain and kind, scored on what you have and whether you still call it.'],
-  history: ['History', 'What changed in Wayfinder itself, in plain language, with the commits underneath.'],
+  history: ['History', 'What changed in Skill Library itself, in plain language, with the commits underneath.'],
   twins: ['Duplicates', 'Skills installed more than once, with the evidence for which copy to keep.'],
 };
 

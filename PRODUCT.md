@@ -9,7 +9,7 @@ web
 ## Users
 
 One primary user: Eli, the person whose `~/.claude` the scanner reads. He is fluent in every term
-the page uses and knows a fraction of his own library by heart. He opens Wayfinder on a laptop
+the page uses and knows a fraction of his own library by heart. He opens Skill Library on a laptop
 (~1440px, system-driven light or dark) in short sessions between other work, not as a dashboard he
 keeps open.
 
@@ -20,7 +20,7 @@ assuming it.
 
 ## Product Purpose
 
-Wayfinder answers four questions about the skills this machine can reach: what do I have, which
+Skill Library answers four questions about the skills this machine can reach: what do I have, which
 have I forgotten, which are worth sharing, and which need work.
 
 The dominant job in practice is **recall, not lookup**. Eli reaches for the same handful of skills
@@ -30,7 +30,7 @@ that only confirms what he already knew is a failure of the product, not of the 
 
 ## Positioning
 
-Every input is read-only and already on disk. Wayfinder's mechanism is honest evidence about
+Every input is read-only and already on disk. Skill Library's mechanism is honest evidence about
 usage: `history.jsonl` spans 167 days and is never cleaned, transcripts roll off at 30 days, and
 two invocation paths leave no trace at all. That is why the product distinguishes three states —
 **in use**, **never used** (a full history exists and shows nothing), and **no record** (only the
@@ -42,7 +42,7 @@ make the never-used claim truthfully without that distinction.
 - Launched as `python3 scan.py --prototype` then `open index.html`. No server, no build step.
 - Read entirely off `file://`. Everything the page needs is inlined into one HTML file.
 - Sessions are short and scanning-heavy: many rows, fast search, keyboard over mouse.
-- Acting on a finding means leaving the page: Wayfinder hands over a filesystem path to open
+- Acting on a finding means leaving the page: Skill Library hands over a filesystem path to open
   elsewhere. It never edits a `SKILL.md`.
 
 ## Capabilities and Constraints
@@ -61,11 +61,11 @@ make the never-used claim truthfully without that distinction.
 - Generated files never ship: `data/*.json` and `index.html` are gitignored. `data/overrides.json`
   is hand-written and tracked.
 - Known gaps stated on the page rather than hidden: ~14 built-in skills are invisible, publishing
-  is unbuilt, history is Wayfinder's own and not per-skill.
+  is unbuilt, history is Skill Library's own and not per-skill.
 
 ## Brand Commitments
 
-- Name: Wayfinder.
+- Name: Skill Library.
 - Voice: Smart Brevity. Short declaratives, no em dashes in delivered copy, no hype.
 - The page never fabricates a number. Absent data reads as "unknown", never as zero.
 

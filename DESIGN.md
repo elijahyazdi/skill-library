@@ -1,5 +1,5 @@
 ---
-name: Wayfinder
+name: Skill Library
 description: A records workspace for the skills on this machine, built at CRM density.
 colors:
   canvas: "#FBFBFA"
@@ -145,13 +145,13 @@ components:
     typography: "{typography.title}"
 ---
 
-# Design System: Wayfinder
+# Design System: Skill Library
 
 ## Overview
 
 **Creative North Star: "The Cold-Outreach CRM, for skills"**
 
-Wayfinder is a records workspace. A skill is a record; the last time it ran is the last time it was
+Skill Library is a records workspace. A skill is a record; the last time it ran is the last time it was
 contacted; a skill with 167 days of silence is a cold account, not a table cell. The whole system
 is borrowed from the CRM the audience already reads daily — the Attio register: a quiet workspace
 chrome that stays out of the way, hairline-ruled rows at real density, and one small blue accent
@@ -160,7 +160,7 @@ display face, no page that reads like an essay. It reads like a tool that expect
 in ten minutes.
 
 The register earns the product's actual job. Recall beats lookup here: the point of opening
-Wayfinder is to be told about a skill you own and forgot. A CRM is the one interface family whose
+Skill Library is to be told about a skill you own and forgot. A CRM is the one interface family whose
 native grammar is exactly that — pipeline bands, last-contact recency, a queue of accounts that
 have gone quiet. So the bands are not a filter widget bolted onto a table; they are the spine, and
 the table is the register underneath them.
@@ -426,7 +426,7 @@ already hands over the path.
 
 Last thing in the record panel, on every entry, above nothing. Hairline top rule and the same 11px
 uppercase heading, then one ink-3 note carrying two statements that have to travel together:
-Wayfinder never writes to a skill, and the box is not saved. Then a `resize: vertical` textarea in
+Skill Library never writes to a skill, and the box is not saved. Then a `resize: vertical` textarea in
 the register's own input language — 13px, `{colors.edge}` border, 6px radius, accent border with a
 3px `{colors.accent-wash}` halo on focus — and a row of ghost buttons at 11px/550. Copy feedback is
 a `{colors.live}` word placed after the button that was pressed, never a toast and never a colour

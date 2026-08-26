@@ -6,6 +6,8 @@ Skill Library scans `~/.claude` and answers four questions: what skills do I hav
 forgotten, which are worth sharing, and which need work. It is read-only. It never writes to a
 `SKILL.md`.
 
+![Skill Library table view, listing skills with gloss, last used, uses, calls, author, kind and lines](docs/assets/screenshot.png)
+
 ## Install
 
 ```bash

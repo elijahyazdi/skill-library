@@ -341,6 +341,22 @@ where corrected numbers confirm them. Tickets 002 and 004 re-measured everything
   something Skill Library wrote, and then every count on the page is partly a measurement of the tool.
   The `/skill-creator` button was dropped outright, not deferred.
 
+- **015 — Coverage grid reads as a heat map** (amends 006's analysis view). The 7x7 grid encoded
+  only the three-way band verdict, so 28 populated cells collapsed to two tints and the rounded
+  60x34 bordered boxes read as a control panel rather than a field. Now band drives **hue**
+  (`--live` / `--cold`) and count drives **lightness** in four fixed steps (1 / 2-3 / 4-7 / 8+),
+  with GitHub's contribution-grid geometry: 3px gutter, 3px radius, no per-cell border on strong.
+  The columns are fluid (`width: 100%` with `table-layout: fixed`) under a 1400px cap, so a cell is
+  wide and short at desk width and squares up as the table approaches its 900px min-width floor. Steps are **fixed thresholds, not a scale off the maximum** — this
+  library has one 39-skill cell against a median of 3, so a max-relative ramp would flatten the
+  other 27, and two libraries of different sizes would not read alike. Non-colour encoding from
+  006 survives intact: thin stays dashed, gap stays a dot with no number, and the counts stay
+  printed in the cells rather than moving to hover, because a measured number is the product and
+  a hover-only value is lost to keyboards and screenshots. The legend became a ramp. **Rejected:**
+  every charting library — D3, Observable Plot, Nivo, Cal-Heatmap all need `<script src>` or ES
+  modules, which constraint 3 forbids under `file://`; and a continuous per-cell alpha, which
+  would have implied a precision the counts do not have.
+
 ## Not yet specified
 
 - **Starting real version history for the skills.** Finding: no per-skill history exists. Making

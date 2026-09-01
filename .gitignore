@@ -14,3 +14,4 @@ data/categorize.md
 index.html
 
 .DS_Store
+.venv/

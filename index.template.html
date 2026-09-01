@@ -421,42 +421,58 @@
 
   /* ---------------------------------------------------------- analysis */
   /* 006 amendment: 7 domains x 7 kinds, Platform excluded. The grid scrolls inside its own
-     wrapper rather than reflowing into a second layout — below 760px seven columns land at
-     ~45px, too narrow for a label, and one shape everywhere beats two that must stay in step.
+     wrapper rather than reflowing into a second layout — below its 900px min-width the seven
+     columns stop fitting a full kind name, and one shape everywhere beats two that must stay in step.
      Band is carried by border style as well as tint, so the read never depends on colour. */
   .bench[data-mode="analysis"], .bench[data-mode="history"],
   .bench[data-mode="twins"] { grid-template-columns: minmax(0, 1fr); }
   .bench[data-mode="analysis"] .facets, .bench[data-mode="analysis"] .toolbar,
   .bench[data-mode="history"] .facets, .bench[data-mode="history"] .toolbar,
   .bench[data-mode="twins"] .facets, .bench[data-mode="twins"] .toolbar { display: none; }
-  .analysis { max-width: 1000px; padding-bottom: 48px; }
+  .analysis { max-width: 1400px; padding-bottom: 48px; }
   .analysis h2 { margin: 0 0 6px; font: 600 17px/1.3 var(--ui); letter-spacing: -0.012em; }
   .analysis .lede { margin: 0 0 16px; max-width: 68ch; font-size: 13px; color: var(--ink-2); }
-  .key { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 0 0 12px; font-size: 12px; color: var(--ink-2); }
+  /* Legend is a ramp, not three swatches: the cells now carry magnitude as well as band. */
+  .key { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 0 0 12px;
+         font-size: 12px; color: var(--ink-2); }
   .key span { display: inline-flex; align-items: center; gap: 6px; }
-  .key i { width: 20px; height: 14px; border-radius: 4px; background: var(--raise);
-           border: 1px solid var(--hairline); flex: none; }
-  .key i.strong { background: var(--live-wash); border-color: color-mix(in srgb, var(--live) 40%, var(--edge)); }
-  .key i.thin { background: var(--cold-wash); border: 1px dashed var(--cold); }
+  .key .ramp { display: inline-flex; gap: 3px; }
+  .key i { width: 14px; height: 14px; border-radius: 3px; background: var(--raise); flex: none;
+           border: 1px solid transparent; box-sizing: border-box; }
+  .key .scale { color: var(--ink-3); font-family: var(--data); font-size: 11px; }
   .grid-wrap { overflow-x: auto; padding-bottom: 6px; }
-  table.grid { border-collapse: separate; border-spacing: 2px; width: auto; }
+  table.grid { border-collapse: separate; border-spacing: 3px; width: 100%; min-width: 900px;
+               table-layout: fixed; margin-left: -3px; }
   table.grid th { position: static; border-bottom: 0; cursor: default; background: none;
                   text-align: center; padding: 4px 6px; white-space: nowrap;
                   font: 550 11px var(--ui); letter-spacing: 0.02em; text-transform: uppercase;
                   color: var(--ink-3); }
-  table.grid th.rh { position: sticky; left: 0; z-index: 11; background: var(--canvas);
+  table.grid th.rh { width: 190px; position: sticky; left: 0; z-index: 11; background: var(--canvas);
                      text-align: left; text-transform: none; letter-spacing: 0;
                      font: 500 13px var(--ui); color: var(--ink-2); padding: 0 12px 0 0; }
-  table.grid td { width: 60px; height: 34px; text-align: center; border-radius: 6px;
-                  background: var(--raise); color: var(--ink-3); border: 1px solid var(--hairline);
-                  font-family: var(--data); font-variant-numeric: tabular-nums; font-size: 12px; }
-  table.grid td[data-band="strong"] { background: var(--live-wash); color: var(--ink);
-                  border-color: color-mix(in srgb, var(--live) 40%, var(--edge)); }
-  table.grid td[data-band="thin"] { background: var(--cold-wash); color: var(--ink-2);
-                  border: 1px dashed var(--cold); }
+  /* GitHub's contribution grid is the model: flat squares on a field, tight gutter, no
+     per-cell border to break the surface up. Count drives lightness in four fixed steps
+     (1 / 2-3 / 4-7 / 8+) rather than off the maximum, so one 39-cell outlier cannot flatten
+     the other 27, and two libraries of different sizes still read the same way. Band drives
+     hue, and still carries without colour: thin is dashed, gap is a dot and no number. */
+  table.grid td { height: 32px; text-align: center; border-radius: 3px;
+                  background: var(--raise); color: var(--ink-3); border: 1px solid transparent;
+                  font-family: var(--data); font-variant-numeric: tabular-nums; font-size: 11px; }
+  /* Strong starts at step 2: the band needs 2+ skills, so a count of 1 cannot be strong. */
+  .tint[data-band="strong"] { color: var(--ink); }
+  .tint[data-band="strong"][data-step="2"] { background: color-mix(in srgb, var(--live) 20%, var(--canvas)); }
+  .tint[data-band="strong"][data-step="3"] { background: color-mix(in srgb, var(--live) 32%, var(--canvas)); }
+  .tint[data-band="strong"][data-step="4"] { background: color-mix(in srgb, var(--live) 48%, var(--canvas)); }
+  .tint[data-band="thin"] { color: var(--ink-2); border: 1px dashed color-mix(in srgb, var(--cold) 55%, var(--edge)); }
+  .tint[data-band="thin"][data-step="1"] { background: color-mix(in srgb, var(--cold) 8%, var(--canvas)); }
+  .tint[data-band="thin"][data-step="2"] { background: color-mix(in srgb, var(--cold) 16%, var(--canvas)); }
+  .tint[data-band="thin"][data-step="3"] { background: color-mix(in srgb, var(--cold) 26%, var(--canvas)); }
+  .tint[data-band="thin"][data-step="4"] { background: color-mix(in srgb, var(--cold) 40%, var(--canvas)); }
+  .tint[data-band="gap"] { background: var(--raise); color: var(--ink-3); }
   table.grid td[role="button"] { cursor: pointer; transition: box-shadow 120ms; }
-  table.grid td[role="button"]:hover { box-shadow: 0 0 0 1px var(--accent); }
-  .gaps { margin-top: 24px; }
+  table.grid td[role="button"]:hover { box-shadow: 0 0 0 2px var(--accent); }
+  table.grid td[role="button"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .gaps { margin-top: 24px; max-width: 720px; }
   .gaps ol { margin: 8px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 1px; }
   .gaps li { display: flex; align-items: baseline; gap: 10px; cursor: pointer; font-size: 13px;
              color: var(--ink-2); padding: 6px 8px; margin: 0 -8px; border-radius: 6px;
@@ -1200,8 +1216,6 @@ function firstRun() {
 // so adding total_count across a cell inflates it. Cells count entries and ask per entry
 // whether it was used recently.
 const FRESH_DAYS = 30;
-const SHORT = { 'Orchestrator': 'Orch', 'Converter': 'Conv', 'Reviewer': 'Review',
-                'Generator': 'Gen', 'Thinking tool': 'Think', 'Reference': 'Ref' };
 const fresh = e => state(e) === 'used' && (age(e) ?? Infinity) < FRESH_DAYS;
 const BAND = { strong: 'strong', thin: 'thin', gap: 'gap' };
 
@@ -1236,6 +1250,14 @@ function gapList(cv) {
   return { all, shown: all.slice(0, 8) };
 }
 
+// Four fixed count steps rather than a scale off the observed maximum: one outsized cell
+// must not flatten the rest, and two libraries of different sizes should read alike.
+const rampStep = n => n >= 8 ? 4 : n >= 4 ? 3 : n >= 2 ? 2 : 1;
+// The strong ramp starts at 2 because the band itself requires 2+ skills; a step-1 strong
+// swatch would advertise a cell the grid can never produce.
+const ramp = (band, from) => `<span class="ramp">${[1, 2, 3, 4].filter(i => i >= from).map(i =>
+  `<i class="tint" data-band="${band}" data-step="${i}"></i>`).join('')}</span>`;
+
 function analysisView() {
   const cv = coverage();
   const platform = ALL.filter(e => e.domain === 'Platform').length;
@@ -1247,7 +1269,7 @@ function analysisView() {
   const { all, shown } = gapList(cv);
 
   const head = `<tr><th class="rh"></th>${cv.kinds.map(k =>
-    `<th title="${esc(k)}"><abbr title="${esc(k)}" style="text-decoration:none">${esc(SHORT[k] || k)}</abbr></th>`).join('')}</tr>`;
+    `<th>${esc(k)}</th>`).join('')}</tr>`;
   const body = cv.domains.map(d => `<tr>
       <th class="rh" scope="row">${esc(d)} <span style="color:var(--ink-3);font-weight:400">${cv.byDomain[d]}</span></th>
       ${cv.kinds.map(k => {
@@ -1255,8 +1277,9 @@ function analysisView() {
         const why = c.band === BAND.gap ? 'no skills'
           : `${plural(c.n, 'skill')}, ${c.used} used in the last ${FRESH_DAYS} days — ${c.band}`;
         return c.band === BAND.gap
-          ? `<td data-band="gap" aria-label="${esc(d + ', ' + k + ': ' + why)}">·</td>`
-          : `<td data-band="${c.band}" role="button" tabindex="0" data-cell="${esc(d)}|${esc(k)}"
+          ? `<td class="tint" data-band="gap" aria-label="${esc(d + ', ' + k + ': ' + why)}">·</td>`
+          : `<td class="tint" data-band="${c.band}" data-step="${rampStep(c.n)}"
+               role="button" tabindex="0" data-cell="${esc(d)}|${esc(k)}"
                title="${esc(d + ' / ' + k + ' — ' + why)}"
                aria-label="${esc(d + ', ' + k + ': ' + why + '. Show them.')}">${c.n}</td>`;
       }).join('')}</tr>`).join('');
@@ -1267,9 +1290,10 @@ function analysisView() {
       A band is adoption and craft, never output quality: nothing on disk records whether a skill's
       answer was any good, so the strongest signal available is whether you still call it.</p>
     <div class="key">
-      <span><i class="strong"></i>Strong — 2+ skills, at least one used in ${FRESH_DAYS} days (${bands.strong})</span>
-      <span><i class="thin"></i>Thin — only one skill, or none used recently (${bands.thin})</span>
-      <span><i></i>Gap — nothing here (${bands.gap} of ${total} cells)</span>
+      <span>${ramp('strong', 2)}Strong — 2+ skills, at least one used in ${FRESH_DAYS} days (${bands.strong})</span>
+      <span>${ramp('thin', 1)}Thin — only one skill, or none used recently (${bands.thin})</span>
+      <span><i class="tint" data-band="gap"></i>Gap — nothing here (${bands.gap} of ${total} cells)</span>
+      <span class="scale">Tint depth is the count: 1 · 2–3 · 4–7 · 8+</span>
     </div>
     <div class="grid-wrap"><table class="grid">
       <thead>${head}</thead><tbody>${body}</tbody></table></div>
